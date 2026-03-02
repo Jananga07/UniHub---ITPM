@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Nav from "../HomeNav/HomeNav";
+import ClubsSection from "./ClubsSection";
 import "./Home.css";
 
 function Home() {
@@ -49,6 +50,9 @@ function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Clubs Section */}
+      <ClubsSection />
 
       {/* Announcements Section */}
       <section className="announcements">

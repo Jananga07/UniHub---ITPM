@@ -12,6 +12,19 @@ const SocietySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    color: {
+      type: String,
+      default: "#007bff", // default bootstrap blue
+    },
+    imageUrl: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

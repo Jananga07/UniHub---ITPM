@@ -2,10 +2,10 @@ const Society = require("../Models/SocietyModel");
 
 // Add new society
 const addSociety = async (req, res) => {
-  const { societyName, description } = req.body;
+  const { societyName, description, category, color, imageUrl } = req.body;
 
-  if (!societyName || !description) {
-    return res.status(400).json({ message: "All fields are required" });
+  if (!societyName || !description || !category) {
+    return res.status(400).json({ message: "Society name, description, and category are required" });
   }
 
   try {
@@ -19,6 +19,9 @@ const addSociety = async (req, res) => {
     const newSociety = new Society({
       societyName,
       description,
+      category,
+      color: color || "#007bff",
+      imageUrl: imageUrl || "",
     });
 
     await newSociety.save();
