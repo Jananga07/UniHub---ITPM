@@ -1,0 +1,98 @@
+/* ----------------------------- */
+/* User Registration Page Styles */
+/* ----------------------------- */
+
+/* Page Background */
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Soft pastel gradient background */
+  background: linear-gradient(135deg, #a3bffa, #6b73ff);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Form Container */
+.register-container {
+  background: #ffffff; /* White card for contrast */
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Form Title */
+.register-form h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* Input Fields */
+.register-form input,
+.register-form select {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+/* Input Hover & Focus Effect */
+.register-form input:focus,
+.register-form select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
+}
+
+/* Role Select Styling */
+.role-select {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  color: #6b7280;
+}
+
+/* Submit Button */
+.register-form button {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.register-form button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .register-container {
+    padding: 30px 20px;
+  }
+
+  .register-form h1 {
+    font-size: 24px;
+  }
+}

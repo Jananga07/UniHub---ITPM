@@ -1,0 +1,88 @@
+/* Container for forms and quizzes */
+.quiz-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Form heading */
+.quiz-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Inputs and select */
+.quiz-container input,
+.quiz-container select {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* Radio buttons container */
+.option-container {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.option-container input[type="radio"] {
+  margin-right: 10px;
+}
+
+/* Buttons */
+.quiz-container button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #4a90e2;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.quiz-container button:hover {
+  background-color: #357ab7;
+}
+
+/* Quiz question block */
+.quiz-question {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.quiz-question p {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Score display */
+.quiz-score {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+/* Optional: Responsive */
+@media (max-width: 768px) {
+  .quiz-container {
+    margin: 20px;
+    padding: 20px;
+  }
+}
