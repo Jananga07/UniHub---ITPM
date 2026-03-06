@@ -1,0 +1,176 @@
+:root {
+  /* Dynamic Light Blue Palette */
+  --bg-color: #f0f7ff;
+  --primary: #2563eb;
+  --primary-glow: rgba(37, 99, 235, 0.4);
+  --glass-white: rgba(255, 255, 255, 0.85);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 1. Animated Background Blobs */
+body {
+  background-color: var(--bg-color);
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before, body::after {
+  content: "";
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(255,255,255,0) 70%);
+  z-index: -1;
+  animation: floatBackground 20s infinite alternate ease-in-out;
+}
+
+body::after {
+  right: -100px;
+  bottom: -100px;
+  animation-delay: -10s;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(255,255,255,0) 70%);
+}
+
+@keyframes floatBackground {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(100px, 50px) scale(1.2); }
+}
+
+/* 2. Shimmer Animation for Cards */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.student-support-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  position: relative;
+}
+
+/* 3. Floating Title with Gradient */
+.page-title {
+  text-align: center;
+  font-size: 3.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 50px;
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05));
+}
+
+/* 4. Interactive Glass Cards */
+.lecturers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 35px;
+}
+
+.lecturer-card {
+  background: var(--glass-white);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition: var(--transition-bounce);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* The Shine Effect on Hover */
+.lecturer-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+
+.lecturer-card:hover::after {
+  left: 125%;
+}
+
+.lecturer-card:hover {
+  transform: translateY(-15px) rotateX(5deg) rotateY(2deg);
+  box-shadow: 0 30px 60px rgba(37, 99, 235, 0.15);
+  border-color: var(--primary);
+}
+
+.lecturer-header h3 {
+  color: var(--text-main);
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.lecturer-title {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Detailed Information Styling */
+.expertise {
+  background: rgba(37, 99, 235, 0.05);
+  padding: 15px;
+  border-radius: 15px;
+  margin: 20px 0;
+  border: 1px dashed rgba(37, 99, 235, 0.2);
+  transition: 0.3s;
+}
+
+.lecturer-card:hover .expertise {
+  background: var(--primary);
+  color: white;
+  border-style: solid;
+}
+
+/* Animated Button */
+.email {
+  background: var(--text-main);
+  color: white;
+  text-align: center;
+  padding: 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-weight: 600;
+  display: block;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.email:hover {
+  background: var(--primary);
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px var(--primary-glow);
+}
+
+/* 5. Entrance Fade-in */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lecturer-card {
+  animation: fadeInUp 0.8s ease-out backwards;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .page-title { font-size: 2.5rem; }
+  .lecturer-card:hover { transform: translateY(-10px); }
+}
