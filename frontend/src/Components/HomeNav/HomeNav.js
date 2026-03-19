@@ -15,11 +15,14 @@ function Nav() {
         <li><Link to="/login">Login</Link></li>
         <li><Link to="/admin">Admin</Link></li>
         <li><Link to="/modulepage">Module Page</Link></li>
+
         <li><Link to="/societypage">Student Life</Link></li>
+
+        <li><Link to="/studentsupport">Student Support</Link></li>
+
 
       </ul>
     </nav>
   );
 }
-
 export default Nav;
