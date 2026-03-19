@@ -19,16 +19,12 @@ function Nav() {
 
 
 
-        <li><Link to="/societypage">Student Life</Link></li>
-
         <li><Link to="/studentsupport">Student Support</Link></li>
 
 
 
         <li><Link to="/societypage">Society Page</Link></li>
 
-=======
->>>>>>> 84e4d658e1813d8d8e971fb160ecb0e1a13aa93e
 
       </ul>
     </nav>
