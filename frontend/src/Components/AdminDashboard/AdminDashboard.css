@@ -26,7 +26,7 @@
   color: #4b5563;
 }
 
-.sidebar a {
+.sidebar .sidebar-link {
   text-decoration: none;
   color: #6b7280;
   padding: 12px 15px;
@@ -34,9 +34,14 @@
   margin-bottom: 10px;
   cursor: pointer;
   transition: 0.3s ease;
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+  font: inherit;
 }
 
-.sidebar a:hover {
+.sidebar .sidebar-link:hover {
   background: #f3f4f6;
   color: #2563eb;
 }

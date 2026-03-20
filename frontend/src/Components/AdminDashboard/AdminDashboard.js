@@ -506,11 +506,11 @@ function AdminDashboard() {
       {/* Sidebar */}
       <div className="sidebar">
         <h2>Uni Hub</h2>
-        <a onClick={() => setActiveTab("dashboard")}>Dashboard</a>
-        <a onClick={() => setActiveTab("users")}>All Users</a>
-        <a onClick={() => setActiveTab("societyManager")}>Add Society Manager</a>
-        <a onClick={() => setActiveTab("module")}>Add Module</a>
-        <a onClick={() => setActiveTab("society")}>Add Society</a>
+        <button className="sidebar-link" onClick={() => setActiveTab("dashboard")}>Dashboard</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("users")}>All Users</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("societyManager")}>Add Society Manager</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
         <button onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
         <button 
@@ -522,11 +522,11 @@ function AdminDashboard() {
         {showResourcesMenu && (
           <div style={{ marginLeft: "10px", marginTop: "5px", display: "flex", flexDirection: "column" }}>
             {RESOURCE_TABS.map((t) => (
-              <a key={t.key} onClick={() => setActiveTab(t.key)}
+              <button key={t.key} onClick={() => setActiveTab(t.key)}
                 className={activeTab === t.key ? "ra-sidebar-active" : ""}
                 style={{ fontSize: "14px", padding: "8px 12px", marginBottom: "4px" }}>
                 {t.label}
-              </a>
+              </button>
             ))}
           </div>
         )}
