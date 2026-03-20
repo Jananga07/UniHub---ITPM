@@ -13,7 +13,11 @@ import SocietyPage from './Components/Society/SocietyPage';
 import ModuleDetailsPage from './Components/ModulePage/ModuleDetailsPage';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
 import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';
+
 import SocietyManagerProfile from './Components/Society/SocietyManagerProfile';
+
+import ConsultantTime from './Components/ConsultantTime/ConsultantTime';
+
 
 
 // Resources pages
@@ -51,6 +55,7 @@ function App() {
           <Route path="/modules/:id" element={<ModuleDetailsPage />} />
           <Route path="/studentsupport" element={<StudentSupport/>} />
           <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
+          <Route path="/consultant-time/:consultantId/:date" element={<ConsultantTime />} />
           
 
 
