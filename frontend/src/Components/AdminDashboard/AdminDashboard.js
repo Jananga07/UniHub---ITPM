@@ -2,19 +2,18 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./AdminDashboard.css";
 import { useNavigate } from "react-router-dom";
-import AnimatedCounter from "../Animation/AnimatedCounter";
 import CountUp from "react-countup";
+import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userCategory, setUserCategory] = useState("student");
-  const [formData, setFormData] = useState({});
   const [searchQuery, setSearchQuery] = useState({});
-  const [editUserId, setEditUserId] = useState(null);
   const [modules, setModules] = useState([]);
   const [societies, setSocieties] = useState([]);
+  const [formData, setFormData] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,7 +74,7 @@ function AdminDashboard() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`http://localhost:5001/admin/users/${id}`);
+        await axios.delete(`http://localhost:5001/Users/${id}`);
         fetchUsers();
       } catch (err) {
         alert("Delete failed!");
@@ -83,29 +82,8 @@ function AdminDashboard() {
     }
   };
 
-  const handleEdit = (user) => {
-    setEditUserId(user._id);
-    setFormData({
-      name: user.name,
-      gmail: user.gmail,
-      age: user.age,
-      address: user.address,
-      contact: user.contact,
-      role: user.role,
-    });
-  };
 
-  const saveEdit = async () => {
-    try {
-      await axios.put(`http://localhost:5001/admin/users/${editUserId}`, formData);
-      setEditUserId(null);
-      setFormData({});
-      fetchUsers();
-      alert("Updated successfully!");
-    } catch (err) {
-      alert("Update failed!");
-    }
-  };
+
 
   const filteredUsers = users
     .filter((u) => u.role?.trim().toLowerCase() === userCategory)
@@ -141,90 +119,118 @@ function AdminDashboard() {
         </div>
 
         {/* Dashboard Cards */}
-        {activeTab === "dashboard" && (
+{activeTab === "dashboard" && (
   <div className="dashboard-grid">
+
     <div className="dashboard-card">
+      <FaUsers className="card-icon" />
       <h3>Total Users</h3>
-      <CountUp end={users.length} duration={2} />
+      <p>
+        <CountUp end={users.length} duration={2} />
+      </p>
     </div>
+
     <div className="dashboard-card">
+      <FaUserGraduate className="card-icon" />
       <h3>Students</h3>
-      <CountUp end={users.filter(u => u.role === "Student").length} duration={2} />
+      <p>
+        <CountUp 
+          end={users.filter(u => u.role === "Student").length} 
+          duration={2} 
+        />
+      </p>
     </div>
+
     <div className="dashboard-card">
+      <FaUserTie className="card-icon" />
       <h3>Society Managers</h3>
-      <CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} />
+      <p>
+        <CountUp 
+          end={users.filter(u => u.role === "societyManager").length} 
+          duration={2} 
+        />
+      </p>
     </div>
+
   </div>
 )}
 
         {/* Users Section */}
-        {activeTab === "users" && (
-          <div className="users-section">
-            <div className="category-tabs">
-              {["student","societymanager"].map(cat => (
-                <button
-                  key={cat}
-                  className={userCategory === cat ? "active" : ""}
-                  onClick={() => setUserCategory(cat)}
-                >
-                  {cat === "societymanager"
-                    ? "Society Manager"
-                    : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </button>
-              ))}
-            </div>
+       {activeTab === "users" && (
+  <div className="users-section">
 
-            <input
-              type="text"
-              placeholder={`Search ${userCategory} by name/email`}
-              value={searchQuery[userCategory] || ""}
-              onChange={(e) => setSearchQuery({ ...searchQuery, [userCategory]: e.target.value })}
-              className="search-input"
-            />
+    {/* Tabs */}
+    <div className="category-tabs">
+      {["student", "societymanager"].map(cat => (
+        <button
+          key={cat}
+          className={userCategory === cat ? "active" : ""}
+          onClick={() => setUserCategory(cat)}
+        >
+          {cat === "societymanager"
+            ? "Society Managers"
+            : "Students"}
+        </button>
+      ))}
+    </div>
 
-            <div className="table-container">
-              <h2>{userCategory.toUpperCase()} DETAILS</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Age</th>
-                    <th>Address</th>
-                    <th>Role</th>
-                    <th>Password</th>
-                    <th>Contact</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map(u => (
-                    <tr key={u._id}>
-                      <td>{editUserId === u._id ? <input name="name" value={formData.name} onChange={handleChange} /> : u.name?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="gmail" value={formData.gmail} onChange={handleChange} /> : u.gmail?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="age" value={formData.age} onChange={handleChange} /> : u.age}</td>
-                      <td>{editUserId === u._id ? <input name="address" value={formData.address} onChange={handleChange} /> : u.address?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="role" value={formData.role} onChange={handleChange} /> : u.role?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="password" value={formData.password} onChange={handleChange} /> : u.password?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="contact" value={formData.contact} onChange={handleChange} /> : u.contact?.trim()}</td>
-                      <td>
-                        {editUserId === u._id ? (
-                          <button className="dashboard-btn" onClick={saveEdit}>Save</button>
-                        ) : (
-                          <>
-                            <button className="dashboard-btn" onClick={() => handleEdit(u)}>Edit</button>
-                            <button className="dashboard-btn" onClick={() => handleDelete(u._id)}>Delete</button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+    {/* Search */}
+    <input
+      type="text"
+      placeholder={`Search ${userCategory}...`}
+      value={searchQuery[userCategory] || ""}
+      onChange={(e) =>
+        setSearchQuery({
+          ...searchQuery,
+          [userCategory]: e.target.value
+        })
+      }
+      className="search-input"
+    />
+
+    {/* Table */}
+    <div className="table-container">
+      <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Age</th>
+            <th>Address</th>
+            <th>Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+  {filteredUsers.map((u) => (
+    <tr key={u._id}>
+
+      <td>{u.name}</td>
+      <td>{u.gmail}</td>
+      <td>{u.age}</td>
+      <td>{u.address}</td>
+      <td>{u.contact}</td>
+
+      <td>
+        <button
+          className="dashboard-btn"
+          onClick={() => handleDelete(u._id)}
+        >
+          Delete
+        </button>
+      </td>
+
+    </tr>
+  ))}
+</tbody>
+      </table>
+    </div>
+
+  </div>
+)}
 
         {/* Add Forms */}
         {/* Show Society Manager + Society forms together on one interface */}
