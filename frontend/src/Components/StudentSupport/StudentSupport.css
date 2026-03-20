@@ -42,7 +42,7 @@ body::after {
   100% { transform: translate(100px, 50px) scale(1.2); }
 }
 
-/* 2. Shimmer Animation for Cards */
+/* 2. Shimmer Animation (if needed later) */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -62,12 +62,166 @@ body::after {
   font-weight: 900;
   background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 50px;
   filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05));
 }
 
-/* 4. Interactive Glass Cards */
+/* 4. Quick Actions Section (new) */
+.quick-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.whatsapp-btn, .complaint-btn, .my-complaints-btn, .rating-btn {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.whatsapp-btn {
+  background: #25D366;
+  color: white;
+}
+
+.whatsapp-btn:hover {
+  background: #128C7E;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
+}
+
+.complaint-btn {
+  background: #FF6B6B;
+  color: white;
+}
+
+.complaint-btn:hover {
+  background: #FF5252;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+.my-complaints-btn {
+  background: #4ECDC4;
+  color: white;
+}
+
+.my-complaints-btn:hover {
+  background: #45B7B8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+}
+
+.rating-btn {
+  background: #FFD700;
+  color: #333;
+}
+
+.rating-btn:hover {
+  background: #FFC700;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+}
+
+.whatsapp-icon, .complaint-icon, .my-complaints-icon, .rating-icon {
+  font-size: 20px;
+}
+
+/* 5. Top Consultants Section (new) */
+.top-consultants {
+  margin-bottom: 50px;
+}
+
+.top-consultants h2 {
+  text-align: center;
+  color: var(--text-main);
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.top-consultants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.top-consultant-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.top-consultant-card:hover {
+  transform: translateY(-5px);
+}
+
+.rank-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.top-consultant-card h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+}
+
+/* 6. Rating System (new) */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.star {
+  font-size: 16px;
+  color: #ddd;
+}
+
+.star.full {
+  color: #FFD700;
+}
+
+.star.half {
+  color: #FFD700;
+  opacity: 0.7;
+}
+
+.star.empty {
+  color: #ddd;
+}
+
+.rating-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* 7. Main Lecturers Grid (from first part) */
 .lecturers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -85,9 +239,10 @@ body::after {
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  animation: fadeInUp 0.8s ease-out backwards;
 }
 
-/* The Shine Effect on Hover */
+/* Shine Effect on Hover */
 .lecturer-card::after {
   content: "";
   position: absolute;
@@ -123,7 +278,6 @@ body::after {
   text-transform: uppercase;
 }
 
-/* Detailed Information Styling */
 .expertise {
   background: rgba(37, 99, 235, 0.05);
   padding: 15px;
@@ -139,7 +293,6 @@ body::after {
   border-style: solid;
 }
 
-/* Animated Button */
 .email {
   background: var(--text-main);
   color: white;
@@ -159,17 +312,63 @@ body::after {
   box-shadow: 0 8px 25px var(--primary-glow);
 }
 
-/* 5. Entrance Fade-in */
+/* 8. Enhanced Lecturer Actions (new) */
+.lecturer-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.book-btn, .rate-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.book-btn {
+  background: var(--primary);
+  color: white;
+}
+
+.book-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.rate-btn {
+  background: #f3f4f6;
+  color: var(--text-main);
+  border: 2px solid #e5e7eb;
+}
+
+.rate-btn:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.bookings-info {
+  background: rgba(37, 99, 235, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: 600;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* 9. Entrance Fade-in (already applied to .lecturer-card) */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.lecturer-card {
-  animation: fadeInUp 0.8s ease-out backwards;
-}
-
-/* Responsive adjustment */
+/* 10. Responsive adjustments */
 @media (max-width: 768px) {
   .page-title { font-size: 2.5rem; }
   .lecturer-card:hover { transform: translateY(-10px); }
