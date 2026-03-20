@@ -14,6 +14,10 @@ const societyRoutes = require("./Routes/SocietyRoutes");
 const studentQuizeRoutes = require("./Routes/StudentQuizRoutes");
 const StudentSupportRoutes = require("./Routes/StudentSupportRoutes");
 const ResourceRoutes = require("./Routes/ResourceRoutes");
+const complaintRoutes = require("./Routes/complaintRoutes");
+const consultantBookingRoutes = require("./Routes/consultantBookingRoutes");
+const consultantRatingRoutes = require("./Routes/consultantRatingRoutes");
+ 
 
 // Middleware
 app.use(express.json());
@@ -29,6 +33,10 @@ app.use("/societies",societyRoutes);
 app.use("/student-quiz", studentQuizeRoutes);
 app.use("/studentsupport", StudentSupportRoutes);
 app.use("/resources", ResourceRoutes);
+app.use("/complaints", complaintRoutes);
+app.use("/consultant-bookings", consultantBookingRoutes);
+app.use("/consultant-ratings", consultantRatingRoutes);
+
 // Routes
 
 

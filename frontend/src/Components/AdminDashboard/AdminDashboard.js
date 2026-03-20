@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -419,11 +420,13 @@ function AdminDashboard() {
   const [users, setUsers]       = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userCategory, setUserCategory] = useState("student");
-  const [formData, setFormData] = useState({});
   const [searchQuery, setSearchQuery] = useState({});
   const [editUserId, setEditUserId] = useState(null);
   const [modules, setModules]   = useState([]);
+
+  const [modules, setModules] = useState([]);
   const [societies, setSocieties] = useState([]);
+  const [formData, setFormData] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -478,6 +481,17 @@ function AdminDashboard() {
       alert("Updated successfully!");
     } catch { alert("Update failed!"); }
   };
+      try {
+        await axios.delete(`http://localhost:5001/Users/${id}`);
+        fetchUsers();
+      } catch (err) {
+        alert("Delete failed!");
+      }
+    }
+  };
+
+
+
 
   const filteredUsers = users
     .filter((u) => u.role?.trim().toLowerCase() === userCategory)
@@ -577,6 +591,119 @@ function AdminDashboard() {
             </div>
           </div>
         )}
+        {/* Dashboard Cards */}
+{activeTab === "dashboard" && (
+  <div className="dashboard-grid">
+
+    <div className="dashboard-card">
+      <FaUsers className="card-icon" />
+      <h3>Total Users</h3>
+      <p>
+        <CountUp end={users.length} duration={2} />
+      </p>
+    </div>
+
+    <div className="dashboard-card">
+      <FaUserGraduate className="card-icon" />
+      <h3>Students</h3>
+      <p>
+        <CountUp 
+          end={users.filter(u => u.role === "Student").length} 
+          duration={2} 
+        />
+      </p>
+    </div>
+
+    <div className="dashboard-card">
+      <FaUserTie className="card-icon" />
+      <h3>Society Managers</h3>
+      <p>
+        <CountUp 
+          end={users.filter(u => u.role === "societyManager").length} 
+          duration={2} 
+        />
+      </p>
+    </div>
+
+  </div>
+)}
+
+        {/* Users Section */}
+       {activeTab === "users" && (
+  <div className="users-section">
+
+    {/* Tabs */}
+    <div className="category-tabs">
+      {["student", "societymanager"].map(cat => (
+        <button
+          key={cat}
+          className={userCategory === cat ? "active" : ""}
+          onClick={() => setUserCategory(cat)}
+        >
+          {cat === "societymanager"
+            ? "Society Managers"
+            : "Students"}
+        </button>
+      ))}
+    </div>
+
+    {/* Search */}
+    <input
+      type="text"
+      placeholder={`Search ${userCategory}...`}
+      value={searchQuery[userCategory] || ""}
+      onChange={(e) =>
+        setSearchQuery({
+          ...searchQuery,
+          [userCategory]: e.target.value
+        })
+      }
+      className="search-input"
+    />
+
+    {/* Table */}
+    <div className="table-container">
+      <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Age</th>
+            <th>Address</th>
+            <th>Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+  {filteredUsers.map((u) => (
+    <tr key={u._id}>
+
+      <td>{u.name}</td>
+      <td>{u.gmail}</td>
+      <td>{u.age}</td>
+      <td>{u.address}</td>
+      <td>{u.contact}</td>
+
+      <td>
+        <button
+          className="dashboard-btn"
+          onClick={() => handleDelete(u._id)}
+        >
+          Delete
+        </button>
+      </td>
+
+    </tr>
+  ))}
+</tbody>
+      </table>
+    </div>
+
+  </div>
+)}
 
         {/* Existing: Society Manager + Society forms */}
         {(activeTab === "societyManager" || activeTab === "society") && (

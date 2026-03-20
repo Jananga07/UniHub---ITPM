@@ -12,6 +12,8 @@ import ModulePage from './Components/ModulePage/ModulePage';
 import SocietyPage from './Components/Society/SocietyPage';
 import ModuleDetailsPage from './Components/ModulePage/ModuleDetailsPage';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
+import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';
+
 
 // Resources pages
 import FacultyPage         from './Components/Resources/FacultyPage';
@@ -38,6 +40,15 @@ function App() {
           <Route path="/societypage"   element={<SocietyPage />} />
           <Route path="/modules/:id"   element={<ModuleDetailsPage />} />
           <Route path="/studentsupport" element={<StudentSupport />} />
+
+          <Route path="/modulepage" element={<ModulePage/>}/>
+          <Route path="/societypage" element={<SocietyPage/>}/>
+          <Route path="/modules/:id" element={<ModuleDetailsPage />} />
+          <Route path="/studentsupport" element={<StudentSupport/>} />
+          <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
+          
+
+
 
           {/* ── Resources ───────────────────────────────────────────── */}
           <Route path="/resources"                                                   element={<FacultyPage />} />
