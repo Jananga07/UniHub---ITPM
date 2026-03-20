@@ -13,6 +13,8 @@ import ModulePage from './Components/ModulePage/ModulePage';
 import SocietyPage from './Components/Society/SocietyPage';
 import ModuleDetailsPage from './Components/ModulePage/ModuleDetailsPage';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
+import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';
+
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
           <Route path="/societypage" element={<SocietyPage/>}/>
           <Route path="/modules/:id" element={<ModuleDetailsPage />} />
           <Route path="/studentsupport" element={<StudentSupport/>} />
+          <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
+          
 
 
 
