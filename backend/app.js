@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const mongoose = require("mongoose");
 
 
@@ -12,10 +13,13 @@ const ModuleRouter = require("./Routes/ModuleRoutes");
 const societyRoutes = require("./Routes/SocietyRoutes");
 const studentQuizeRoutes = require("./Routes/StudentQuizRoutes");
 const StudentSupportRoutes = require("./Routes/StudentSupportRoutes");
+const ResourceRoutes = require("./Routes/ResourceRoutes");
 
 // Middleware
 app.use(express.json());
 app.use(cors());
+// Serve uploaded PDFs as static files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/Users",UserRouter);
 app.use("/quiz",QuizRoutes);
@@ -24,6 +28,7 @@ app.use("/api/modules", ModuleRouter);
 app.use("/societies",societyRoutes);
 app.use("/student-quiz", studentQuizeRoutes);
 app.use("/studentsupport", StudentSupportRoutes);
+app.use("/resources", ResourceRoutes);
 // Routes
 
 
