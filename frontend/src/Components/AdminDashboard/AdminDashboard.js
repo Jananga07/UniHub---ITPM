@@ -423,10 +423,9 @@ function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState({});
   const [editUserId, setEditUserId] = useState(null);
   const [modules, setModules]   = useState([]);
-
-  const [modules, setModules] = useState([]);
   const [societies, setSocieties] = useState([]);
   const [formData, setFormData] = useState({});
+  const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -481,17 +480,6 @@ function AdminDashboard() {
       alert("Updated successfully!");
     } catch { alert("Update failed!"); }
   };
-      try {
-        await axios.delete(`http://localhost:5001/Users/${id}`);
-        fetchUsers();
-      } catch (err) {
-        alert("Delete failed!");
-      }
-    }
-  };
-
-
-
 
   const filteredUsers = users
     .filter((u) => u.role?.trim().toLowerCase() === userCategory)
@@ -525,13 +513,23 @@ function AdminDashboard() {
         <a onClick={() => setActiveTab("society")}>Add Society</a>
         <button onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
-        <div className="ra-sidebar-divider">Resources</div>
-        {RESOURCE_TABS.map((t) => (
-          <a key={t.key} onClick={() => setActiveTab(t.key)}
-            className={activeTab === t.key ? "ra-sidebar-active" : ""}>
-            {t.label}
-          </a>
-        ))}
+        <button 
+          onClick={() => setShowResourcesMenu(!showResourcesMenu)} 
+          style={{ marginTop: '10px', backgroundColor: '#374151', color: '#fff', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Resources Management</span>
+          <span>{showResourcesMenu ? "▲" : "▼"}</span>
+        </button>
+        {showResourcesMenu && (
+          <div style={{ marginLeft: "10px", marginTop: "5px", display: "flex", flexDirection: "column" }}>
+            {RESOURCE_TABS.map((t) => (
+              <a key={t.key} onClick={() => setActiveTab(t.key)}
+                className={activeTab === t.key ? "ra-sidebar-active" : ""}
+                style={{ fontSize: "14px", padding: "8px 12px", marginBottom: "4px" }}>
+                {t.label}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
