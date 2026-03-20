@@ -1,7 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navigation from '../Navigation/Navigation';
 import './ConsultantTime.css';
+
+const CONSULTANTS = [
+  {
+    id: 1,
+    name: "Dr. Alice Perera",
+    title: "Consultation",
+    faculty: "FACULTY OF COMPUTING"
+  },
+  {
+    id: 2,
+    name: "Prof. Nimal Fernando",
+    title: "Senior Consultant",
+    faculty: "FACULTY OF ENGINEERING"
+  },
+  {
+    id: 3,
+    name: "Dr. Sarah Kumar",
+    title: "Consultation",
+    faculty: "FACULTY OF BUSINESS"
+  },
+  {
+    id: 4,
+    name: "Prof. Kamal Rajapaksa",
+    title: "Senior Consultant",
+    faculty: "FACULTY OF COMPUTING"
+  }
+];
+
+const TIME_SLOTS = [
+  '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
+  '11:00 AM', '11:30 AM', '01:00 PM', '01:30 PM',
+  '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
+  '04:00 PM', '04:30 PM'
+];
 
 function ConsultantTime() {
   const { consultantId, date } = useParams();
@@ -12,48 +45,14 @@ function ConsultantTime() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const consultants = [
-    {
-      id: 1,
-      name: "Dr. Alice Perera",
-      title: "Consultation",
-      faculty: "FACULTY OF COMPUTING"
-    },
-    {
-      id: 2,
-      name: "Prof. Nimal Fernando",
-      title: "Senior Consultant",
-      faculty: "FACULTY OF ENGINEERING"
-    },
-    {
-      id: 3,
-      name: "Dr. Sarah Kumar",
-      title: "Consultation",
-      faculty: "FACULTY OF BUSINESS"
-    },
-    {
-      id: 4,
-      name: "Prof. Kamal Rajapaksa",
-      title: "Senior Consultant",
-      faculty: "FACULTY OF COMPUTING"
-    }
-  ];
-
-  const timeSlots = [
-    '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
-    '11:00 AM', '11:30 AM', '01:00 PM', '01:30 PM',
-    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
-    '04:00 PM', '04:30 PM'
-  ];
-
   useEffect(() => {
     // Find consultant by ID
-    const foundConsultant = consultants.find(c => c.id === parseInt(consultantId));
+    const foundConsultant = CONSULTANTS.find(c => c.id === parseInt(consultantId));
     setConsultant(foundConsultant);
     
     // Simulate some slots being already booked
     const bookedSlots = ['10:00 AM', '11:30 AM', '02:30 PM', '04:00 PM'];
-    const available = timeSlots.filter(slot => !bookedSlots.includes(slot));
+    const available = TIME_SLOTS.filter(slot => !bookedSlots.includes(slot));
     setAvailableSlots(available);
     setLoading(false);
   }, [consultantId]);
@@ -114,7 +113,6 @@ function ConsultantTime() {
 
   return (
     <div className="consultant-time-container">
-      <Navigation />
       <div className="time-header">
         <button onClick={handleBack} className="back-btn">
           ← Back to Date Selection
