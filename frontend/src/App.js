@@ -13,7 +13,11 @@ import SocietyPage from './Components/Society/SocietyPage';
 import ModuleDetailsPage from './Components/ModulePage/ModuleDetailsPage';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
 import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';
+
+import SocietyManagerProfile from './Components/Society/SocietyManagerProfile';
+
 import ConsultantTime from './Components/ConsultantTime/ConsultantTime';
+
 
 
 // Resources pages
@@ -34,6 +38,9 @@ function App() {
           <Route path="/userRegister"  element={<UserRegister />} />
           <Route path="/login"         element={<Login />} />
           <Route path="/studentprofile/:id" element={<StudentProfile />} />
+          <Route path="/societymanagerprofile/:id" element={<SocietyManagerProfile />} />
+          {/* Compatibility route (case-sensitive match in some setups) */}
+          <Route path="/SocietyManagerProfile/:id" element={<SocietyManagerProfile />} />
           <Route path="/admin"         element={<AdminDashboard />} />
           <Route path="/adquiz"        element={<AddQuiz />} />
           <Route path="/student-quiz/:moduleId" element={<StudentQuiz />} />
@@ -41,6 +48,7 @@ function App() {
           <Route path="/societypage"   element={<SocietyPage />} />
           <Route path="/modules/:id"   element={<ModuleDetailsPage />} />
           <Route path="/studentsupport" element={<StudentSupport />} />
+          
 
           <Route path="/modulepage" element={<ModulePage/>}/>
           <Route path="/societypage" element={<SocietyPage/>}/>

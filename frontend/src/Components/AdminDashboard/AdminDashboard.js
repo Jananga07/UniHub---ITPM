@@ -463,7 +463,7 @@ function AdminDashboard() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      try { await axios.delete(`${API}/admin/users/${id}`); fetchUsers(); }
+      try { await axios.delete(`${API}/Users/${id}`); fetchUsers(); }
       catch { alert("Delete failed!"); }
     }
   };
