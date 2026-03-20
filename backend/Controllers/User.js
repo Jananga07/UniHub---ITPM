@@ -104,10 +104,6 @@ const deleteUser = async (req, res) => {
 };
 
 
-
-
-
-
 exports.addUsers = addUsers;
 exports.loginUser= loginUser;
 exports.getById= getById;
