@@ -539,56 +539,7 @@ function AdminDashboard() {
           <div className="admin-profile">Admin</div>
         </div>
 
-        {/* Existing: Dashboard Cards */}
-        {activeTab === "dashboard" && (
-          <div className="dashboard-grid">
-            <div className="dashboard-card"><h3>Total Users</h3><CountUp end={users.length} duration={2} /></div>
-            <div className="dashboard-card"><h3>Students</h3><CountUp end={users.filter((u) => u.role === "Student").length} duration={2} /></div>
-            <div className="dashboard-card"><h3>Society Managers</h3><CountUp end={users.filter((u) => u.role === "societyManager").length} duration={2} /></div>
-          </div>
-        )}
-
-        {/* Existing: Users Section */}
-        {activeTab === "users" && (
-          <div className="users-section">
-            <div className="category-tabs">
-              {["student","societymanager"].map((cat) => (
-                <button key={cat} className={userCategory === cat ? "active" : ""} onClick={() => setUserCategory(cat)}>
-                  {cat === "societymanager" ? "Society Manager" : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </button>
-              ))}
-            </div>
-            <input type="text" placeholder={`Search ${userCategory} by name/email`}
-              value={searchQuery[userCategory] || ""}
-              onChange={(e) => setSearchQuery({ ...searchQuery, [userCategory]: e.target.value })}
-              className="search-input" />
-            <div className="table-container">
-              <h2>{userCategory.toUpperCase()} DETAILS</h2>
-              <table>
-                <thead><tr><th>Name</th><th>Email</th><th>Age</th><th>Address</th><th>Role</th><th>Password</th><th>Contact</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {filteredUsers.map((u) => (
-                    <tr key={u._id}>
-                      <td>{editUserId === u._id ? <input name="name" value={formData.name} onChange={handleChange} /> : u.name?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="gmail" value={formData.gmail} onChange={handleChange} /> : u.gmail?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="age" value={formData.age} onChange={handleChange} /> : u.age}</td>
-                      <td>{editUserId === u._id ? <input name="address" value={formData.address} onChange={handleChange} /> : u.address?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="role" value={formData.role} onChange={handleChange} /> : u.role?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="password" value={formData.password} onChange={handleChange} /> : u.password?.trim()}</td>
-                      <td>{editUserId === u._id ? <input name="contact" value={formData.contact} onChange={handleChange} /> : u.contact?.trim()}</td>
-                      <td>
-                        {editUserId === u._id
-                          ? <button className="dashboard-btn" onClick={saveEdit}>Save</button>
-                          : <><button className="dashboard-btn" onClick={() => handleEdit(u)}>Edit</button> <button className="dashboard-btn" onClick={() => handleDelete(u._id)}>Delete</button></>
-                        }
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+       
         {/* Dashboard Cards */}
 {activeTab === "dashboard" && (
   <div className="dashboard-grid">
