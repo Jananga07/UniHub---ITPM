@@ -38,7 +38,6 @@ app.use("/consultant-ratings", consultantRatingRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/consultant-bookings", consultantBookingRoutes);
 app.use("/api/consultant-ratings", consultantRatingRoutes);
-
 // Routes
 
 
