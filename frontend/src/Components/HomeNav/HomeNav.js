@@ -17,6 +17,8 @@ function Nav() {
         <li><Link to="/modulepage">Module Page</Link></li>
         <li><Link to="/societypage">Student Life</Link></li>
         <li><Link to="/studentsupport">Student Support</Link></li>
+        <li><Link to="/resources">Resources</Link></li>
+        <li><Link to="/faq">FAQ</Link></li>
 
       </ul>
     </nav>

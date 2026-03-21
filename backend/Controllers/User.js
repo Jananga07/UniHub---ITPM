@@ -37,8 +37,14 @@ const loginUser = async (req, res) => {
     }
 
     if (user.password === password) {
-      // Optionally, you can return userId to use in frontend navigation
-      return res.status(200).json({ status: "ok", userId: user._id });
+      return res.status(200).json({
+        status: "ok",
+        user: {
+          _id: user._id,
+          gmail: user.gmail,
+          role: user.role   
+        }
+      });
     } else {
       return res.status(401).json({ message: "Incorrect password" });
     }
@@ -102,10 +108,6 @@ const deleteUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
-
 
 
 exports.addUsers = addUsers;
