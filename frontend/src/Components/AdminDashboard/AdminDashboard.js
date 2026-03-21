@@ -12,6 +12,8 @@ import {
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -726,6 +728,7 @@ function AdminDashboard() {
         {activeTab === "resourceUpload"    && <AdminUploadTab />}
         {activeTab === "resourceAnalytics" && <AnalyticsTab />}
         {activeTab === "resourceRatings"   && <RatingsTab />}
+        {activeTab === "consultantBookings" && <ConsultantBookingManagement />}
       </div>
     </div>
   );
