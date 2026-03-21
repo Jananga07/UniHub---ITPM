@@ -6,18 +6,17 @@ import "./UserRegister.css";
 function UserRegister() {
   const navigate = useNavigate();
 
-  // ✅ Form state
   const [inputs, setInputs] = useState({
     name: "",
     gmail: "",
     password: "",
-    role: "Student",   // Fixed role for students
+    role: "student",
     age: "",
     address: "",
     contact: ""
   });
+  const [error, setError] = useState("");
 
-  // Handle input changes
   const handleChange = (e) => {
     setInputs((prev) => ({
       ...prev,
@@ -25,15 +24,57 @@ function UserRegister() {
     }));
   };
 
-  // Handle form submission
+  const validateInputs = () => {
+    const trimmedName = inputs.name.trim();
+    const trimmedEmail = inputs.gmail.trim();
+    const trimmedPassword = inputs.password.trim();
+    const trimmedAddress = inputs.address.trim();
+    const trimmedContact = inputs.contact.trim();
+    const ageNumber = Number(inputs.age);
+
+    if (!trimmedName) return "Name is required.";
+    if (!trimmedEmail) return "Email is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) return "Enter a valid email address.";
+    if (!trimmedPassword) return "Password is required.";
+    if (trimmedPassword.length < 6) return "Password must be at least 6 characters.";
+    if (!inputs.age) return "Age is required.";
+    if (!Number.isInteger(ageNumber) || ageNumber < 16 || ageNumber > 100) {
+      return "Age must be between 16 and 100.";
+    }
+    if (!trimmedAddress) return "Address is required.";
+    if (!trimmedContact) return "Contact number is required.";
+    if (!/^\+?\d{10,15}$/.test(trimmedContact)) {
+      return "Contact number must be 10 to 15 digits.";
+    }
+
+    return "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    const validationError = validateInputs();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     try {
-      const res = await axios.post("http://localhost:5001/users", inputs);
+      const payload = {
+        name: inputs.name.trim(),
+        gmail: inputs.gmail.trim().toLowerCase(),
+        password: inputs.password.trim(),
+        role: "student",
+        age: Number(inputs.age),
+        address: inputs.address.trim(),
+        contact: inputs.contact.trim(),
+      };
+
+      const res = await axios.post("http://localhost:5001/users", payload);
       console.log(res.data);
       alert("User Registered Successfully!");
-      navigate("/login"); // Navigate to login after successful registration
+      navigate("/login");
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Registration Failed!");
@@ -46,6 +87,7 @@ function UserRegister() {
       <div className="register-container">
         <form className="register-form" onSubmit={handleSubmit}>
           <h1>Register as Student</h1>
+          {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
 
           {/* Name */}
           <input
@@ -77,14 +119,14 @@ function UserRegister() {
             required
           />
 
-          {/* Role (Fixed to Student) */}
+          {/* Role is fixed by frontend + payload */}
           <select
             name="role"
-            value="Student"
+            value="student"
             disabled
             className="role-select"
           >
-            <option value="Student">Student</option>
+            <option value="student">Student</option>
           </select>
 
           {/* Age */}
@@ -94,6 +136,9 @@ function UserRegister() {
             placeholder="Enter Age"
             value={inputs.age}
             onChange={handleChange}
+            min="16"
+            max="100"
+            required
           />
 
           {/* Address */}
@@ -103,6 +148,7 @@ function UserRegister() {
             placeholder="Enter Address"
             value={inputs.address}
             onChange={handleChange}
+            required
           />
 
           {/* Contact */}
@@ -112,6 +158,9 @@ function UserRegister() {
             placeholder="Enter Contact Number"
             value={inputs.contact}
             onChange={handleChange}
+            pattern="^\+?\d{10,15}$"
+            title="Contact number must be 10 to 15 digits"
+            required
           />
 
           {/* Submit Button */}
