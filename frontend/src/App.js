@@ -22,6 +22,7 @@ import ConsultantRating from './Components/ConsultantRating/ConsultantRating';
 import ComplaintForm from './Components/ComplaintForm/ComplaintForm';
 import MyComplaints from './Components/MyComplaints/MyComplaints';
 import ComplaintHandling from './Components/ComplaintHandling/ComplaintHandling';
+import FAQ from './Components/FAQ/FAQ';
 
 
 
@@ -66,6 +67,9 @@ function App() {
           <Route path="/studentsupport" element={<StudentSupport/>} />
           <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
           <Route path="/consultant-time/:consultantId/:date" element={<ConsultantTime />} />
+          <Route path="/consultant-rating/:consultantId" element={<ConsultantRating />} />
+          <Route path="/faq" element={<FAQ/>} />
+
           
 
 
