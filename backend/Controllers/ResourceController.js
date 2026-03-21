@@ -200,18 +200,19 @@ const downloadPdf = async (req, res) => {
     const pdf = await PdfResource.findById(req.params.id);
     if (!pdf) return res.status(404).json({ message: "PDF not found" });
     if (pdf.status !== "approved") return res.status(403).json({ message: "PDF not available" });
-
+// validation //
     // Increment counter
     pdf.downloadCount += 1;
     await pdf.save();
 
     const filePath = path.join(__dirname, "..", "uploads", pdf.filePath);
     if (!fs.existsSync(filePath)) return res.status(404).json({ message: "File not found on disk" });
+    //validation//
 
     res.download(filePath, pdf.fileName);
   } catch (err) {
     res.status(500).json({ message: "Error downloading PDF", error: err.message });
-  }
+  }//validation//
 };
 
 const ratePdf = async (req, res) => {
