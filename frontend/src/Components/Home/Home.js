@@ -1,27 +1,43 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Nav from "../HomeNav/HomeNav";
+import Navigation from "../HomeNav/HomeNav";
+import ImageSlider from "../ImageSlider/ImageSlider";
 import "./Home.css";
 
 function Home() {
+  const sliderImages = [
+    {
+      src: "/images/slide1.jpg",
+      alt: "University Campus",
+      title: "Welcome to Uni Hub",
+      description: "Your comprehensive platform for learning, collaboration, and student success",
+      buttonText: "Get Started",
+      buttonLink: "/userRegister"
+    },
+    {
+      src: "/images/slide2.jpg", 
+      alt: "Student Learning",
+      title: "Excellence in Education",
+      description: "Access quality resources, expert guidance, and a supportive community",
+      buttonText: "Explore Features",
+      buttonLink: "/studentsupport"
+    },
+    {
+      src: "/images/slide3.jpg",
+      alt: "University Building",
+      title: "Modern Learning Environment",
+      description: "State-of-the-art facilities and innovative teaching methods",
+      buttonText: "Learn More",
+      buttonLink: "/modules"
+    }
+  ];
+
   return (
     <div className="home-page">
+      <Navigation />
 
-      <Nav />
-
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-text">
-          <h1>Welcome to Uni Hub</h1>
-          <p>Your hub for learning resources, student management, and community support.</p>
-          <Link to="/adduser">
-            <button className="cta-btn">Get Started</button>
-          </Link>
-        </div>
-        <div className="hero-image">
-          <img src="/images/students_illustration.svg" alt="Students Illustration" />
-        </div>
-      </section>
+      {/* Image Slider Section */}
+      <ImageSlider images={sliderImages} />
 
       {/* Features Section */}
       <section className="features">
