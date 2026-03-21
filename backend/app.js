@@ -24,7 +24,9 @@ app.use(cors());
 // Serve uploaded PDFs as static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/Users",UserRouter);
+app.use("/Users", UserRouter);
+// Lowercase alias so frontend can POST /users/login and /users
+app.use("/users", UserRouter);
 app.use("/quiz",QuizRoutes);
 app.use("/modules",ModuleRouter);
 app.use("/api/modules", ModuleRouter);

@@ -120,14 +120,14 @@ function UserRegister() {
           />
 
           {/* Role is fixed by frontend + payload */}
-          <select
+        <select
             name="role"
             value="student"
             disabled
             className="role-select"
-          >
+          > 
             <option value="student">Student</option>
-          </select>
+          </select> 
 
           {/* Age */}
           <input
