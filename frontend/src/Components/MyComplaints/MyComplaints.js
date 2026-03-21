@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '../Navigation/Navigation';
+import Navigation from '../HomeNav/HomeNav';
 import './MyComplaints.css';
 
 function MyComplaints() {

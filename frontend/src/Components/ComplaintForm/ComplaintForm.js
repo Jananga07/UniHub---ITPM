@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '../Navigation/Navigation';
-import './ComplaintForm.css';
+import Navigation from '../HomeNav/HomeNav';
 
 function ComplaintForm() {
   const navigate = useNavigate();

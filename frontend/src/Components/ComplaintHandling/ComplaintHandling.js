@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navigation from '../Navigation/Navigation';
+import Navigation from '../HomeNav/HomeNav';
 import './ComplaintHandling.css';
 
 function ComplaintHandling() {

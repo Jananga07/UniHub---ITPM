@@ -17,7 +17,11 @@ import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking'
 import SocietyManagerProfile from './Components/Society/SocietyManagerProfile';
 
 import ConsultantTime from './Components/ConsultantTime/ConsultantTime';
-
+import consultantTime from './Components/ConsultantTime/ConsultantTime';
+import ConsultantRating from './Components/ConsultantRating/ConsultantRating';
+import ComplaintForm from './Components/ComplaintForm/ComplaintForm';
+import MyComplaints from './Components/MyComplaints/MyComplaints';
+import ComplaintHandling from './Components/ComplaintHandling/ComplaintHandling';
 
 
 
@@ -49,7 +53,12 @@ function App() {
           <Route path="/societypage"   element={<SocietyPage />} />
           <Route path="/modules/:id"   element={<ModuleDetailsPage />} />
           <Route path="/studentsupport" element={<StudentSupport />} />
-          
+          <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
+          <Route path="/consultant-time/:consultantId/:date" element={<ConsultantTime />} />
+          <Route path="/consultant-rating/:consultantId" element={<ConsultantRating />} />
+          <Route path="/complaint-form" element={<ComplaintForm />} />
+          <Route path="/my-complaints" element={<MyComplaints />} />
+          <Route path="/complaint-handling" element={<ComplaintHandling />} />    
 
           <Route path="/modulepage" element={<ModulePage/>}/>
           <Route path="/societypage" element={<SocietyPage/>}/>
