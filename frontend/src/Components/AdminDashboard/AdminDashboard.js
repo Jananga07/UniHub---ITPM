@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./AdminDashboard.css";
 import "./ResourcesAdmin.css";
@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import { FaCheckCircle, FaEnvelope, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -427,6 +427,9 @@ function AdminDashboard() {
   const [societies, setSocieties] = useState([]);
   const [formData, setFormData] = useState({});
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
+  const [selectedManagerIds, setSelectedManagerIds] = useState([]);
+  const societyManagerFormRef = useRef(null);
+  const societyManagerNameInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -469,6 +472,18 @@ function AdminDashboard() {
     }
   };
 
+  const handleDeleteSociety = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this society?")) return;
+
+    try {
+      await axios.delete(`${API}/societies/${id}`);
+      fetchSocieties();
+      alert("Society deleted successfully!");
+    } catch (error) {
+      alert(error.response?.data?.message || "Society delete failed!");
+    }
+  };
+
   const handleEdit = (user) => {
     setEditUserId(user._id);
     setFormData({ name: user.name, gmail: user.gmail, age: user.age, address: user.address, contact: user.contact, role: user.role });
@@ -493,6 +508,43 @@ function AdminDashboard() {
     (s) => !users.some((u) => u.role === "societyManager" && u.societyId === s._id)
   );
 
+  const societyManagers = users.filter((u) => u.role === "societyManager");
+  const assignedSocietiesCount = societies.length - availableSocietiesForManager.length;
+
+  useEffect(() => {
+    const managerIds = new Set(societyManagers.map((manager) => manager._id));
+
+    setSelectedManagerIds((currentIds) =>
+      currentIds.filter((id) => managerIds.has(id))
+    );
+  }, [societyManagers]);
+
+  const handleOpenSocietyManagerForm = () => {
+    setActiveTab("societyManager");
+
+    requestAnimationFrame(() => {
+      societyManagerFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      setTimeout(() => {
+        societyManagerNameInputRef.current?.focus();
+      }, 180);
+    });
+  };
+
+  const allManagersSelected = societyManagers.length > 0 && selectedManagerIds.length === societyManagers.length;
+
+  const handleToggleAllManagers = () => {
+    setSelectedManagerIds(allManagersSelected ? [] : societyManagers.map((manager) => manager._id));
+  };
+
+  const handleToggleManagerSelection = (managerId) => {
+    setSelectedManagerIds((currentIds) =>
+      currentIds.includes(managerId)
+        ? currentIds.filter((id) => id !== managerId)
+        : [...currentIds, managerId]
+    );
+  };
+
   const RESOURCE_TABS = [
     { key: "resourceFaculty",    label: "📁 Faculties" },
     { key: "resourceModule",     label: "📚 Res. Modules" },
@@ -509,7 +561,7 @@ function AdminDashboard() {
         <h2>Uni Hub</h2>
         <button className="sidebar-link" onClick={() => setActiveTab("dashboard")}>Dashboard</button>
         <button className="sidebar-link" onClick={() => setActiveTab("users")}>All Users</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("societyManager")}>Add Society Manager</button>
+        <button className="sidebar-link" onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
         <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
         <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
         <button onClick={() => navigate("/adquiz")}>Add Quiz</button>
@@ -664,38 +716,161 @@ function AdminDashboard() {
   </div>
 )}
 
-        {/* Existing: Society Manager + Society forms */}
-        {(activeTab === "societyManager" || activeTab === "society") && (
-          <>
-            <div className="form-card">
-              <h2>Add Society Manager</h2>
-              <input name="name" placeholder="Name" onChange={handleChange} />
-              <input name="gmail" placeholder="Email" onChange={handleChange} />
-              <input name="password" placeholder="Password" type="password" onChange={handleChange} />
-              <input name="age" placeholder="Age" onChange={handleChange} />
-              <input name="address" placeholder="Address" onChange={handleChange} />
-              <input name="contact" placeholder="Contact" onChange={handleChange} />
-              {availableSocietiesForManager.length > 0 && (
-                <select name="societyId" value={formData.societyId || ""} onChange={handleChange}>
-                  <option value="">Select Society</option>
-                  {availableSocietiesForManager.map((s) => <option key={s._id} value={s._id}>{s.societyName}</option>)}
-                </select>
-              )}
-              <button className="dashboard-btn" onClick={() => submitData("Users", "societyManager")}>Add Society Manager</button>
+        {/* Society Manager Dashboard */}
+        {activeTab === "societyManager" && (
+          <div className="society-manager-dashboard">
+            <div className="society-manager-overview-grid">
+              <div className="society-manager-overview-card">
+                <span className="society-manager-overview-label">Active Managers</span>
+                <strong>{societyManagers.length}</strong>
+                <p>Registered manager accounts currently active in the system.</p>
+              </div>
+              <div className="society-manager-overview-card">
+                <span className="society-manager-overview-label">Societies Covered</span>
+                <strong>{assignedSocietiesCount}</strong>
+                <p>Societies already assigned to a manager and ready for operations.</p>
+              </div>
+              <div className="society-manager-overview-card society-manager-overview-card-accent">
+                <span className="society-manager-overview-label">Open Assignments</span>
+                <strong>{availableSocietiesForManager.length}</strong>
+                <p>Societies still waiting for a manager account to be linked.</p>
+              </div>
             </div>
-            <div className="form-card">
-              <h2>Registered Society Managers</h2>
-              {users.filter((u) => u.role === "societyManager").length === 0 ? <p>No society managers registered yet.</p> : (
-                <div className="table-container">
-                  <table>
-                    <thead><tr><th>Name</th><th>Email</th><th>Society</th></tr></thead>
+
+            <div className="society-manager-dashboard-grid">
+            <div className="form-card society-manager-form" ref={societyManagerFormRef}>
+              <div className="section-header-block">
+                <span className="section-kicker">Administration</span>
+                <h2>Add Society Manager</h2>
+                <p className="section-subtext">Create a manager account and assign it to an available society in one step.</p>
+              </div>
+
+              <div className="society-manager-grid">
+                <input ref={societyManagerNameInputRef} name="name" placeholder="Full name" onChange={handleChange} />
+                <input name="gmail" placeholder="University email" onChange={handleChange} />
+                <input name="password" placeholder="Temporary password" type="password" onChange={handleChange} />
+                <input name="age" placeholder="Age" onChange={handleChange} />
+                <input className="society-manager-field-wide" name="address" placeholder="Address" onChange={handleChange} />
+                <input className="society-manager-field-wide" name="contact" placeholder="Contact number" onChange={handleChange} />
+              </div>
+
+              <div className="society-manager-actions">
+                {availableSocietiesForManager.length > 0 ? (
+                  <select className="society-manager-select" name="societyId" value={formData.societyId || ""} onChange={handleChange}>
+                    <option value="">Select society</option>
+                    {availableSocietiesForManager.map((s) => <option key={s._id} value={s._id}>{s.societyName}</option>)}
+                  </select>
+                ) : (
+                  <div className="society-manager-inline-note">All societies already have assigned managers.</div>
+                )}
+                <button className="dashboard-btn society-manager-submit" onClick={() => submitData("Users", "societyManager")}>Add Society Manager</button>
+              </div>
+            </div>
+            <div className="form-card manager-list-card manager-list-card-full">
+              <div className="manager-list-header">
+                <div>
+                  <span className="section-kicker">Directory</span>
+                  <h2>Registered Society Managers</h2>
+                  <p className="section-subtext">Review assigned managers and track which societies already have ownership.</p>
+                </div>
+                <div className="manager-list-actions">
+                  <span className="manager-count-badge">{societyManagers.length} registered</span>
+                  <button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
+                </div>
+              </div>
+              {societyManagers.length === 0 ? <div className="manager-empty-state"><p>No society managers registered yet. Start by creating the first manager account.</p><button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Create First Manager</button></div> : (
+                <div className="manager-directory-shell">
+                  <div className="manager-selection-bar">
+                    <div className="manager-selection-copy">
+                      <strong>{selectedManagerIds.length}</strong> of <strong>{societyManagers.length}</strong> managers selected
+                    </div>
+                    <div className="manager-selection-tools">
+                      <button className="manager-selection-button" onClick={handleToggleAllManagers}>
+                        {allManagersSelected ? "Clear selection" : "Select all"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <table className="manager-directory-table">
+                    <thead>
+                      <tr>
+                        <th className="manager-checkbox-col">
+                          <input type="checkbox" checked={allManagersSelected} onChange={handleToggleAllManagers} />
+                        </th>
+                        <th>Manager</th>
+                        <th>Society</th>
+                        <th>Contact</th>
+                        <th>Age</th>
+                        <th>Status</th>
+                        <th className="manager-actions-col">Actions</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      {users.filter((u) => u.role === "societyManager").map((m) => {
+                      {societyManagers.map((m) => {
                         const society = societies.find((s) => s._id === m.societyId);
+                        const isSelected = selectedManagerIds.includes(m._id);
+                        const initials = m.name
+                          .split(" ")
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .map((part) => part[0]?.toUpperCase())
+                          .join("");
+
                         return (
-                          <tr key={m._id}>
-                            <td>{m.name}</td><td>{m.gmail}</td>
-                            <td>{society ? society.societyName : "No society assigned"}</td>
+                          <tr key={m._id} className={isSelected ? "manager-row-selected" : ""}>
+                            <td className="manager-checkbox-col">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => handleToggleManagerSelection(m._id)}
+                              />
+                            </td>
+                            <td>
+                              <div className="manager-identity-cell">
+                                <div className="manager-avatar">{initials || "SM"}</div>
+                                <div className="manager-meta-block">
+                                  <strong>{m.name}</strong>
+                                  <span>{m.gmail}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="manager-society-stack">
+                                <span className="society-tag">{society ? society.societyName : "No society assigned"}</span>
+                                <span className="manager-address-text">{m.address || "Address not added"}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="manager-meta-block manager-compact-block">
+                                <strong>{m.contact || "No contact"}</strong>
+                                <span>{m.gmail}</span>
+                              </div>
+                            </td>
+                            <td>{m.age || "-"}</td>
+                            <td>
+                              <span className={`manager-status-badge ${society ? "manager-status-active" : "manager-status-pending"}`}>
+                                <FaCheckCircle />
+                                {society ? "Assigned" : "Pending"}
+                              </span>
+                            </td>
+                            <td className="manager-actions-col">
+                              <div className="manager-row-actions">
+                                <button
+                                  className="manager-icon-action"
+                                  title="Send email"
+                                  onClick={() => window.open(`mailto:${m.gmail}`, "_self")}
+                                >
+                                  <FaEnvelope />
+                                </button>
+                                <button
+                                  className="manager-icon-action manager-icon-action-danger"
+                                  title="Delete manager"
+                                  onClick={() => handleDelete(m._id)}
+                                >
+                                  <FaTrashAlt />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         );
                       })}
@@ -704,13 +879,73 @@ function AdminDashboard() {
                 </div>
               )}
             </div>
-            <div className="form-card">
-              <h2>Add Society</h2>
+            </div>
+          </div>
+        )}
+
+        {/* Society Management */}
+        {activeTab === "society" && (
+          <div className="society-manager-dashboard-grid">
+            <div className="form-card society-list-card">
+              <div className="section-header-block">
+                <span className="section-kicker">Community</span>
+                <h2>Add Society</h2>
+                <p className="section-subtext">Create a society record and keep the community directory organized for manager assignment.</p>
+              </div>
               <input name="societyName" placeholder="Society Name" value={formData.societyName || ""} onChange={handleChange} />
               <input name="description" placeholder="Description" value={formData.description || ""} onChange={handleChange} />
               <button className="dashboard-btn" onClick={() => submitData("societies")}>Add Society</button>
             </div>
-          </>
+
+            <div className="form-card society-list-card society-list-card-full">
+              <div className="manager-list-header">
+                <div>
+                  <span className="section-kicker">Directory</span>
+                  <h2>Registered Societies</h2>
+                  <p className="section-subtext">All societies added through the admin panel are listed here.</p>
+                </div>
+                <div className="manager-list-actions">
+                  <span className="manager-count-badge">{societies.length} societies</span>
+                </div>
+              </div>
+
+              {societies.length === 0 ? (
+                <div className="manager-empty-state">
+                  <p>No societies have been added yet.</p>
+                </div>
+              ) : (
+                <div className="table-container">
+                  <table>
+                    <thead><tr><th>Society Name</th><th>Description</th><th>Manager Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {societies.map((society) => {
+                        const assignedManager = societyManagers.find((manager) => manager.societyId === society._id);
+                        return (
+                          <tr key={society._id}>
+                            <td>{society.societyName}</td>
+                            <td>{society.description || "No description added"}</td>
+                            <td>
+                              <span className={`society-tag ${assignedManager ? "society-tag-assigned" : "society-tag-pending"}`}>
+                                {assignedManager ? assignedManager.name : "No manager assigned"}
+                              </span>
+                            </td>
+                            <td>
+                              <button
+                                className="dashboard-btn society-delete-btn"
+                                onClick={() => handleDeleteSociety(society._id)}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {/* Existing: Module form */}

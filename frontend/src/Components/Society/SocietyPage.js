@@ -33,7 +33,6 @@ function SocietyPage() {
         <h1>Student Societies</h1>
         <p>Explore and join university societies</p>
       </div>
-      <button className="primary-btn">+ Create Society</button>
     </div>
 
     {/* Stats Section */}

@@ -8,4 +8,7 @@ router.post("/", SocietyController.addSociety);
 //Get all societies
 router.get("/", SocietyController.getAllSocieties);
 
+// Delete society
+router.delete("/:id", SocietyController.deleteSociety);
+
 module.exports = router;
