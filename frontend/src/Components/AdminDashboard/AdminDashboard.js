@@ -14,7 +14,6 @@ import { Pie } from "react-chartjs-2";
 import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 
-
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API = "http://localhost:5001";
@@ -532,6 +531,15 @@ function AdminDashboard() {
             ))}
           </div>
         )}
+
+        {/* Consultant Booking Management Link */}
+        <button 
+          className="sidebar-link" 
+          onClick={() => setActiveTab("consultantBookings")}
+          style={{ marginTop: '10px' }}
+        >
+          Consultant Bookings
+        </button>
       </div>
 
       {/* Main Content */}
@@ -728,6 +736,8 @@ function AdminDashboard() {
         {activeTab === "resourceUpload"    && <AdminUploadTab />}
         {activeTab === "resourceAnalytics" && <AnalyticsTab />}
         {activeTab === "resourceRatings"   && <RatingsTab />}
+        
+        {/* Consultant Booking Management Tab */}
         {activeTab === "consultantBookings" && <ConsultantBookingManagement />}
       </div>
     </div>
