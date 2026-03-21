@@ -38,7 +38,8 @@ function FacultyTab() {
   };
 
   const save = async (id) => {
-    await axios.put(`${API}/resources/faculties/${id}`, { name: editName });
+    if (!editName.trim()) return alert("Enter a valid faculty name");
+    await axios.put(`${API}/resources/faculties/${id}`, { name: editName.trim() });
     setEditId(null); setEditName(""); load();
   };
 
@@ -106,13 +107,18 @@ function ResourceModuleTab() {
   useEffect(() => { load(); }, []);
 
   const add = async () => {
-    if (!form.moduleName || !form.faculty) return alert("Module name and faculty required");
+    if (!form.moduleName || !form.faculty || !form.year || !form.semester) {
+      return alert("Module name, faculty, year, and semester are required");
+    }
     await axios.post(`${API}/resources/modules`, form);
     setForm({ moduleName: "", moduleCode: "", faculty: "", year: 1, semester: 1 });
     load();
   };
 
   const save = async (id) => {
+    if (!editForm.moduleName || !editForm.faculty || !editForm.year || !editForm.semester) {
+      return alert("Module name, faculty, year, and semester are required");
+    }
     await axios.put(`${API}/resources/modules/${id}`, editForm);
     setEditId(null); load();
   };
@@ -158,9 +164,29 @@ function ResourceModuleTab() {
               <tr key={m._id}>
                 <td>{editId === m._id ? <input className="ra-input-sm" value={editForm.moduleName || ""} onChange={(e) => setEditForm({ ...editForm, moduleName: e.target.value })} /> : m.moduleName}</td>
                 <td>{editId === m._id ? <input className="ra-input-sm" value={editForm.moduleCode || ""} onChange={(e) => setEditForm({ ...editForm, moduleCode: e.target.value })} /> : m.moduleCode}</td>
-                <td>{m.faculty?.name}</td>
-                <td>{m.year}</td>
-                <td>{m.semester}</td>
+                <td>
+                  {editId === m._id ? (
+                    <select className="ra-input-sm" value={editForm.faculty || ""} onChange={(e) => setEditForm({ ...editForm, faculty: e.target.value })}>
+                      <option value="">Select Faculty</option>
+                      {faculties.map((f) => <option key={f._id} value={f._id}>{f.name}</option>)}
+                    </select>
+                  ) : m.faculty?.name}
+                </td>
+                <td>
+                  {editId === m._id ? (
+                    <select className="ra-input-sm" value={editForm.year || ""} onChange={(e) => setEditForm({ ...editForm, year: Number(e.target.value) })}>
+                      {[1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+                    </select>
+                  ) : m.year}
+                </td>
+                <td>
+                  {editId === m._id ? (
+                    <select className="ra-input-sm" value={editForm.semester || ""} onChange={(e) => setEditForm({ ...editForm, semester: Number(e.target.value) })}>
+                      <option value={1}>Semester 1</option>
+                      <option value={2}>Semester 2</option>
+                    </select>
+                  ) : m.semester}
+                </td>
                 <td>
                   {editId === m._id
                     ? <button className="dashboard-btn" onClick={() => save(m._id)}>Save</button>
@@ -254,7 +280,9 @@ function AdminUploadTab() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return setMsg("Please select a PDF file.");
+    if (!form.faculty || !form.year || !form.semester || !form.module || !form.title || !file) {
+      return setMsg("❌ All frontend fields and file are required before uploading.");
+    }
     const fd = new FormData();
     fd.append("title", form.title);
     fd.append("module", form.module);
@@ -317,12 +345,24 @@ function AnalyticsTab() {
   const [total, setTotal]   = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = () => {
+    setLoading(true);
     axios.get(`${API}/resources/analytics`)
       .then((r) => { setData(r.data.pdfs); setTotal(r.data.totalDownloads); })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this PDF permanently?")) {
+      try {
+        await axios.delete(`${API}/resources/pdfs/${id}`);
+        loadData();
+      } catch (err) { alert("Failed to delete PDF"); }
+    }
+  };
 
   const COLORS = ["#4f46e5","#06b6d4","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6"];
 
@@ -357,7 +397,7 @@ function AnalyticsTab() {
           <div className="table-container" style={{ marginTop: 24 }}>
             <table>
               <thead>
-                <tr><th>PDF Title</th><th>Downloads</th><th>Avg Rating</th><th>Ratings</th></tr>
+                <tr><th>PDF Title</th><th>Downloads</th><th>Avg Rating</th><th>Ratings</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {data.map((d) => (
@@ -366,6 +406,9 @@ function AnalyticsTab() {
                     <td>{d.downloadCount}</td>
                     <td>{d.averageRating > 0 ? `${d.averageRating} ★` : "—"}</td>
                     <td>{d.ratingCount}</td>
+                    <td>
+                      <button className="dashboard-btn ra-btn-danger" onClick={() => handleDelete(d._id)}>Delete</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -381,10 +424,21 @@ function AnalyticsTab() {
 function RatingsTab() {
   const [pdfs, setPdfs] = useState([]);
 
-  useEffect(() => {
+  const loadData = () => {
     axios.get(`${API}/resources/pdfs`, { params: { status: "approved" } })
       .then((r) => setPdfs(r.data.pdfs));
-  }, []);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this PDF permanently?")) {
+      try {
+        await axios.delete(`${API}/resources/pdfs/${id}`);
+        loadData();
+      } catch (err) { alert("Failed to delete PDF"); }
+    }
+  };
 
   return (
     <div>
@@ -392,7 +446,7 @@ function RatingsTab() {
       <div className="table-container">
         <table>
           <thead>
-            <tr><th>Title</th><th>Module</th><th>Category</th><th>Avg Rating</th><th>Total Ratings</th></tr>
+            <tr><th>Title</th><th>Module</th><th>Category</th><th>Avg Rating</th><th>Total Ratings</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {pdfs.map((p) => {
@@ -406,6 +460,9 @@ function RatingsTab() {
                   <td>{p.category}</td>
                   <td>{avg > 0 ? `${avg} ★` : "—"}</td>
                   <td>{p.ratings?.length || 0}</td>
+                  <td>
+                    <button className="dashboard-btn ra-btn-danger" onClick={() => handleDelete(p._id)}>Delete</button>
+                  </td>
                 </tr>
               );
             })}

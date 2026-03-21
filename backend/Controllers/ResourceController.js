@@ -52,7 +52,21 @@ const updateFaculty = async (req, res) => {
 
 const deleteFaculty = async (req, res) => {
   try {
+    const modules = await ResourceModule.find({ faculty: req.params.id });
+    const moduleIds = modules.map((m) => m._id);
+    
+    // Clean up files from disk
+    const pdfs = await PdfResource.find({ module: { $in: moduleIds } });
+    for (const pdf of pdfs) {
+      const filePath = path.join(__dirname, "..", "uploads", pdf.filePath);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+
+    // Cascade delete
+    await PdfResource.deleteMany({ module: { $in: moduleIds } });
+    await ResourceModule.deleteMany({ faculty: req.params.id });
     await Faculty.findByIdAndDelete(req.params.id);
+
     res.json({ message: "Faculty deleted" });
   } catch (err) {
     res.status(500).json({ message: "Error deleting faculty", error: err.message });
@@ -84,6 +98,10 @@ const createModule = async (req, res) => {
     const { moduleName, moduleCode, faculty, year, semester } = req.body;
     if (!moduleName || !faculty || !year || !semester)
       return res.status(400).json({ message: "moduleName, faculty, year, semester are required" });
+
+    if (![1, 2, 3, 4].includes(Number(year))) return res.status(400).json({ message: "Year must be 1, 2, 3, or 4" });
+    if (![1, 2].includes(Number(semester))) return res.status(400).json({ message: "Semester must be 1 or 2" });
+
     const mod = new ResourceModule({ moduleName, moduleCode, faculty, year: Number(year), semester: Number(semester) });
     await mod.save();
     const populated = await mod.populate("faculty", "name");
@@ -96,6 +114,12 @@ const createModule = async (req, res) => {
 const updateModule = async (req, res) => {
   try {
     const { moduleName, moduleCode, faculty, year, semester } = req.body;
+    if (!moduleName || !faculty || !year || !semester)
+      return res.status(400).json({ message: "moduleName, faculty, year, semester are required" });
+
+    if (![1, 2, 3, 4].includes(Number(year))) return res.status(400).json({ message: "Year must be 1, 2, 3, or 4" });
+    if (![1, 2].includes(Number(semester))) return res.status(400).json({ message: "Semester must be 1 or 2" });
+
     const mod = await ResourceModule.findByIdAndUpdate(
       req.params.id,
       { moduleName, moduleCode, faculty, year: Number(year), semester: Number(semester) },
@@ -110,7 +134,17 @@ const updateModule = async (req, res) => {
 
 const deleteModule = async (req, res) => {
   try {
+    // Clean up files from disk
+    const pdfs = await PdfResource.find({ module: req.params.id });
+    for (const pdf of pdfs) {
+      const filePath = path.join(__dirname, "..", "uploads", pdf.filePath);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+
+    // Cascade delete
+    await PdfResource.deleteMany({ module: req.params.id });
     await ResourceModule.findByIdAndDelete(req.params.id);
+
     res.json({ message: "Module deleted" });
   } catch (err) {
     res.status(500).json({ message: "Error deleting module", error: err.message });
