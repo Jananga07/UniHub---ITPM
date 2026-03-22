@@ -208,6 +208,79 @@ tr:hover {
   gap: 24px;
 }
 
+.society-manager-page-shell {
+  width: 100%;
+}
+
+.society-manager-page-card {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+  padding: 28px 28px 30px;
+  border-radius: 22px;
+  border: 1px solid #e7edf7;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.society-manager-page-header h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.society-manager-page-header .section-subtext {
+  margin-top: 18px;
+  font-size: 16px;
+  color: #64748b;
+}
+
+.society-manager-page-grid {
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.society-manager-page-card input,
+.society-manager-page-card select,
+.society-manager-page-footer-note {
+  min-height: 48px;
+  padding: 0 14px;
+  margin-bottom: 0;
+  border-radius: 12px;
+  border: 1px solid #d6deea;
+  background: #ffffff;
+  color: #475569;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.society-manager-page-card input::placeholder {
+  color: #64748b;
+}
+
+.society-manager-error-text {
+  margin: 14px 0 0;
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.society-manager-page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.society-manager-page-footer-note {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  background: #f8fafc;
+  color: #64748b;
+}
+
 .society-manager-overview-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -320,9 +393,17 @@ tr:hover {
 
 .society-manager-submit {
   margin-top: 0;
-  padding: 11px 18px;
+  min-width: 216px;
+  min-height: 48px;
+  padding: 11px 22px;
   font-weight: 600;
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+}
+
+.society-manager-submit:disabled {
+  background: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .manager-list-header {
@@ -366,6 +447,33 @@ tr:hover {
 
 .society-delete-btn:hover {
   background: #b91c1c;
+}
+
+.society-cancel-btn {
+  margin-top: 0;
+  background: #64748b;
+}
+
+.society-cancel-btn:hover {
+  background: #475569;
+}
+
+.society-action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.society-description-editor {
+  width: 100%;
+  min-height: 88px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font: inherit;
+  color: #1f2937;
+  resize: vertical;
 }
 
 .manager-empty-state {
@@ -631,11 +739,31 @@ tr:hover {
     grid-column: auto;
   }
 
+  .society-manager-page-card {
+    padding: 22px 20px 24px;
+    border-radius: 18px;
+  }
+
+  .society-manager-page-header .section-subtext {
+    margin-top: 12px;
+    font-size: 15px;
+  }
+
   .society-manager-actions,
   .manager-list-header,
   .manager-empty-state {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .society-manager-page-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .society-manager-submit {
+    width: 100%;
+    min-width: 0;
   }
 
   .manager-selection-bar {

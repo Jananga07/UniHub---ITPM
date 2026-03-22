@@ -18,6 +18,15 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API = "http://localhost:5001";
 const CATEGORIES = ["Lecture Material", "Reading Material", "Short Notes", "Referral Sheets"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CONTACT_REGEX = /^\+?\d{10,15}$/;
+
+const isUniversityEmail = (email) => {
+  const domain = email.split("@")[1] || "";
+  return /\.(edu|ac\.[a-z]{2,})$/i.test(domain);
+};
+
+const normalizeContactNumber = (contactNumber = "") => contactNumber.trim().replaceAll(/[\s-]/g, "");
 
 // ─── FACULTY MANAGEMENT TAB ─────────────────────────────────────────────────
 function FacultyTab() {
@@ -426,6 +435,9 @@ function AdminDashboard() {
   const [modules, setModules]   = useState([]);
   const [societies, setSocieties] = useState([]);
   const [formData, setFormData] = useState({});
+  const [editSocietyId, setEditSocietyId] = useState(null);
+  const [editSocietyDescription, setEditSocietyDescription] = useState("");
+  const [societyManagerError, setSocietyManagerError] = useState("");
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const [selectedManagerIds, setSelectedManagerIds] = useState([]);
   const societyManagerFormRef = useRef(null);
@@ -451,18 +463,53 @@ function AdminDashboard() {
     catch (e) { console.error(e); }
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    if (activeTab === "societyManager" && societyManagerError) {
+      setSocietyManagerError("");
+    }
+
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const validateSocietyManagerForm = (data) => {
+    const email = data.gmail?.trim().toLowerCase() || "";
+    const contactNumber = normalizeContactNumber(data.contact);
+
+    if (!email) return "University email is required.";
+    if (!EMAIL_REGEX.test(email)) return "Enter a valid email address.";
+    if (!isUniversityEmail(email)) return "Use a valid university email ending with .edu or .ac.xx.";
+    if (!contactNumber) return "Contact number is required.";
+    if (!CONTACT_REGEX.test(contactNumber)) return "Contact number must be 10 to 15 digits.";
+
+    return "";
+  };
 
   const submitData = async (endpoint, role) => {
     try {
       const data = role ? { ...formData, role } : formData;
+
+      if (role === "societyManager") {
+        const validationError = validateSocietyManagerForm(data);
+
+        if (validationError) {
+          setSocietyManagerError(validationError);
+          return;
+        }
+
+        data.gmail = data.gmail.trim().toLowerCase();
+        data.contact = normalizeContactNumber(data.contact);
+        setSocietyManagerError("");
+      }
+
       await axios.post(`${API}/${endpoint}`, data);
       alert("Added Successfully!");
       setFormData({});
       fetchUsers();
       if (endpoint === "modules") fetchModules();
       if (endpoint === "societies") fetchSocieties();
-    } catch { alert("Error!"); }
+    } catch (error) {
+      alert(error.response?.data?.message || "Error!");
+    }
   };
 
   const handleDelete = async (id) => {
@@ -481,6 +528,34 @@ function AdminDashboard() {
       alert("Society deleted successfully!");
     } catch (error) {
       alert(error.response?.data?.message || "Society delete failed!");
+    }
+  };
+
+  const handleStartSocietyEdit = (society) => {
+    setEditSocietyId(society._id);
+    setEditSocietyDescription(society.description || "");
+  };
+
+  const handleCancelSocietyEdit = () => {
+    setEditSocietyId(null);
+    setEditSocietyDescription("");
+  };
+
+  const handleSaveSocietyEdit = async (societyId) => {
+    const trimmedDescription = editSocietyDescription.trim();
+
+    if (!trimmedDescription) {
+      alert("Description is required.");
+      return;
+    }
+
+    try {
+      await axios.put(`${API}/societies/${societyId}`, { description: trimmedDescription });
+      handleCancelSocietyEdit();
+      fetchSocieties();
+      alert("Society updated successfully!");
+    } catch (error) {
+      alert(error.response?.data?.message || "Society update failed!");
     }
   };
 
@@ -504,12 +579,7 @@ function AdminDashboard() {
       u.gmail.toLowerCase().includes(searchQuery[userCategory]?.toLowerCase() || "")
     );
 
-  const availableSocietiesForManager = societies.filter(
-    (s) => !users.some((u) => u.role === "societyManager" && u.societyId === s._id)
-  );
-
   const societyManagers = users.filter((u) => u.role === "societyManager");
-  const assignedSocietiesCount = societies.length - availableSocietiesForManager.length;
 
   useEffect(() => {
     const managerIds = new Set(societyManagers.map((manager) => manager._id));
@@ -719,53 +789,88 @@ function AdminDashboard() {
         {/* Society Manager Dashboard */}
         {activeTab === "societyManager" && (
           <div className="society-manager-dashboard">
-            <div className="society-manager-overview-grid">
-              <div className="society-manager-overview-card">
-                <span className="society-manager-overview-label">Active Managers</span>
-                <strong>{societyManagers.length}</strong>
-                <p>Registered manager accounts currently active in the system.</p>
-              </div>
-              <div className="society-manager-overview-card">
-                <span className="society-manager-overview-label">Societies Covered</span>
-                <strong>{assignedSocietiesCount}</strong>
-                <p>Societies already assigned to a manager and ready for operations.</p>
-              </div>
-              <div className="society-manager-overview-card society-manager-overview-card-accent">
-                <span className="society-manager-overview-label">Open Assignments</span>
-                <strong>{availableSocietiesForManager.length}</strong>
-                <p>Societies still waiting for a manager account to be linked.</p>
-              </div>
-            </div>
+            <div className="society-manager-page-shell">
+              <div className="form-card society-manager-form society-manager-page-card" ref={societyManagerFormRef}>
+                <div className="section-header-block society-manager-page-header">
+                  <span className="section-kicker">Administration</span>
+                  <h2>Add Society Manager</h2>
+                  <p className="section-subtext">Create a manager account and assign it to an available society in one step.</p>
+                </div>
 
-            <div className="society-manager-dashboard-grid">
-            <div className="form-card society-manager-form" ref={societyManagerFormRef}>
-              <div className="section-header-block">
-                <span className="section-kicker">Administration</span>
-                <h2>Add Society Manager</h2>
-                <p className="section-subtext">Create a manager account and assign it to an available society in one step.</p>
-              </div>
+                <div className="society-manager-grid society-manager-page-grid">
+                  <input
+                    ref={societyManagerNameInputRef}
+                    name="name"
+                    placeholder="Full name"
+                    value={formData.name || ""}
+                    onChange={handleChange}
+                  />
+                  <input
+                    type="email"
+                    name="gmail"
+                    placeholder="University email"
+                    value={formData.gmail || ""}
+                    onChange={handleChange}
+                    title="Use a university email ending with .edu or .ac.xx"
+                  />
+                  <input
+                    name="password"
+                    placeholder="Temporary password"
+                    type="password"
+                    value={formData.password || ""}
+                    onChange={handleChange}
+                  />
+                  <input
+                    name="age"
+                    placeholder="Age"
+                    value={formData.age || ""}
+                    onChange={handleChange}
+                  />
+                  <input
+                    className="society-manager-field-wide"
+                    name="address"
+                    placeholder="Address"
+                    value={formData.address || ""}
+                    onChange={handleChange}
+                  />
+                  <input
+                    className="society-manager-field-wide"
+                    type="tel"
+                    inputMode="numeric"
+                    name="contact"
+                    placeholder="Contact number"
+                    value={formData.contact || ""}
+                    onChange={handleChange}
+                    title="Contact number must be 10 to 15 digits"
+                  />
+                </div>
 
-              <div className="society-manager-grid">
-                <input ref={societyManagerNameInputRef} name="name" placeholder="Full name" onChange={handleChange} />
-                <input name="gmail" placeholder="University email" onChange={handleChange} />
-                <input name="password" placeholder="Temporary password" type="password" onChange={handleChange} />
-                <input name="age" placeholder="Age" onChange={handleChange} />
-                <input className="society-manager-field-wide" name="address" placeholder="Address" onChange={handleChange} />
-                <input className="society-manager-field-wide" name="contact" placeholder="Contact number" onChange={handleChange} />
-              </div>
-
-              <div className="society-manager-actions">
-                {availableSocietiesForManager.length > 0 ? (
-                  <select className="society-manager-select" name="societyId" value={formData.societyId || ""} onChange={handleChange}>
-                    <option value="">Select society</option>
-                    {availableSocietiesForManager.map((s) => <option key={s._id} value={s._id}>{s.societyName}</option>)}
-                  </select>
-                ) : (
-                  <div className="society-manager-inline-note">All societies already have assigned managers.</div>
+                {societyManagerError && (
+                  <p className="society-manager-error-text">{societyManagerError}</p>
                 )}
-                <button className="dashboard-btn society-manager-submit" onClick={() => submitData("Users", "societyManager")}>Add Society Manager</button>
+
+                <div className="society-manager-page-footer">
+                  <select
+                    className="society-manager-select"
+                    name="societyId"
+                    value={formData.societyId || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">
+                      {societies.length > 0 ? "Select society" : "No societies available"}
+                    </option>
+                    {societies.map((s) => <option key={s._id} value={s._id}>{s.societyName}</option>)}
+                  </select>
+                  <button
+                    className="dashboard-btn society-manager-submit"
+                    onClick={() => submitData("Users", "societyManager")}
+                  >
+                    Add Society Manager
+                  </button>
+                </div>
               </div>
             </div>
+
             <div className="form-card manager-list-card manager-list-card-full">
               <div className="manager-list-header">
                 <div>
@@ -879,7 +984,6 @@ function AdminDashboard() {
                 </div>
               )}
             </div>
-            </div>
           </div>
         )}
 
@@ -920,22 +1024,60 @@ function AdminDashboard() {
                     <tbody>
                       {societies.map((society) => {
                         const assignedManager = societyManagers.find((manager) => manager.societyId === society._id);
+                        const isEditingSociety = editSocietyId === society._id;
                         return (
                           <tr key={society._id}>
                             <td>{society.societyName}</td>
-                            <td>{society.description || "No description added"}</td>
+                            <td>
+                              {isEditingSociety ? (
+                                <textarea
+                                  className="society-description-editor"
+                                  value={editSocietyDescription}
+                                  onChange={(e) => setEditSocietyDescription(e.target.value)}
+                                />
+                              ) : (
+                                society.description || "No description added"
+                              )}
+                            </td>
                             <td>
                               <span className={`society-tag ${assignedManager ? "society-tag-assigned" : "society-tag-pending"}`}>
                                 {assignedManager ? assignedManager.name : "No manager assigned"}
                               </span>
                             </td>
                             <td>
-                              <button
-                                className="dashboard-btn society-delete-btn"
-                                onClick={() => handleDeleteSociety(society._id)}
-                              >
-                                Delete
-                              </button>
+                              <div className="society-action-group">
+                                {isEditingSociety ? (
+                                  <>
+                                    <button
+                                      className="dashboard-btn manager-action-btn"
+                                      onClick={() => handleSaveSocietyEdit(society._id)}
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      className="dashboard-btn society-cancel-btn"
+                                      onClick={handleCancelSocietyEdit}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      className="dashboard-btn manager-action-btn"
+                                      onClick={() => handleStartSocietyEdit(society)}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="dashboard-btn society-delete-btn"
+                                      onClick={() => handleDeleteSociety(society._id)}
+                                    >
+                                      Delete
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );

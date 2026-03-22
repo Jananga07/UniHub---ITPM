@@ -70,9 +70,39 @@ const deleteSociety = async (req, res) => {
   }
 };
 
+const updateSociety = async (req, res) => {
+  const { id } = req.params;
+  const { description } = req.body;
+
+  if (!description?.trim()) {
+    return res.status(400).json({ message: "Description is required" });
+  }
+
+  try {
+    const updatedSociety = await Society.findByIdAndUpdate(
+      id,
+      { description: description.trim() },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedSociety) {
+      return res.status(404).json({ message: "Society not found" });
+    }
+
+    res.status(200).json({
+      message: "Society updated successfully",
+      society: updatedSociety,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 module.exports = {
   addSociety,
   getAllSocieties,
   deleteSociety,
+  updateSociety,
 };

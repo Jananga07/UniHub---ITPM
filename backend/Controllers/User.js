@@ -1,19 +1,46 @@
 const User = require("../Models/User");
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const contactRegex = /^\+?\d{10,15}$/;
+
+const isUniversityEmail = (email) => {
+  const domain = email.split("@")[1] || "";
+  return /\.(edu|ac\.[a-z]{2,})$/i.test(domain);
+};
+
+const normalizeContactNumber = (contact = "") => contact.trim().replaceAll(/[\s-]/g, "");
+
 //  Register New User
 const addUsers = async (req, res) => {
   const { name, gmail, password, role, age, address, contact, societyId } = req.body;
+  const normalizedEmail = gmail?.trim().toLowerCase() || "";
+  const normalizedContact = normalizeContactNumber(contact || "");
 
+  if (!normalizedEmail) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
+  if (!emailRegex.test(normalizedEmail)) {
+    return res.status(400).json({ message: "Enter a valid email address." });
+  }
+
+  if (role === "societyManager" && !isUniversityEmail(normalizedEmail)) {
+    return res.status(400).json({ message: "Society manager email must be a university email ending with .edu or .ac.xx." });
+  }
+
+  if (normalizedContact && !contactRegex.test(normalizedContact)) {
+    return res.status(400).json({ message: "Contact number must be 10 to 15 digits." });
+  }
 
   try {
     const newUser = new User({
       name,
-      gmail,
+      gmail: normalizedEmail,
       password,
       role,
       age,
       address,
-      contact,
+      contact: normalizedContact,
       societyId,
     });
 
@@ -21,6 +48,12 @@ const addUsers = async (req, res) => {
     return res.status(201).json({newUser });
   } catch (err) {
     console.error("Add member error:", err);
+
+    if (err.name === "ValidationError") {
+      const firstError = Object.values(err.errors)[0];
+      return res.status(400).json({ message: firstError?.message || "Invalid user details." });
+    }
+
     return res.status(500).json({ message: "Unable to add member" });
   }
 };
