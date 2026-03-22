@@ -13,7 +13,7 @@ import {
 import { Pie } from "react-chartjs-2";
 import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
-
+import ComplaintHandling from "../ComplaintHandling/ComplaintHandling";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API = "http://localhost:5001";
@@ -62,7 +62,9 @@ function FacultyTab() {
       </div>
       <div className="table-container">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Actions</th></tr>
+          </thead>
           <tbody>
             {faculties.map((f, i) => (
               <tr key={f._id}>
@@ -426,6 +428,7 @@ function AdminDashboard() {
   const [modules, setModules]   = useState([]);
   const [societies, setSocieties] = useState([]);
   const [formData, setFormData] = useState({});
+  const [societyManagerError, setSocietyManagerError] = useState("");
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const navigate = useNavigate();
 
@@ -448,7 +451,88 @@ function AdminDashboard() {
     catch (e) { console.error(e); }
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setSocietyManagerError("");
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const availableSocietiesForManager = societies.filter(
+    (s) => !users.some((u) => u.role === "societyManager" && u.societyId === s._id)
+  );
+
+  const validateSocietyManagerForm = () => {
+    const name = (formData.name || "").trim();
+    const gmail = (formData.gmail || "").trim();
+    const password = (formData.password || "").trim();
+    const address = (formData.address || "").trim();
+    const contact = (formData.contact || "").trim();
+    const ageVal = formData.age;
+
+    if (!name) return "Name is required.";
+    if (!gmail) return "Email is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail)) {
+      return "Enter a valid email address.";
+    }
+    if (!password) return "Password is required.";
+    if (password.length < 6) return "Password must be at least 6 characters.";
+    if (ageVal === undefined || ageVal === "" || ageVal === null) {
+      return "Age is required.";
+    }
+    const ageNum = Number(ageVal);
+    if (!Number.isInteger(ageNum) || ageNum < 16 || ageNum > 100) {
+      return "Age must be a whole number between 16 and 100.";
+    }
+    if (!address) return "Address is required.";
+    if (!contact) return "Contact number is required.";
+    if (!/^\+?\d{10,15}$/.test(contact.replace(/\s/g, ""))) {
+      return "Contact must be 10–15 digits (optional + prefix).";
+    }
+    if (availableSocietiesForManager.length > 0 && !formData.societyId) {
+      return "Please select a society for this manager.";
+    }
+    if (availableSocietiesForManager.length === 0) {
+      return "Create a society first (no unassigned societies available).";
+    }
+    return "";
+  };
+
+  const submitSocietyManager = async () => {
+    setSocietyManagerError("");
+    const err = validateSocietyManagerForm();
+    if (err) {
+      setSocietyManagerError(err);
+      return;
+    }
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        gmail: formData.gmail.trim().toLowerCase(),
+        password: formData.password.trim(),
+        role: "societyManager",
+        age: Number(formData.age),
+        address: formData.address.trim(),
+        contact: formData.contact.replace(/\s/g, ""),
+        societyId: formData.societyId,
+      };
+      await axios.post(`${API}/Users`, payload);
+      alert("Society manager added successfully!");
+      setFormData((prev) => ({
+        ...prev,
+        name: "",
+        gmail: "",
+        password: "",
+        age: "",
+        address: "",
+        contact: "",
+        societyId: "",
+      }));
+      setSocietyManagerError("");
+      fetchUsers();
+    } catch (e) {
+      console.error(e);
+      alert(e.response?.data?.message || "Could not add society manager.");
+    }
+  };
 
   const submitData = async (endpoint, role) => {
     try {
@@ -489,10 +573,6 @@ function AdminDashboard() {
       u.gmail.toLowerCase().includes(searchQuery[userCategory]?.toLowerCase() || "")
     );
 
-  const availableSocietiesForManager = societies.filter(
-    (s) => !users.some((u) => u.role === "societyManager" && u.societyId === s._id)
-  );
-
   const RESOURCE_TABS = [
     { key: "resourceFaculty",    label: "📁 Faculties" },
     { key: "resourceModule",     label: "📚 Res. Modules" },
@@ -512,7 +592,7 @@ function AdminDashboard() {
         <button className="sidebar-link" onClick={() => setActiveTab("societyManager")}>Add Society Manager</button>
         <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
         <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
-        <button onClick={() => navigate("/adquiz")}>Add Quiz</button>
+        <button className="sidebar-link" onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
         <button 
           onClick={() => setShowResourcesMenu(!showResourcesMenu)} 
@@ -532,13 +612,22 @@ function AdminDashboard() {
           </div>
         )}
 
-        {/* Consultant Booking Management Link */}
+        {/* Consultant Booking Management Link - UNCOMMENTED */}
         <button 
           className="sidebar-link" 
           onClick={() => setActiveTab("consultantBookings")}
           style={{ marginTop: '10px' }}
         >
           Consultant Bookings
+        </button>
+
+        {/* Complaint Handling Link - ADDED */}
+        <button 
+          className="sidebar-link" 
+          onClick={() => setActiveTab("complaintHandling")}
+          style={{ marginTop: '10px' }}
+        >
+          📋 Complaint Handling
         </button>
       </div>
 
@@ -549,139 +638,144 @@ function AdminDashboard() {
           <div className="admin-profile">Admin</div>
         </div>
 
-       
         {/* Dashboard Cards */}
-{activeTab === "dashboard" && (
-  <div className="dashboard-grid">
-
-    <div className="dashboard-card">
-      <FaUsers className="card-icon" />
-      <h3>Total Users</h3>
-      <p>
-        <CountUp end={users.length} duration={2} />
-      </p>
-    </div>
-
-    <div className="dashboard-card">
-      <FaUserGraduate className="card-icon" />
-      <h3>Students</h3>
-      <p>
-        <CountUp 
-          end={users.filter(u => u.role === "Student").length} 
-          duration={2} 
-        />
-      </p>
-    </div>
-
-    <div className="dashboard-card">
-      <FaUserTie className="card-icon" />
-      <h3>Society Managers</h3>
-      <p>
-        <CountUp 
-          end={users.filter(u => u.role === "societyManager").length} 
-          duration={2} 
-        />
-      </p>
-    </div>
-
-  </div>
-)}
+        {activeTab === "dashboard" && (
+          <div className="dashboard-grid">
+            <div className="dashboard-card">
+              <FaUsers className="card-icon" />
+              <h3>Total Users</h3>
+              <p><CountUp end={users.length} duration={2} /></p>
+            </div>
+            <div className="dashboard-card">
+              <FaUserGraduate className="card-icon" />
+              <h3>Students</h3>
+              <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
+            </div>
+            <div className="dashboard-card">
+              <FaUserTie className="card-icon" />
+              <h3>Society Managers</h3>
+              <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
+            </div>
+          </div>
+        )}
 
         {/* Users Section */}
-       {activeTab === "users" && (
-  <div className="users-section">
-
-    {/* Tabs */}
-    <div className="category-tabs">
-      {["student", "societymanager"].map(cat => (
-        <button
-          key={cat}
-          className={userCategory === cat ? "active" : ""}
-          onClick={() => setUserCategory(cat)}
-        >
-          {cat === "societymanager"
-            ? "Society Managers"
-            : "Students"}
-        </button>
-      ))}
-    </div>
-
-    {/* Search */}
-    <input
-      type="text"
-      placeholder={`Search ${userCategory}...`}
-      value={searchQuery[userCategory] || ""}
-      onChange={(e) =>
-        setSearchQuery({
-          ...searchQuery,
-          [userCategory]: e.target.value
-        })
-      }
-      className="search-input"
-    />
-
-    {/* Table */}
-    <div className="table-container">
-      <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Age</th>
-            <th>Address</th>
-            <th>Contact</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-  {filteredUsers.map((u) => (
-    <tr key={u._id}>
-
-      <td>{u.name}</td>
-      <td>{u.gmail}</td>
-      <td>{u.age}</td>
-      <td>{u.address}</td>
-      <td>{u.contact}</td>
-
-      <td>
-        <button
-          className="dashboard-btn"
-          onClick={() => handleDelete(u._id)}
-        >
-          Delete
-        </button>
-      </td>
-
-    </tr>
-  ))}
-</tbody>
-      </table>
-    </div>
-
-  </div>
-)}
+        {activeTab === "users" && (
+          <div className="users-section">
+            <div className="category-tabs">
+              {["student", "societymanager"].map(cat => (
+                <button
+                  key={cat}
+                  className={userCategory === cat ? "active" : ""}
+                  onClick={() => setUserCategory(cat)}
+                >
+                  {cat === "societymanager" ? "Society Managers" : "Students"}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              placeholder={`Search ${userCategory}...`}
+              value={searchQuery[userCategory] || ""}
+              onChange={(e) =>
+                setSearchQuery({
+                  ...searchQuery,
+                  [userCategory]: e.target.value
+                })
+              }
+              className="search-input"
+            />
+            <div className="table-container">
+              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Email</th><th>Age</th><th>Address</th><th>Contact</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((u) => (
+                    <tr key={u._id}>
+                      <td>{u.name}</td>
+                      <td>{u.gmail}</td>
+                      <td>{u.age}</td>
+                      <td>{u.address}</td>
+                      <td>{u.contact}</td>
+                      <td><button className="dashboard-btn" onClick={() => handleDelete(u._id)}>Delete</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Existing: Society Manager + Society forms */}
         {(activeTab === "societyManager" || activeTab === "society") && (
           <>
             <div className="form-card">
               <h2>Add Society Manager</h2>
-              <input name="name" placeholder="Name" onChange={handleChange} />
-              <input name="gmail" placeholder="Email" onChange={handleChange} />
-              <input name="password" placeholder="Password" type="password" onChange={handleChange} />
-              <input name="age" placeholder="Age" onChange={handleChange} />
-              <input name="address" placeholder="Address" onChange={handleChange} />
-              <input name="contact" placeholder="Contact" onChange={handleChange} />
+              {societyManagerError && (
+                <p className="form-error" role="alert">{societyManagerError}</p>
+              )}
+              <input
+                name="name"
+                placeholder="Name"
+                value={formData.name || ""}
+                onChange={handleChange}
+                autoComplete="name"
+              />
+              <input
+                name="gmail"
+                type="email"
+                placeholder="Email"
+                value={formData.gmail || ""}
+                onChange={handleChange}
+                autoComplete="email"
+              />
+              <input
+                name="password"
+                placeholder="Password (min. 6 characters)"
+                type="password"
+                value={formData.password || ""}
+                onChange={handleChange}
+                autoComplete="new-password"
+              />
+              <input
+                name="age"
+                type="number"
+                min={16}
+                max={100}
+                placeholder="Age"
+                value={formData.age ?? ""}
+                onChange={handleChange}
+              />
+              <input
+                name="address"
+                placeholder="Address"
+                value={formData.address || ""}
+                onChange={handleChange}
+                autoComplete="street-address"
+              />
+              <input
+                name="contact"
+                placeholder="Contact (10–15 digits)"
+                value={formData.contact || ""}
+                onChange={handleChange}
+                inputMode="numeric"
+              />
               {availableSocietiesForManager.length > 0 && (
                 <select name="societyId" value={formData.societyId || ""} onChange={handleChange}>
                   <option value="">Select Society</option>
                   {availableSocietiesForManager.map((s) => <option key={s._id} value={s._id}>{s.societyName}</option>)}
                 </select>
               )}
-              <button className="dashboard-btn" onClick={() => submitData("Users", "societyManager")}>Add Society Manager</button>
+              {availableSocietiesForManager.length === 0 && (
+                <p className="form-hint">
+                  Add a society below (or ensure one has no manager yet) before assigning a manager.
+                </p>
+              )}
+              <button type="button" className="dashboard-btn" onClick={submitSocietyManager}>
+                Add Society Manager
+              </button>
             </div>
             <div className="form-card">
               <h2>Registered Society Managers</h2>
@@ -694,7 +788,8 @@ function AdminDashboard() {
                         const society = societies.find((s) => s._id === m.societyId);
                         return (
                           <tr key={m._id}>
-                            <td>{m.name}</td><td>{m.gmail}</td>
+                            <td>{m.name}</td>
+                            <td>{m.gmail}</td>
                             <td>{society ? society.societyName : "No society assigned"}</td>
                           </tr>
                         );
@@ -739,6 +834,9 @@ function AdminDashboard() {
         
         {/* Consultant Booking Management Tab */}
         {activeTab === "consultantBookings" && <ConsultantBookingManagement />}
+
+        {/* Complaint Handling Tab - ADDED */}
+        {activeTab === "complaintHandling" && <ComplaintHandling />}
       </div>
     </div>
   );

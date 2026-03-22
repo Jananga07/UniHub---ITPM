@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navigation from '../HomeNav/HomeNav';
 import './ComplaintHandling.css';
 
 function ComplaintHandling() {
@@ -157,7 +156,6 @@ function ComplaintHandling() {
 
   return (
     <div className="complaint-handling-container">
-      <Navigation />
       <div className="handling-header">
         <h1>Complaint Handling & Management</h1>
         <p>Manage and track student complaints efficiently</p>

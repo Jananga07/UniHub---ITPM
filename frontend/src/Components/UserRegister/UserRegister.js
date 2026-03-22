@@ -6,14 +6,14 @@ import "./UserRegister.css";
 function UserRegister() {
   const navigate = useNavigate();
 
+  // Role is not shown in the UI — only student registration uses this page; API gets role: "student" on submit.
   const [inputs, setInputs] = useState({
     name: "",
     gmail: "",
     password: "",
-    role: "student",
     age: "",
     address: "",
-    contact: ""
+    contact: "",
   });
   const [error, setError] = useState("");
 
@@ -87,7 +87,10 @@ function UserRegister() {
       <div className="register-container">
         <form className="register-form" onSubmit={handleSubmit}>
           <h1>Register as Student</h1>
-          {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
+          <p className="register-subtitle">
+            This form is for <strong>student accounts only</strong>. Your role is set automatically — no need to choose it.
+          </p>
+          {error && <p className="register-error" role="alert">{error}</p>}
 
           {/* Name */}
           <input
@@ -118,16 +121,6 @@ function UserRegister() {
             onChange={handleChange}
             required
           />
-
-          {/* Role is fixed by frontend + payload */}
-          <select
-            name="role"
-            value="student"
-            disabled
-            className="role-select"
-          >
-            <option value="student">Student</option>
-          </select>
 
           {/* Age */}
           <input
