@@ -81,9 +81,33 @@ function UploadSection({ moduleId }) {
   const [file, setFile]         = useState(null);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg]           = useState("");
+  const [titleErr, setTitleErr] = useState("");
+
+  const handleTitleChange = (e) => {
+    const val = e.target.value;
+    if (!/^[a-zA-Z0-9\s]*$/.test(val)) {
+      setTitleErr("❌ Symbols like @, $, % are not valid. Please use only letters and numbers.");
+    } else {
+      setTitleErr("");
+    }
+    setTitle(val);
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.type !== "application/pdf") {
+      setMsg("❌ Please select a valid PDF file. Images/other formats are not allowed.");
+      setFile(null);
+      e.target.value = null; // reset input
+    } else {
+      setMsg("");
+      setFile(selectedFile);
+    }
+  };
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    if (titleErr) return setMsg("❌ Please fix title errors before uploading.");
     if (!file) return setMsg("Please select a PDF file.");
     setUploading(true);
     setMsg("");
@@ -120,9 +144,10 @@ function UploadSection({ moduleId }) {
           type="text"
           placeholder="Title / Description"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
           required
         />
+        {titleErr && <p style={{ fontSize: 13, margin: "-10px 0 10px 0", color: "#ef4444" }}>{titleErr}</p>}
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           {CATEGORIES.map((c) => (
             <option key={c.key} value={c.key}>{c.key}</option>
@@ -131,7 +156,7 @@ function UploadSection({ moduleId }) {
         <input
           type="file"
           accept="application/pdf"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={handleFileChange}
           required
         />
         {msg && <p style={{ fontSize: 13, marginBottom: 10 }}>{msg}</p>}

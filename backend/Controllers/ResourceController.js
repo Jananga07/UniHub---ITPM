@@ -178,6 +178,18 @@ const uploadPdf = async (req, res) => {
     if (!title || !moduleId || !category)
       return res.status(400).json({ message: "title, module, and category are required" });
 
+    // Backend validation for title formatting
+    if (!/^[a-zA-Z0-9\s]*$/.test(title)) {
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "Invalid title format. Letters and numbers only." });
+    }
+
+    // Backend validation for PDF mime type
+    if (req.file.mimetype !== "application/pdf") {
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "Invalid file format. Only PDFs allowed." });
+    }
+
     const pdf = new PdfResource({
       title,
       module: moduleId,

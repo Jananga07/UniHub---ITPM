@@ -265,6 +265,29 @@ function AdminUploadTab() {
   const [form, setForm] = useState({ faculty: "", year: 1, semester: 1, module: "", category: CATEGORIES[0], title: "" });
   const [file, setFile]   = useState(null);
   const [msg, setMsg]     = useState("");
+  const [titleErr, setTitleErr] = useState("");
+
+  const handleTitleChange = (e) => {
+    const val = e.target.value;
+    if (!/^[a-zA-Z0-9\s]*$/.test(val)) {
+      setTitleErr("❌ Symbols like @, $, % are not valid. Please use only letters and numbers.");
+    } else {
+      setTitleErr("");
+    }
+    setForm({ ...form, title: val });
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.type !== "application/pdf") {
+      setMsg("❌ Please select a valid PDF file. Images/other formats are not allowed.");
+      setFile(null);
+      e.target.value = null; // reset input
+    } else {
+      setMsg("");
+      setFile(selectedFile);
+    }
+  };
 
   const loadFaculties = () =>
     axios.get(`${API}/resources/faculties`).then((r) => setFaculties(r.data.faculties));
@@ -280,6 +303,7 @@ function AdminUploadTab() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (titleErr) return setMsg("❌ Please fix title errors before uploading.");
     if (!form.faculty || !form.year || !form.semester || !form.module || !form.title || !file) {
       return setMsg("❌ All frontend fields and file are required before uploading.");
     }
@@ -329,9 +353,10 @@ function AdminUploadTab() {
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
           <input className="ra-input" placeholder="PDF Title" value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-          <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files[0])} required />
-          {msg && <p style={{ fontSize: 13, margin: "8px 0" }}>{msg}</p>}
+            onChange={handleTitleChange} required />
+          {titleErr && <p style={{ fontSize: 13, margin: "4px 0", color: "#ef4444" }}>{titleErr}</p>}
+          <input type="file" accept="application/pdf" onChange={handleFileChange} required />
+          {msg && <p style={{ fontSize: 13, margin: "8px 0", color: msg.includes("❌") ? "#ef4444" : "#10b981" }}>{msg}</p>}
           <button className="dashboard-btn" type="submit">Upload & Approve</button>
         </form>
       </div>
