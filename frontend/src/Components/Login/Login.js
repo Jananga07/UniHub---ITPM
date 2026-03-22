@@ -3,16 +3,24 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
+const API_BASE = "http://localhost:5001";
+
+/** Normalize DB role strings for routing (e.g. "Admin", "societyManager", "Society Manager"). */
+function normalizeRole(role) {
+  return String(role ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
 function Login() {
   const navigate = useNavigate();
 
-  // ✅ Login form state
   const [inputs, setInputs] = useState({
     gmail: "",
     password: ""
   });
 
-  // Handle input changes
   const handleChange = (e) => {
     setInputs((prev) => ({
       ...prev,
@@ -20,20 +28,35 @@ function Login() {
     }));
   };
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5001/users/login", inputs);
+      const res = await axios.post(`${API_BASE}/users/login`, inputs);
 
       if (res.data.status === "ok") {
         alert("Login Successful!");
-        localStorage.setItem("userId", res.data.userId);
-        navigate(`/StudentProfile/${res.data.userId}`); // Redirect to profile
+
+        const user = res.data.user;
+        const role = normalizeRole(user.role);
+
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Same form for all roles — route by normalized role
+        if (role === "student") {
+          navigate(`/studentprofile/${user._id}`);
+        } else if (role === "societymanager" || role === "manager") {
+          navigate(`/SocietyManagerProfile/${user._id}`);
+        } else if (role === "admin" || role === "administrator") {
+          navigate("/admin");
+        } else {
+          alert("Unknown role: " + user.role);
+        }
+
       } else {
         alert(res.data.message || "Login Failed");
       }
+
     } catch (err) {
       console.error(err);
       alert("Login Failed");
@@ -45,8 +68,10 @@ function Login() {
       <div className="login-container">
         <form className="login-form" onSubmit={handleSubmit}>
           <h1>Login</h1>
+          <p className="login-subtitle">
+            Students, society managers, and admins use this page to sign in.
+          </p>
 
-          {/* Email input */}
           <input
             type="email"
             name="gmail"
@@ -56,7 +81,6 @@ function Login() {
             required
           />
 
-          {/* Password input */}
           <input
             type="password"
             name="password"
@@ -66,7 +90,6 @@ function Login() {
             required
           />
 
-          {/* Login button */}
           <button type="submit">Login</button>
         </form>
       </div>

@@ -1,0 +1,110 @@
+/* Extra styles for Resources admin sections */
+
+.ra-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e1b4b;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* ADD ROW */
+.ra-add-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* INPUTS */
+.ra-input {
+  padding: 9px 13px;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  background: #f9fafb;
+  color: #111827;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.ra-input:focus { border-color: #4f46e5; background: #fff; }
+
+.ra-input-sm {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+  outline: none;
+  width: 140px;
+}
+
+/* FORM GRID */
+.ra-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+/* DANGER / SUCCESS BUTTONS */
+.ra-btn-danger  { background: #ef4444 !important; }
+.ra-btn-success { background: #10b981 !important; }
+
+/* EMPTY STATE */
+.ra-empty {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* SIDEBAR DIVIDER */
+.ra-sidebar-divider {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  padding: 18px 15px 6px;
+  pointer-events: none;
+}
+
+/* ACTIVE SIDEBAR LINK */
+.ra-sidebar-active {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+}
+
+/* ANALYTICS */
+.ra-analytics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.ra-chart-wrap {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 28px;
+  margin-top: 4px;
+}
+
+/* UPLOAD FORM */
+.ra-upload-form {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 28px;
+  max-width: 560px;
+}

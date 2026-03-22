@@ -20,6 +20,8 @@ function Nav() {
 
 
         <li><Link to="/studentsupport">Student Support</Link></li>
+        <li><Link to="/resources">Resources</Link></li>
+        <li><Link to="/faq">FAQ</Link></li>
 
 
 
