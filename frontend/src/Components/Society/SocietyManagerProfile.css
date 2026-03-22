@@ -1,0 +1,37 @@
+/* Extra polish for society manager content cards */
+.profile-panel--manager {
+  border-color: rgba(13, 148, 136, 0.15);
+  box-shadow: 0 16px 40px rgba(13, 148, 136, 0.08);
+}
+
+.manager-society-card {
+  padding: 4px 0 0;
+}
+
+.manager-society-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.manager-society-card__pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ccfbf1, #dbeafe);
+  color: #0f766e;
+}
+
+.manager-society-card__desc {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #475569;
+  max-width: 65ch;
+}

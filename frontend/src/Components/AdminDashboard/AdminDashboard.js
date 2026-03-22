@@ -614,7 +614,6 @@ function AdminDashboard() {
         : [...currentIds, managerId]
     );
   };
-
   const RESOURCE_TABS = [
     { key: "resourceFaculty",    label: "📁 Faculties" },
     { key: "resourceModule",     label: "📚 Res. Modules" },

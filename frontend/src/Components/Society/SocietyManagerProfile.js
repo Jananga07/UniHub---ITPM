@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import "../Student/StudentProfile.css";
+import "./SocietyManagerProfile.css";
 
 function SocietyManagerProfile() {
   const { id } = useParams();
@@ -54,7 +55,9 @@ function SocietyManagerProfile() {
   const handleDelete = async () => {
     if (!manager?._id) return;
 
-    const confirmDelete = window.confirm("Are you sure you want to delete your account?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your account?"
+    );
     if (!confirmDelete) return;
 
     try {
@@ -67,71 +70,184 @@ function SocietyManagerProfile() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!manager) return <p>User not found</p>;
+  if (loading) {
+    return (
+      <div className="profile-page profile-page--loading">
+        <div className="profile-loading">
+          <div className="profile-loading__spinner" aria-hidden />
+          <p>Loading your profile…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!manager) {
+    return (
+      <div className="profile-page profile-page--empty">
+        <div className="profile-empty-card">
+          <h2>User not found</h2>
+          <p>We couldn’t load this profile. Try signing in again.</p>
+          <button
+            type="button"
+            className="profile-btn profile-btn--primary"
+            onClick={() => navigate("/login")}
+          >
+            Go to login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="profile-wrapper">
-      <div className="sidebar">
-        <div className="avatar">{manager.name?.charAt(0).toUpperCase()}</div>
-        <h2>{manager.name}</h2>
-        <p>{manager.gmail}</p>
+    <div className="profile-page profile-page--manager">
+      <aside className="profile-sidebar">
+        <div className="profile-sidebar__brand">Uni Hub</div>
 
-        <ul className="profile-info">
-          <li>
-            Age: <span>{manager.age || "N/A"}</span>
-          </li>
-          <li>
-            Address: <span>{manager.address || "N/A"}</span>
-          </li>
-          <li>
-            Contact: <span>{manager.contact || "N/A"}</span>
-          </li>
-          <li>
-            Role: <span>{manager.role || "Society Manager"}</span>
-          </li>
-          <li>
-            Society: <span>{society?.societyName || "N/A"}</span>
-          </li>
+        <div className="profile-avatar-wrap">
+          <div className="profile-avatar profile-avatar--manager">
+            {manager.name?.charAt(0).toUpperCase()}
+          </div>
+        </div>
 
-          <button className="delete-btn" onClick={handleDelete}>
-            Delete Account
+        <div className="profile-identity">
+          <h1 className="profile-name">{manager.name}</h1>
+          <p className="profile-email">{manager.gmail}</p>
+          <span className="profile-badge profile-badge--manager">
+            Society manager
+          </span>
+        </div>
+
+        <dl className="profile-meta">
+          <div className="profile-meta__row">
+            <dt>Age</dt>
+            <dd>{manager.age ?? "—"}</dd>
+          </div>
+          <div className="profile-meta__row">
+            <dt>Contact</dt>
+            <dd>{manager.contact || "—"}</dd>
+          </div>
+          <div className="profile-meta__row profile-meta__row--block">
+            <dt>Address</dt>
+            <dd>{manager.address || "—"}</dd>
+          </div>
+          <div className="profile-meta__row profile-meta__row--block">
+            <dt>Assigned society</dt>
+            <dd>{society?.societyName || "—"}</dd>
+          </div>
+        </dl>
+
+        <nav className="profile-nav" aria-label="Profile sections">
+          <button
+            type="button"
+            className={`profile-nav__btn ${
+              activeTab === "society" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("society")}
+          >
+            <span className="profile-nav__icon" aria-hidden>
+              ◎
+            </span>
+            Society
           </button>
-        </ul>
+          <button
+            type="button"
+            className={`profile-nav__btn ${
+              activeTab === "module" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("module")}
+          >
+            <span className="profile-nav__icon" aria-hidden>
+              ▤
+            </span>
+            Modules
+          </button>
+        </nav>
 
         <button
-          className={activeTab === "society" ? "active" : ""}
-          onClick={() => setActiveTab("society")}
+          type="button"
+          className="profile-btn profile-btn--danger profile-btn--block"
+          onClick={handleDelete}
         >
-          Society
+          Delete account
         </button>
+      </aside>
 
-        <button
-          className={activeTab === "module" ? "active" : ""}
-          onClick={() => setActiveTab("module")}
-        >
-          Module
-        </button>
-      </div>
+      <main className="profile-main">
+        <header className="profile-main__header">
+          <p className="profile-main__eyebrow">Society manager dashboard</p>
+          <h2 className="profile-main__title">
+            {activeTab === "society" ? "Your society" : "Modules & resources"}
+          </h2>
+          <p className="profile-main__subtitle">
+            {activeTab === "society"
+              ? "Overview of the society you manage and its details."
+              : "Connect module tools here when your backend features are ready."}
+          </p>
+        </header>
 
-      <div className="main-content">
-        <div className="tab-content">
+        <section className="profile-panel profile-panel--manager">
           {activeTab === "society" && (
-            <div>
-              <h2>Managed Society</h2>
-              <p>{society?.societyName ? `You manage: ${society.societyName}` : "No society assigned."}</p>
-              <p>{society?.description ? `Description: ${society.description}` : ""}</p>
+            <div className="profile-panel__body">
+              {society ? (
+                <div className="manager-society-card">
+                  <div className="manager-society-card__header">
+                    <h3 className="profile-feature__title">{society.societyName}</h3>
+                    <span className="manager-society-card__pill">Managed</span>
+                  </div>
+                  <p className="manager-society-card__desc">
+                    {society.description ||
+                      "No description has been added for this society yet."}
+                  </p>
+                  <button
+                    type="button"
+                    className="profile-btn profile-btn--primary"
+                    onClick={() => navigate("/societypage")}
+                  >
+                    View all societies
+                  </button>
+                </div>
+              ) : (
+                <div className="profile-feature">
+                  <h3 className="profile-feature__title">No society assigned</h3>
+                  <p className="profile-feature__text">
+                    An administrator can link you to a society from the admin
+                    dashboard. Until then, you can still browse the public
+                    societies list.
+                  </p>
+                  <button
+                    type="button"
+                    className="profile-btn profile-btn--primary"
+                    onClick={() => navigate("/societypage")}
+                  >
+                    Browse societies
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === "module" && (
-            <div>
-              <h2>Module</h2>
-              <p>This section is available when you connect society manager module features.</p>
+            <div className="profile-panel__body">
+              <div className="profile-feature">
+                <h3 className="profile-feature__title">Module hub</h3>
+                <p className="profile-feature__text">
+                  Use the module page to align with university modules and
+                  resources. Extend this area when society-specific modules are
+                  implemented.
+                </p>
+                <button
+                  type="button"
+                  className="profile-btn profile-btn--primary"
+                  onClick={() => navigate("/modulepage")}
+                >
+                  Go to module page
+                </button>
+              </div>
             </div>
           )}
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
