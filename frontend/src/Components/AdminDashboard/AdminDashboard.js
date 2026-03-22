@@ -13,7 +13,7 @@ import {
 import { Pie } from "react-chartjs-2";
 import { FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
-
+import ComplaintHandling from "../ComplaintHandling/ComplaintHandling";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API = "http://localhost:5001";
@@ -62,7 +62,9 @@ function FacultyTab() {
       </div>
       <div className="table-container">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Actions</th></tr>
+          </thead>
           <tbody>
             {faculties.map((f, i) => (
               <tr key={f._id}>
@@ -512,7 +514,7 @@ function AdminDashboard() {
         <button className="sidebar-link" onClick={() => setActiveTab("societyManager")}>Add Society Manager</button>
         <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
         <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
-        <button onClick={() => navigate("/adquiz")}>Add Quiz</button>
+        <button className="sidebar-link" onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
         <button 
           onClick={() => setShowResourcesMenu(!showResourcesMenu)} 
@@ -532,13 +534,22 @@ function AdminDashboard() {
           </div>
         )}
 
-        {/* Consultant Booking Management Link */}
+        {/* Consultant Booking Management Link - UNCOMMENTED */}
         <button 
           className="sidebar-link" 
           onClick={() => setActiveTab("consultantBookings")}
           style={{ marginTop: '10px' }}
         >
           Consultant Bookings
+        </button>
+
+        {/* Complaint Handling Link - ADDED */}
+        <button 
+          className="sidebar-link" 
+          onClick={() => setActiveTab("complaintHandling")}
+          style={{ marginTop: '10px' }}
+        >
+          📋 Complaint Handling
         </button>
       </div>
 
@@ -549,120 +560,75 @@ function AdminDashboard() {
           <div className="admin-profile">Admin</div>
         </div>
 
-       
         {/* Dashboard Cards */}
-{activeTab === "dashboard" && (
-  <div className="dashboard-grid">
-
-    <div className="dashboard-card">
-      <FaUsers className="card-icon" />
-      <h3>Total Users</h3>
-      <p>
-        <CountUp end={users.length} duration={2} />
-      </p>
-    </div>
-
-    <div className="dashboard-card">
-      <FaUserGraduate className="card-icon" />
-      <h3>Students</h3>
-      <p>
-        <CountUp 
-          end={users.filter(u => u.role === "Student").length} 
-          duration={2} 
-        />
-      </p>
-    </div>
-
-    <div className="dashboard-card">
-      <FaUserTie className="card-icon" />
-      <h3>Society Managers</h3>
-      <p>
-        <CountUp 
-          end={users.filter(u => u.role === "societyManager").length} 
-          duration={2} 
-        />
-      </p>
-    </div>
-
-  </div>
-)}
+        {activeTab === "dashboard" && (
+          <div className="dashboard-grid">
+            <div className="dashboard-card">
+              <FaUsers className="card-icon" />
+              <h3>Total Users</h3>
+              <p><CountUp end={users.length} duration={2} /></p>
+            </div>
+            <div className="dashboard-card">
+              <FaUserGraduate className="card-icon" />
+              <h3>Students</h3>
+              <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
+            </div>
+            <div className="dashboard-card">
+              <FaUserTie className="card-icon" />
+              <h3>Society Managers</h3>
+              <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
+            </div>
+          </div>
+        )}
 
         {/* Users Section */}
-       {activeTab === "users" && (
-  <div className="users-section">
-
-    {/* Tabs */}
-    <div className="category-tabs">
-      {["student", "societymanager"].map(cat => (
-        <button
-          key={cat}
-          className={userCategory === cat ? "active" : ""}
-          onClick={() => setUserCategory(cat)}
-        >
-          {cat === "societymanager"
-            ? "Society Managers"
-            : "Students"}
-        </button>
-      ))}
-    </div>
-
-    {/* Search */}
-    <input
-      type="text"
-      placeholder={`Search ${userCategory}...`}
-      value={searchQuery[userCategory] || ""}
-      onChange={(e) =>
-        setSearchQuery({
-          ...searchQuery,
-          [userCategory]: e.target.value
-        })
-      }
-      className="search-input"
-    />
-
-    {/* Table */}
-    <div className="table-container">
-      <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Age</th>
-            <th>Address</th>
-            <th>Contact</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-  {filteredUsers.map((u) => (
-    <tr key={u._id}>
-
-      <td>{u.name}</td>
-      <td>{u.gmail}</td>
-      <td>{u.age}</td>
-      <td>{u.address}</td>
-      <td>{u.contact}</td>
-
-      <td>
-        <button
-          className="dashboard-btn"
-          onClick={() => handleDelete(u._id)}
-        >
-          Delete
-        </button>
-      </td>
-
-    </tr>
-  ))}
-</tbody>
-      </table>
-    </div>
-
-  </div>
-)}
+        {activeTab === "users" && (
+          <div className="users-section">
+            <div className="category-tabs">
+              {["student", "societymanager"].map(cat => (
+                <button
+                  key={cat}
+                  className={userCategory === cat ? "active" : ""}
+                  onClick={() => setUserCategory(cat)}
+                >
+                  {cat === "societymanager" ? "Society Managers" : "Students"}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              placeholder={`Search ${userCategory}...`}
+              value={searchQuery[userCategory] || ""}
+              onChange={(e) =>
+                setSearchQuery({
+                  ...searchQuery,
+                  [userCategory]: e.target.value
+                })
+              }
+              className="search-input"
+            />
+            <div className="table-container">
+              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Email</th><th>Age</th><th>Address</th><th>Contact</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((u) => (
+                    <tr key={u._id}>
+                      <td>{u.name}</td>
+                      <td>{u.gmail}</td>
+                      <td>{u.age}</td>
+                      <td>{u.address}</td>
+                      <td>{u.contact}</td>
+                      <td><button className="dashboard-btn" onClick={() => handleDelete(u._id)}>Delete</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Existing: Society Manager + Society forms */}
         {(activeTab === "societyManager" || activeTab === "society") && (
@@ -694,7 +660,8 @@ function AdminDashboard() {
                         const society = societies.find((s) => s._id === m.societyId);
                         return (
                           <tr key={m._id}>
-                            <td>{m.name}</td><td>{m.gmail}</td>
+                            <td>{m.name}</td>
+                            <td>{m.gmail}</td>
                             <td>{society ? society.societyName : "No society assigned"}</td>
                           </tr>
                         );
@@ -739,6 +706,9 @@ function AdminDashboard() {
         
         {/* Consultant Booking Management Tab */}
         {activeTab === "consultantBookings" && <ConsultantBookingManagement />}
+
+        {/* Complaint Handling Tab - ADDED */}
+        {activeTab === "complaintHandling" && <ComplaintHandling />}
       </div>
     </div>
   );
