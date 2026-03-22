@@ -239,5 +239,4 @@ function ComplaintForm() {
     </div>
   );
 }
-
 export default ComplaintForm;
