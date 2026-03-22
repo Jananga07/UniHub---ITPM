@@ -188,13 +188,33 @@ tr:hover {
   width: 400px;
 }
 
-.form-card input {
+.form-card input,
+.form-card select {
   width: 100%;
   padding: 10px;
   margin-bottom: 12px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
   outline: none;
+  box-sizing: border-box;
+}
+
+.form-error {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.form-hint {
+  margin: -4px 0 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #64748b;
 }
 
 /* SEARCH INPUT */
