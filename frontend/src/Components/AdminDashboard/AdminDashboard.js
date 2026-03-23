@@ -622,49 +622,54 @@ function AdminDashboard() {
     { key: "resourceAnalytics",  label: "📊 Analytics" },
     { key: "resourceRatings",    label: "⭐ Ratings" },
   ];
+  const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
 
   return (
     <div className="admin-dashboard">
       {/* Sidebar */}
-      <div className="sidebar">
+      <aside className="sidebar">
         <h2>Uni Hub</h2>
-        <button className="sidebar-link" onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("users")}>All Users</button>
-        <button className="sidebar-link" onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
-        <button onClick={() => navigate("/adquiz")}>Add Quiz</button>
+        <div className="sidebar-nav">
+          <button className={`sidebar-link ${activeTab === "dashboard" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("dashboard")}>Dashboard</button>
+          <button className={`sidebar-link ${activeTab === "users" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("users")}>All Users</button>
+          <button className={`sidebar-link ${activeTab === "societyManager" ? "sidebar-link-active" : ""}`} onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
+          <button className={`sidebar-link ${activeTab === "module" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("module")}>Add Module</button>
+          <button className={`sidebar-link ${activeTab === "society" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("society")}>Add Society</button>
+          <button className="sidebar-link sidebar-link-primary" onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
-        <button 
-          onClick={() => setShowResourcesMenu(!showResourcesMenu)} 
-          style={{ marginTop: '10px', backgroundColor: '#374151', color: '#fff', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Resources Management</span>
-          <span>{showResourcesMenu ? "▲" : "▼"}</span>
-        </button>
-        {showResourcesMenu && (
-          <div style={{ marginLeft: "10px", marginTop: "5px", display: "flex", flexDirection: "column" }}>
-            {RESOURCE_TABS.map((t) => (
-              <button key={t.key} onClick={() => setActiveTab(t.key)}
-                className={activeTab === t.key ? "ra-sidebar-active" : ""}
-                style={{ fontSize: "14px", padding: "8px 12px", marginBottom: "4px" }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        )}
+          <button
+            className={`sidebar-link sidebar-toggle ${showResourcesMenu || isResourceTabActive ? "sidebar-link-active" : ""}`}
+            onClick={() => setShowResourcesMenu(!showResourcesMenu)}
+          >
+            <span>Resources Management</span>
+            <span>{showResourcesMenu ? "▲" : "▼"}</span>
+          </button>
+          {showResourcesMenu && (
+            <div className="sidebar-submenu">
+              {RESOURCE_TABS.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)}
+                  className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
 
-        {/* Consultant Booking Management Link */}
-        <button 
-          className="sidebar-link" 
-          onClick={() => setActiveTab("consultantBookings")}
-          style={{ marginTop: '10px' }}
-        >
-          Consultant Bookings
-        </button>
-      </div>
+          {/* Consultant Booking Management Link */}
+          <button
+            className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
+            onClick={() => setActiveTab("consultantBookings")}
+          >
+            Consultant Bookings
+          </button>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="main-content">
+      <main className="main-content">
         <div className="topbar">
           <h1>Admin Dashboard</h1>
           <div className="admin-profile">Admin</div>
@@ -1115,7 +1120,7 @@ function AdminDashboard() {
         
         {/* Consultant Booking Management Tab */}
         {activeTab === "consultantBookings" && <ConsultantBookingManagement />}
-      </div>
+      </main>
     </div>
   );
 }
