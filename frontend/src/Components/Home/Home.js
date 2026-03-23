@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navigation from "../HomeNav/HomeNav";
+import ClubGrid from "../ClubGrid/ClubGrid";
 import ImageSlider from "../ImageSlider/ImageSlider";
 import { clubData } from "../../data/clubData";
 import "./Home.css";
@@ -50,25 +51,7 @@ function Home() {
           </p>
         </div>
 
-        <div className="campus-life-grid">
-          {clubData.map((card) => (
-            <article key={card.title} className={`campus-card ${card.overlayClass}`}>
-              <div
-                className="campus-card-image"
-                style={{ backgroundImage: `url(${card.image})` }}
-                aria-hidden="true"
-              />
-              <div className="campus-card-overlay" aria-hidden="true" />
-              <div className="campus-card-content">
-                <h3>{card.title}</h3>
-                <p>{card.description}</p>
-                <Link to={`/clubs/${card.slug}`} className="campus-card-button">
-                  Learn More
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+        <ClubGrid clubs={clubData} />
       </section>
 
       {/* Features Section */}
