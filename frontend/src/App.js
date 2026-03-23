@@ -40,6 +40,7 @@ function App() {
       <Route path="/"              element={<Home />} />
       <Route path="/mainhome"      element={<Home />} />
       <Route path="/clubs/:clubName" element={<ClubDetails />} />
+      <Route path="/student-life"   element={<SocietyPage />} />
       <Route path="/userRegister"  element={<UserRegister />} />
       <Route path="/login"         element={<Login />} />
       <Route path="/studentprofile/:id" element={<StudentProfile />} />
