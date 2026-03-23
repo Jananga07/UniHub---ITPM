@@ -1,0 +1,194 @@
+.club-details-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+  color: #0f172a;
+}
+
+.club-details-hero {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.club-details-hero__image,
+.club-details-hero__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.club-details-hero__image {
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+}
+
+.club-details-hero__overlay {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0.74) 100%);
+}
+
+.club-details-hero__overlay.campus-card--blue {
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.14) 0%, rgba(10, 88, 143, 0.88) 100%);
+}
+
+.club-details-hero__overlay.campus-card--green {
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.14) 0%, rgba(21, 128, 61, 0.88) 100%);
+}
+
+.club-details-hero__overlay.campus-card--gold {
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.14) 0%, rgba(180, 83, 9, 0.88) 100%);
+}
+
+.club-details-hero__overlay.campus-card--teal {
+  background: linear-gradient(180deg, rgba(13, 148, 136, 0.14) 0%, rgba(15, 118, 110, 0.88) 100%);
+}
+
+.club-details-hero__overlay.campus-card--red {
+  background: linear-gradient(180deg, rgba(185, 28, 28, 0.14) 0%, rgba(127, 29, 29, 0.88) 100%);
+}
+
+.club-details-hero__overlay.campus-card--purple {
+  background: linear-gradient(180deg, rgba(147, 51, 234, 0.14) 0%, rgba(126, 34, 206, 0.88) 100%);
+}
+
+.club-details-hero__content {
+  position: relative;
+  z-index: 1;
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 88px 24px 52px;
+  color: #ffffff;
+}
+
+.club-details-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.club-details-hero__content h1 {
+  margin: 18px 0 14px;
+  font-size: clamp(36px, 6vw, 60px);
+  line-height: 1.05;
+}
+
+.club-details-hero__content p {
+  margin: 0;
+  max-width: 720px;
+  font-size: 18px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.club-details-hero__actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.club-details-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  padding: 13px 20px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.club-details-btn:hover {
+  transform: translateY(-2px);
+}
+
+.club-details-btn--primary {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.club-details-btn--secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.club-details-body {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 36px 24px 72px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+}
+
+.club-details-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.10);
+  border: 1px solid #dbe7ff;
+}
+
+.club-details-card h2 {
+  margin: 0 0 16px;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.club-details-card p,
+.club-details-card li {
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.club-details-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.club-details-card--accent {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+}
+
+@media (max-width: 900px) {
+  .club-details-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .club-details-hero {
+    min-height: 360px;
+  }
+
+  .club-details-hero__content {
+    padding: 72px 16px 32px;
+  }
+
+  .club-details-hero__actions {
+    flex-direction: column;
+  }
+
+  .club-details-btn {
+    width: 100%;
+  }
+
+  .club-details-body {
+    padding: 24px 16px 56px;
+  }
+
+  .club-details-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+}

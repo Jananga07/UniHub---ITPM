@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import { FaCheckCircle, FaEnvelope, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -884,7 +884,6 @@ function AdminDashboard() {
                 </div>
                 <div className="manager-list-actions">
                   <span className="manager-count-badge">{societyManagers.length} registered</span>
-                  <button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
                 </div>
               </div>
               {societyManagers.length === 0 ? <div className="manager-empty-state"><p>No society managers registered yet. Start by creating the first manager account.</p><button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Create First Manager</button></div> : (
@@ -964,13 +963,6 @@ function AdminDashboard() {
                             </td>
                             <td className="manager-actions-col">
                               <div className="manager-row-actions">
-                                <button
-                                  className="manager-icon-action"
-                                  title="Send email"
-                                  onClick={() => window.open(`mailto:${m.gmail}`, "_self")}
-                                >
-                                  <FaEnvelope />
-                                </button>
                                 <button
                                   className="manager-icon-action manager-icon-action-danger"
                                   title="Delete manager"
