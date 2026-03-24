@@ -5,6 +5,8 @@ import Navigation from "../HomeNav/HomeNav";
 import { clubData } from "../../data/clubData";
 import "./SocietyPage.css";
 
+const studentLifeHeroImage = encodeURI("/Student Life.png");
+
 function SocietyPage() {
   const [societies, setSocieties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,15 +29,21 @@ function SocietyPage() {
   return (
     <>
       <Navigation />
-      <div className="dashboard-container">
-
-        {/* Header Section */}
-        <div className="dashboard-header">
-          <div>
-            <h1>Student Life</h1>
-            <p>Explore and join university societies</p>
-          </div>
+      <section
+        className="student-life-hero"
+      >
+        <div
+          className="student-life-hero__image"
+          style={{ backgroundImage: `url(${studentLifeHeroImage})` }}
+          aria-hidden="true"
+        />
+        <div className="student-life-hero__content">
+          <h1>Student Life</h1>
+          <p>Explore and join university societies, communities, and experiences that shape campus life.</p>
         </div>
+      </section>
+
+      <div className="dashboard-container">
 
         {/* Stats Section */}
         <div className="stats-grid">
