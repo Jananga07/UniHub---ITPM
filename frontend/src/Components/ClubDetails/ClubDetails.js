@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import Navigation from "../HomeNav/HomeNav";
 import { getClubBySlug } from "../../data/clubData";
 import "./ClubDetails.css";
@@ -25,17 +25,8 @@ function ClubDetails() {
         <div className={`club-details-hero__overlay ${club.overlayClass}`} aria-hidden="true" />
 
         <div className="club-details-hero__content">
-          <span className="club-details-hero__eyebrow">Club Spotlight</span>
           <h1>{club.title}</h1>
           <p>{club.description}</p>
-          <div className="club-details-hero__actions">
-            <Link to="/societypage" className="club-details-btn club-details-btn--primary">
-              Explore Student Life
-            </Link>
-            <Link to="/" className="club-details-btn club-details-btn--secondary">
-              Back to Home
-            </Link>
-          </div>
         </div>
       </section>
 

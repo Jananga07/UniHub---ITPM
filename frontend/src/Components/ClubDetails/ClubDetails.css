@@ -57,24 +57,12 @@
   z-index: 1;
   width: min(1100px, 100%);
   margin: 0 auto;
-  padding: 88px 24px 52px;
+  padding: 88px 24px 56px;
   color: #ffffff;
 }
 
-.club-details-hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .club-details-hero__content h1 {
-  margin: 18px 0 14px;
+  margin: 0 0 14px;
   font-size: clamp(36px, 6vw, 60px);
   line-height: 1.05;
 }
@@ -85,40 +73,6 @@
   font-size: 18px;
   line-height: 1.75;
   color: rgba(255, 255, 255, 0.94);
-}
-
-.club-details-hero__actions {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 28px;
-}
-
-.club-details-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 180px;
-  padding: 13px 20px;
-  border-radius: 14px;
-  text-decoration: none;
-  font-weight: 700;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-}
-
-.club-details-btn:hover {
-  transform: translateY(-2px);
-}
-
-.club-details-btn--primary {
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.club-details-btn--secondary {
-  background: transparent;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.45);
 }
 
 .club-details-body {
@@ -172,15 +126,7 @@
   }
 
   .club-details-hero__content {
-    padding: 72px 16px 32px;
-  }
-
-  .club-details-hero__actions {
-    flex-direction: column;
-  }
-
-  .club-details-btn {
-    width: 100%;
+    padding: 72px 16px 40px;
   }
 
   .club-details-body {
