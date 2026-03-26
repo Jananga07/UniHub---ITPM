@@ -43,6 +43,17 @@ const UserSchema = new Schema({
      },
 });
 
+UserSchema.index(
+   { societyId: 1 },
+   {
+      unique: true,
+      partialFilterExpression: {
+         role: "societyManager",
+         societyId: { $exists: true, $type: "string", $ne: "" },
+      },
+   }
+);
+
 module.exports = mongoose.model(
     "UserModel",
     UserSchema

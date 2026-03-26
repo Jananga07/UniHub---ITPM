@@ -48,31 +48,28 @@ function SocietyPage() {
         {/* Stats Section */}
         <div className="stats-grid">
           <div className="stat-card">
-            <h3>Total Societies</h3>
-            <h2>{loading ? "..." : societies.length}</h2>
+            <h3>Club Categories</h3>
+            <h2>{clubData.length}</h2>
           </div>
 
           <div className="stat-card">
-            <h3>Active Societies</h3>
-            <h2>{loading ? "..." : societies.length}</h2>
+            <h3>Campus Communities</h3>
+            <h2>6</h2>
           </div>
 
           <div className="stat-card">
-            <h3>Your Memberships</h3>
-            <h2>0</h2>
+            <h3>Live Club Pages</h3>
+            <h2>{clubData.length}</h2>
           </div>
         </div>
 
         {/* Societies Section */}
         <div className="societies-section">
           <div className="societies-section-header">
-            <h2>All Societies</h2>
+            <h2>Explore Club Types</h2>
             <p className="societies-section-copy">
-              Browse featured student communities and open each club page to learn more.
+              Select a club category to view only the societies assigned to that specific club type.
             </p>
-            {!loading && societies.length === 0 && (
-              <p className="club-status-note">No backend societies found yet. Featured clubs are still available below.</p>
-            )}
           </div>
 
           <ClubGrid clubs={clubData} />

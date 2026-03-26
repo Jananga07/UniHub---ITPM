@@ -1,4 +1,5 @@
 const User = require("../Models/User");
+const Society = require("../Models/SocietyModel");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const contactRegex = /^\+?\d{10,15}$/;
@@ -10,29 +11,81 @@ const isUniversityEmail = (email) => {
 
 const normalizeContactNumber = (contact = "") => contact.trim().replaceAll(/[\s-]/g, "");
 
+const validateBaseUserInput = ({ normalizedEmail, normalizedContact }) => {
+  if (!normalizedEmail) {
+    return "Email is required.";
+  }
+
+  if (!emailRegex.test(normalizedEmail)) {
+    return "Enter a valid email address.";
+  }
+
+  if (normalizedContact && !contactRegex.test(normalizedContact)) {
+    return "Contact number must be 10 to 15 digits.";
+  }
+
+  return "";
+};
+
+const validateSocietyManagerInput = ({ role, normalizedEmail, normalizedSocietyId }) => {
+  if (role !== "societyManager") {
+    return "";
+  }
+
+  if (!isUniversityEmail(normalizedEmail)) {
+    return "Society manager email must be a university email ending with .edu or .ac.xx.";
+  }
+
+  if (!normalizedSocietyId) {
+    return "Please select a society.";
+  }
+
+  return "";
+};
+
+const validateSocietyManagerAssignment = async (normalizedSocietyId) => {
+  const [society, existingManager] = await Promise.all([
+    Society.findById(normalizedSocietyId).select("_id name societyName"),
+    User.findOne({ role: "societyManager", societyId: normalizedSocietyId }).select("_id name"),
+  ]);
+
+  if (!society) {
+    return "Selected society was not found.";
+  }
+
+  if (existingManager) {
+    return "This society already has a manager assigned";
+  }
+
+  return "";
+};
+
 //  Register New User
 const addUsers = async (req, res) => {
   const { name, gmail, password, role, age, address, contact, societyId } = req.body;
   const normalizedEmail = gmail?.trim().toLowerCase() || "";
   const normalizedContact = normalizeContactNumber(contact || "");
+  const normalizedSocietyId = typeof societyId === "string" ? societyId.trim() : "";
+  const baseValidationMessage = validateBaseUserInput({ normalizedEmail, normalizedContact });
+  const societyManagerValidationMessage = validateSocietyManagerInput({ role, normalizedEmail, normalizedSocietyId });
 
-  if (!normalizedEmail) {
-    return res.status(400).json({ message: "Email is required." });
+  if (baseValidationMessage) {
+    return res.status(400).json({ message: baseValidationMessage });
   }
 
-  if (!emailRegex.test(normalizedEmail)) {
-    return res.status(400).json({ message: "Enter a valid email address." });
-  }
-
-  if (role === "societyManager" && !isUniversityEmail(normalizedEmail)) {
-    return res.status(400).json({ message: "Society manager email must be a university email ending with .edu or .ac.xx." });
-  }
-
-  if (normalizedContact && !contactRegex.test(normalizedContact)) {
-    return res.status(400).json({ message: "Contact number must be 10 to 15 digits." });
+  if (societyManagerValidationMessage) {
+    return res.status(400).json({ message: societyManagerValidationMessage });
   }
 
   try {
+    if (role === "societyManager") {
+      const assignmentValidationMessage = await validateSocietyManagerAssignment(normalizedSocietyId);
+
+      if (assignmentValidationMessage) {
+        return res.status(400).json({ message: assignmentValidationMessage });
+      }
+    }
+
     const newUser = new User({
       name,
       gmail: normalizedEmail,
@@ -41,13 +94,17 @@ const addUsers = async (req, res) => {
       age,
       address,
       contact: normalizedContact,
-      societyId,
+      societyId: normalizedSocietyId || undefined,
     });
 
     await newUser.save();
     return res.status(201).json({newUser });
   } catch (err) {
     console.error("Add member error:", err);
+
+    if (err?.code === 11000 && role === "societyManager" && normalizedSocietyId) {
+      return res.status(400).json({ message: "This society already has a manager assigned" });
+    }
 
     if (err.name === "ValidationError") {
       const firstError = Object.values(err.errors)[0];
