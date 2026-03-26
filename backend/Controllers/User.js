@@ -43,10 +43,16 @@ const validateSocietyManagerInput = ({ role, normalizedEmail, normalizedSocietyI
   return "";
 };
 
-const validateSocietyManagerAssignment = async (normalizedSocietyId) => {
+const validateSocietyManagerAssignment = async (normalizedSocietyId, excludedUserId) => {
+  const existingManagerQuery = { role: "societyManager", societyId: normalizedSocietyId };
+
+  if (excludedUserId) {
+    existingManagerQuery._id = { $ne: excludedUserId };
+  }
+
   const [society, existingManager] = await Promise.all([
     Society.findById(normalizedSocietyId).select("_id name societyName"),
-    User.findOne({ role: "societyManager", societyId: normalizedSocietyId }).select("_id name"),
+    User.findOne(existingManagerQuery).select("_id name"),
   ]);
 
   if (!society) {
@@ -58,6 +64,98 @@ const validateSocietyManagerAssignment = async (normalizedSocietyId) => {
   }
 
   return "";
+};
+
+const getNormalizedContactForUpdate = (requestContact, existingContact) => {
+  if (requestContact === undefined) {
+    return existingContact || "";
+  }
+
+  return normalizeContactNumber(requestContact || "");
+};
+
+const getNormalizedSocietyIdForUpdate = (role, requestSocietyId, existingSocietyId) => {
+  if (role !== "societyManager") {
+    return "";
+  }
+
+  if (typeof requestSocietyId === "string") {
+    return requestSocietyId.trim();
+  }
+
+  return existingSocietyId || "";
+};
+
+const applyUserUpdates = (existingUser, requestBody, nextRole, normalizedEmail, normalizedContact, normalizedSocietyId) => {
+  existingUser.name = requestBody.name ?? existingUser.name;
+  existingUser.gmail = normalizedEmail;
+  existingUser.role = nextRole;
+  existingUser.age = requestBody.age ?? existingUser.age;
+  existingUser.address = requestBody.address ?? existingUser.address;
+  existingUser.contact = normalizedContact;
+  existingUser.societyId = nextRole === "societyManager" ? normalizedSocietyId || undefined : undefined;
+
+  if (typeof requestBody.password === "string" && requestBody.password.trim()) {
+    existingUser.password = requestBody.password;
+  }
+};
+
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const existingUser = await User.findById(id);
+
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const nextRole = req.body.role || existingUser.role;
+    const normalizedEmail = (req.body.gmail ?? existingUser.gmail ?? "").trim().toLowerCase();
+    const normalizedContact = getNormalizedContactForUpdate(req.body.contact, existingUser.contact);
+    const normalizedSocietyId = getNormalizedSocietyIdForUpdate(nextRole, req.body.societyId, existingUser.societyId);
+
+    const baseValidationMessage = validateBaseUserInput({ normalizedEmail, normalizedContact });
+    const societyManagerValidationMessage = validateSocietyManagerInput({
+      role: nextRole,
+      normalizedEmail,
+      normalizedSocietyId,
+    });
+
+    if (baseValidationMessage) {
+      return res.status(400).json({ message: baseValidationMessage });
+    }
+
+    if (societyManagerValidationMessage) {
+      return res.status(400).json({ message: societyManagerValidationMessage });
+    }
+
+    if (nextRole === "societyManager") {
+      const assignmentValidationMessage = await validateSocietyManagerAssignment(normalizedSocietyId, id);
+
+      if (assignmentValidationMessage) {
+        return res.status(400).json({ message: assignmentValidationMessage });
+      }
+    }
+
+    applyUserUpdates(existingUser, req.body, nextRole, normalizedEmail, normalizedContact, normalizedSocietyId);
+
+    await existingUser.save();
+    return res.status(200).json({ user: existingUser });
+  } catch (err) {
+    console.error("Update member error:", err);
+
+    if (err?.code === 11000) {
+      return res.status(400).json({ message: "This society already has a manager assigned" });
+    }
+
+    if (err.name === "ValidationError") {
+      const firstError = Object.values(err.errors)[0];
+      return res.status(400).json({ message: firstError?.message || "Invalid user details." });
+    }
+
+    return res.status(500).json({ message: "Unable to update member" });
+  }
 };
 
 //  Register New User
@@ -205,4 +303,5 @@ exports.loginUser= loginUser;
 exports.getById= getById;
 exports.getAllUsers= getAllUsers;
 exports.deleteUser = deleteUser;
+exports.updateUser = updateUser;
 

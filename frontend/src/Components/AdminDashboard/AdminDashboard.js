@@ -14,6 +14,8 @@ import { Pie } from "react-chartjs-2";
 import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 import SearchBar from "../SearchBar/SearchBar";
+import "../SearchBar/managersSearch.css";
+import "../SearchBar/societiesSearch.css";
 import { clubTypeOptions } from "../../data/clubData";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -445,6 +447,7 @@ function AdminDashboard() {
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const [selectedManagerIds, setSelectedManagerIds] = useState([]);
   const [selectedSocietyIds, setSelectedSocietyIds] = useState([]);
+  const [managerSearch, setManagerSearch] = useState("");
   const [societyDirectorySearch, setSocietyDirectorySearch] = useState("");
   const societyManagerFormRef = useRef(null);
   const societyManagerNameInputRef = useRef(null);
@@ -645,15 +648,57 @@ function AdminDashboard() {
 
   const handleEdit = (user) => {
     setEditUserId(user._id);
-    setFormData({ name: user.name, gmail: user.gmail, age: user.age, address: user.address, contact: user.contact, role: user.role });
+    setFormData({
+      name: user.name,
+      gmail: user.gmail,
+      password: "",
+      age: user.age,
+      address: user.address,
+      contact: user.contact,
+      role: user.role,
+      societyId: user.societyId || "",
+    });
+    setSocietyManagerError("");
+
+    requestAnimationFrame(() => {
+      societyManagerFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      setTimeout(() => {
+        societyManagerNameInputRef.current?.focus();
+      }, 180);
+    });
   };
 
   const saveEdit = async () => {
     try {
-      await axios.put(`${API}/admin/users/${editUserId}`, formData);
+      const payload = {
+        ...formData,
+        role: "societyManager",
+        name: (formData.name || "").trim(),
+        gmail: (formData.gmail || "").trim().toLowerCase(),
+        contact: normalizeContactNumber(formData.contact || ""),
+      };
+
+      const validationError = validateSocietyManagerForm(payload);
+
+      if (validationError) {
+        setSocietyManagerError(validationError);
+        return;
+      }
+
+      await axios.put(`${API}/Users/${editUserId}`, payload);
       setEditUserId(null); setFormData({}); fetchUsers();
+      setSocietyManagerError("");
       alert("Updated successfully!");
-    } catch { alert("Update failed!"); }
+    } catch (error) {
+      alert(error.response?.data?.message || "Update failed!");
+    }
+  };
+
+  const handleCancelManagerEdit = () => {
+    setEditUserId(null);
+    setFormData({});
+    setSocietyManagerError("");
   };
 
   const filteredUsers = users
@@ -664,6 +709,9 @@ function AdminDashboard() {
     );
 
   const societyManagers = users.filter((u) => u.role === "societyManager");
+  const filteredManagers = societyManagers.filter((manager) =>
+    manager.name?.toLowerCase().includes(managerSearch.toLowerCase())
+  );
   const filteredSocieties = societies.filter((society) => {
     const searchTerm = societyDirectorySearch.trim().toLowerCase();
 
@@ -704,10 +752,19 @@ function AdminDashboard() {
     });
   };
 
-  const allManagersSelected = societyManagers.length > 0 && selectedManagerIds.length === societyManagers.length;
+  const allManagersSelected = filteredManagers.length > 0
+    && filteredManagers.every((manager) => selectedManagerIds.includes(manager._id));
 
   const handleToggleAllManagers = () => {
-    setSelectedManagerIds(allManagersSelected ? [] : societyManagers.map((manager) => manager._id));
+    setSelectedManagerIds((currentIds) => {
+      const visibleManagerIds = filteredManagers.map((manager) => manager._id);
+
+      if (allManagersSelected) {
+        return currentIds.filter((id) => !visibleManagerIds.includes(id));
+      }
+
+      return [...new Set([...currentIds, ...visibleManagerIds])];
+    });
   };
 
   const handleToggleManagerSelection = (managerId) => {
@@ -858,9 +915,7 @@ function AdminDashboard() {
     </div>
 
     {/* Search */}
-    <input
-      type="text"
-      placeholder={`Search ${userCategory}...`}
+    <SearchBar
       value={searchQuery[userCategory] || ""}
       onChange={(e) =>
         setSearchQuery({
@@ -868,7 +923,8 @@ function AdminDashboard() {
           [userCategory]: e.target.value
         })
       }
-      className="search-input"
+      placeholder={`Search ${userCategory}...`}
+      className="users-directory-search"
     />
 
     {/* Table */}
@@ -920,8 +976,9 @@ function AdminDashboard() {
           <div className="society-manager-dashboard">
             <div className="society-manager-page-shell">
               <div className="form-card society-manager-form society-manager-page-card" ref={societyManagerFormRef}>
+                <div className="society-manager-page-card-glow" aria-hidden="true" />
                 <div className="section-header-block society-manager-page-header">
-                  <span className="section-kicker">Administration</span>
+                  <span className="section-kicker society-manager-page-kicker">Administration</span>
                   <h2>Add Society Manager</h2>
                   <p className="section-subtext">Create a manager account and assign it to an available society in one step.</p>
                 </div>
@@ -944,7 +1001,7 @@ function AdminDashboard() {
                   />
                   <input
                     name="password"
-                    placeholder="Temporary password"
+                    placeholder={editUserId ? "Leave blank to keep current password" : "Temporary password"}
                     type="password"
                     value={formData.password || ""}
                     onChange={handleChange}
@@ -992,39 +1049,57 @@ function AdminDashboard() {
                   </select>
                   <button
                     className="dashboard-btn society-manager-submit"
-                    onClick={() => submitData("Users", "societyManager")}
+                    onClick={() => (editUserId ? saveEdit() : submitData("Users", "societyManager"))}
                   >
-                    Add Society Manager
+                    {editUserId ? "Save Changes" : "Add Society Manager"}
                   </button>
+                  {editUserId && (
+                    <button
+                      className="dashboard-btn society-manager-secondary-btn"
+                      onClick={handleCancelManagerEdit}
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className="form-card manager-list-card manager-list-card-full">
-              <div className="manager-list-header">
+            <div className="manager-directory-page-shell">
+              <div className="form-card manager-list-card manager-list-card-full manager-directory-page-card">
+                <div className="manager-directory-page-glow" aria-hidden="true" />
+              <div className="manager-list-header manager-directory-page-header">
                 <div>
-                  <span className="section-kicker">Directory</span>
+                  <span className="section-kicker manager-directory-page-kicker">Management</span>
                   <h2>Registered Society Managers</h2>
-                  <p className="section-subtext">Review assigned managers and track which societies already have ownership.</p>
+                  <p className="section-subtext manager-directory-page-subtext">Review assigned managers and track which societies already have ownership.</p>
                 </div>
                 <div className="manager-list-actions">
-                  <span className="manager-count-badge">{societyManagers.length} registered</span>
+                  <span className="manager-count-badge manager-directory-page-count">{filteredManagers.length} of {societyManagers.length} registered</span>
                 </div>
               </div>
-              {societyManagers.length === 0 ? <div className="manager-empty-state"><p>No society managers registered yet. Start by creating the first manager account.</p><button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Create First Manager</button></div> : (
-                <div className="manager-directory-shell">
-                  <div className="manager-selection-bar">
-                    <div className="manager-selection-copy">
-                      <strong>{selectedManagerIds.length}</strong> of <strong>{societyManagers.length}</strong> managers selected
+
+              <SearchBar
+                value={managerSearch}
+                onChange={(event) => setManagerSearch(event.target.value)}
+                placeholder="Search by manager name..."
+                className="manager-search-bar"
+              />
+
+              {societyManagers.length === 0 ? <div className="manager-empty-state manager-directory-empty-state"><p>No society managers registered yet. Start by creating the first manager account.</p><button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Create First Manager</button></div> : filteredManagers.length === 0 ? <div className="manager-empty-state manager-directory-empty-state"><p>No managers match your search.</p></div> : (
+                <div className="manager-directory-shell manager-directory-page-shell-inner">
+                  <div className="manager-selection-bar manager-directory-page-selection-bar">
+                    <div className="manager-selection-copy manager-directory-page-selection-copy">
+                      <strong>{selectedManagerIds.length}</strong> selected across the manager directory
                     </div>
                     <div className="manager-selection-tools">
-                      <button className="manager-selection-button" onClick={handleToggleAllManagers}>
+                      <button className="manager-selection-button manager-directory-page-selection-button" onClick={handleToggleAllManagers}>
                         {allManagersSelected ? "Clear selection" : "Select all"}
                       </button>
                     </div>
                   </div>
 
-                  <table className="manager-directory-table">
+                  <table className="manager-directory-table manager-directory-page-table">
                     <thead>
                       <tr>
                         <th className="manager-checkbox-col">
@@ -1039,7 +1114,7 @@ function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {societyManagers.map((m) => {
+                      {filteredManagers.map((m) => {
                         const society = societies.find((s) => s._id === m.societyId);
                         const isSelected = selectedManagerIds.includes(m._id);
                         const initials = m.name
@@ -1050,7 +1125,7 @@ function AdminDashboard() {
                           .join("");
 
                         return (
-                          <tr key={m._id} className={isSelected ? "manager-row-selected" : ""}>
+                          <tr key={m._id} className={isSelected ? "manager-row-selected manager-directory-page-row-selected" : "manager-directory-page-row"}>
                             <td className="manager-checkbox-col">
                               <input
                                 type="checkbox"
@@ -1060,7 +1135,7 @@ function AdminDashboard() {
                             </td>
                             <td>
                               <div className="manager-identity-cell">
-                                <div className="manager-avatar">{initials || "SM"}</div>
+                                <div className="manager-avatar manager-directory-page-avatar">{initials || "SM"}</div>
                                 <div className="manager-meta-block">
                                   <strong>{m.name}</strong>
                                   <span>{m.gmail}</span>
@@ -1083,11 +1158,18 @@ function AdminDashboard() {
                             <td>
                               <span className={`manager-status-badge ${society ? "manager-status-active" : "manager-status-pending"}`}>
                                 <FaCheckCircle />
-                                {society ? "Assigned" : "Pending"}
+                                {society ? "Assigned" : "Not assigned"}
                               </span>
                             </td>
                             <td className="manager-actions-col">
-                              <div className="manager-row-actions">
+                              <div className="manager-row-actions manager-directory-page-actions">
+                                <button
+                                  className="manager-icon-action manager-icon-action-edit"
+                                  title="Edit manager"
+                                  onClick={() => handleEdit(m)}
+                                >
+                                  Edit
+                                </button>
                                 <button
                                   className="manager-icon-action manager-icon-action-danger"
                                   title="Delete manager"
@@ -1104,6 +1186,7 @@ function AdminDashboard() {
                   </table>
                 </div>
               )}
+              </div>
             </div>
           </div>
         )}
@@ -1196,7 +1279,7 @@ function AdminDashboard() {
                   value={societyDirectorySearch}
                   onChange={(event) => setSocietyDirectorySearch(event.target.value)}
                   placeholder="Search societies by name, description, or club type"
-                  className="society-directory-search"
+                  className="society-search-bar"
                 />
 
                 {societies.length === 0 ? (

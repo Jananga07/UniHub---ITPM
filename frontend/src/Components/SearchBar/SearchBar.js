@@ -1,23 +1,23 @@
 import React from "react";
 import PropTypes from "prop-types";
-import "./SearchBar.css";
+import "./searchIcon.css";
 
 function SearchBar({ value, onChange, placeholder = "Search here", className = "" }) {
-  const wrapperClassName = ["modern-search-bar", className].filter(Boolean).join(" ");
+  const wrapperClassName = className || "search-bar";
 
   return (
     <div className={wrapperClassName}>
       <input
         type="text"
-        className="modern-search-bar__input"
+        className="search-input-field"
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         aria-label={placeholder}
       />
-      <span className="modern-search-bar__notch" aria-hidden="true" />
-      <button type="button" className="modern-search-bar__button" tabIndex={-1} aria-hidden="true">
-        <span className="modern-search-bar__icon" />
+      <span className="search-bar-notch" aria-hidden="true" />
+      <button type="button" className="search-button" tabIndex={-1} aria-hidden="true">
+        <span className="search-button__icon" />
       </button>
     </div>
   );

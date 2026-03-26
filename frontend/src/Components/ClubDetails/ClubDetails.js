@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Navigate, useParams } from "react-router-dom";
 import Navigation from "../HomeNav/HomeNav";
+import SocietyCardGrid from "../Society/SocietyCardGrid";
+import SocietyModal from "../Society/SocietyModal";
 import { getClubBySlug } from "../../data/clubData";
 import "./ClubDetails.css";
 
@@ -11,6 +13,7 @@ function ClubDetails() {
   const { clubName } = useParams();
   const club = getClubBySlug(clubName || "");
   const [societies, setSocieties] = useState([]);
+  const [selectedSociety, setSelectedSociety] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
 
@@ -21,6 +24,14 @@ function ClubDetails() {
 
     return club.title.replace(/\s+Clubs$/i, "").replace(/\s+Based$/i, "");
   }, [club]);
+
+  const filteredSocieties = useMemo(() => {
+    const normalizedClubType = clubType.trim().toLowerCase();
+
+    return societies.filter(
+      (society) => (society.clubType || "").trim().toLowerCase() === normalizedClubType
+    );
+  }, [clubType, societies]);
 
   useEffect(() => {
     if (!clubType) {
@@ -34,7 +45,7 @@ function ClubDetails() {
       setLoadError("");
 
       try {
-        const response = await axios.get(`${API}/societies/type/${encodeURIComponent(clubType)}`);
+        const response = await axios.get(`${API}/societies`);
 
         if (isMounted) {
           setSocieties(response.data.societies || []);
@@ -76,7 +87,7 @@ function ClubDetails() {
         <p>{loadError}</p>
       </div>
     );
-  } else if (societies.length === 0) {
+  } else if (filteredSocieties.length === 0) {
     societiesContent = (
       <div className="club-details-societies-state">
         <p>No societies have been added for this club type yet.</p>
@@ -84,17 +95,7 @@ function ClubDetails() {
     );
   } else {
     societiesContent = (
-      <div className="club-details-societies-grid">
-        {societies.map((society) => (
-          <article key={society._id} className="club-details-society-card">
-            <div className="club-details-society-card__header">
-              <h3>{society.name || society.societyName}</h3>
-              <span className="club-details-society-type">{society.clubType}</span>
-            </div>
-            <p>{society.description || "No description added."}</p>
-          </article>
-        ))}
-      </div>
+      <SocietyCardGrid societies={filteredSocieties} onSelect={setSelectedSociety} />
     );
   }
 
@@ -139,6 +140,13 @@ function ClubDetails() {
         </div>
         {societiesContent}
       </section>
+
+      <SocietyModal
+        society={selectedSociety}
+        clubImage={club.image}
+        isOpen={Boolean(selectedSociety)}
+        onClose={() => setSelectedSociety(null)}
+      />
     </div>
   );
 }
