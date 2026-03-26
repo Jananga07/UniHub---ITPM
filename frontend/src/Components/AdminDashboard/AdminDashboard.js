@@ -13,6 +13,7 @@ import {
 import { Pie } from "react-chartjs-2";
 import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
+import SearchBar from "../SearchBar/SearchBar";
 import { clubTypeOptions } from "../../data/clubData";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -444,6 +445,7 @@ function AdminDashboard() {
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const [selectedManagerIds, setSelectedManagerIds] = useState([]);
   const [selectedSocietyIds, setSelectedSocietyIds] = useState([]);
+  const [societyDirectorySearch, setSocietyDirectorySearch] = useState("");
   const societyManagerFormRef = useRef(null);
   const societyManagerNameInputRef = useRef(null);
   const navigate = useNavigate();
@@ -662,6 +664,17 @@ function AdminDashboard() {
     );
 
   const societyManagers = users.filter((u) => u.role === "societyManager");
+  const filteredSocieties = societies.filter((society) => {
+    const searchTerm = societyDirectorySearch.trim().toLowerCase();
+
+    if (!searchTerm) {
+      return true;
+    }
+
+    return [society.name, society.societyName, society.description, society.clubType]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(searchTerm));
+  });
 
   useEffect(() => {
     const managerIds = new Set(societyManagers.map((manager) => manager._id));
@@ -704,10 +717,19 @@ function AdminDashboard() {
         : [...currentIds, managerId]
     );
   };
-  const allSocietiesSelected = societies.length > 0 && selectedSocietyIds.length === societies.length;
+  const allSocietiesSelected = filteredSocieties.length > 0
+    && filteredSocieties.every((society) => selectedSocietyIds.includes(society._id));
 
   const handleToggleAllSocieties = () => {
-    setSelectedSocietyIds(allSocietiesSelected ? [] : societies.map((society) => society._id));
+    setSelectedSocietyIds((currentIds) => {
+      const visibleSocietyIds = filteredSocieties.map((society) => society._id);
+
+      if (allSocietiesSelected) {
+        return currentIds.filter((id) => !visibleSocietyIds.includes(id));
+      }
+
+      return [...new Set([...currentIds, ...visibleSocietyIds])];
+    });
   };
 
   const handleToggleSocietySelection = (societyId) => {
@@ -1090,22 +1112,57 @@ function AdminDashboard() {
         {activeTab === "society" && (
           <div className="society-manager-dashboard-grid">
             <div className="society-page-shell">
-              <div className="form-card society-list-card society-page-card">
+              <div className="society-page-card">
+                <div className="society-page-card-glow" aria-hidden="true" />
+
                 <div className="section-header-block society-page-header">
-                  <span className="section-kicker">Community</span>
+                  <span className="section-kicker society-page-kicker">Community</span>
                   <h2>Add Society</h2>
-                  <p className="section-subtext">Create a society record and keep the community directory organized for manager assignment.</p>
+                  <p className="section-subtext society-page-subtext">
+                    Create a society record and keep the community directory organized for manager assignment.
+                  </p>
                 </div>
 
                 <div className="society-page-form-grid">
-                  <input name="name" placeholder="Society Name" value={formData.name || ""} onChange={handleChange} />
-                  <textarea className="society-page-description" name="description" placeholder="Description" value={formData.description || ""} onChange={handleChange} />
-                  <select name="clubType" value={formData.clubType || ""} onChange={handleChange}>
-                    <option value="">Select Club Type</option>
-                    {clubTypes.map((option) => (
-                      <option key={option.slug || option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
+                  <div className="society-page-field society-page-field-full">
+                    <label className="society-page-label" htmlFor="society-name">Society Name</label>
+                    <input
+                      id="society-name"
+                      name="name"
+                      placeholder="Enter society name"
+                      value={formData.name || ""}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="society-page-field society-page-field-full">
+                    <label className="society-page-label" htmlFor="society-description">Description</label>
+                    <textarea
+                      id="society-description"
+                      className="society-page-description"
+                      name="description"
+                      placeholder="Describe the society, its purpose, and the type of student community it serves"
+                      value={formData.description || ""}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="society-page-field society-page-field-full">
+                    <label className="society-page-label" htmlFor="society-club-type">Club Type</label>
+                    <div className="society-page-select-wrap">
+                      <select
+                        id="society-club-type"
+                        name="clubType"
+                        value={formData.clubType || ""}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Club Type</option>
+                        {clubTypes.map((option) => (
+                          <option key={option.slug || option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="society-page-footer">
@@ -1114,52 +1171,65 @@ function AdminDashboard() {
               </div>
             </div>
 
-            <div className="form-card society-list-card society-list-card-full">
-              <div className="manager-list-header">
-                <div>
-                  <span className="section-kicker">Directory</span>
-                  <h2>Registered Societies</h2>
-                  <p className="section-subtext">All societies added through the admin panel are listed here.</p>
-                </div>
-                <div className="manager-list-actions">
-                  {societies.length > 0 && (
-                    <button
-                      className="dashboard-btn society-delete-btn"
-                      onClick={handleDeleteSelectedSocieties}
-                    >
-                      Delete Selected ({selectedSocietyIds.length})
-                    </button>
-                  )}
-                  <span className="manager-count-badge">{societies.length} societies</span>
-                </div>
-              </div>
-
-              {societies.length === 0 ? (
-                <div className="manager-empty-state">
-                  <p>No societies have been added yet.</p>
-                </div>
-              ) : (
-                <div className="manager-directory-shell">
-                  <div className="manager-selection-bar">
-                    <div className="manager-selection-copy">
-                      <strong>{selectedSocietyIds.length}</strong> of <strong>{societies.length}</strong> societies selected
-                    </div>
-                    <div className="manager-selection-tools">
-                      <button className="manager-selection-button" onClick={handleToggleAllSocieties}>
-                        {allSocietiesSelected ? "Clear selection" : "Select all"}
-                      </button>
-                    </div>
+            <div className="society-directory-shell">
+              <div className="society-directory-card">
+                <div className="manager-list-header society-directory-header">
+                  <div>
+                    <span className="section-kicker society-directory-kicker">Directory</span>
+                    <h2>Registered Societies</h2>
+                    <p className="section-subtext society-directory-subtext">All societies added through the admin panel are listed here.</p>
                   </div>
+                  <div className="manager-list-actions society-directory-actions">
+                    {societies.length > 0 && (
+                      <button
+                        className="dashboard-btn society-delete-btn society-directory-delete-btn"
+                        onClick={handleDeleteSelectedSocieties}
+                      >
+                        Delete Selected ({selectedSocietyIds.length})
+                      </button>
+                    )}
+                    <span className="manager-count-badge society-directory-count">{filteredSocieties.length} of {societies.length} societies</span>
+                  </div>
+                </div>
 
-                  <table className="manager-directory-table">
-                    <thead><tr><th className="manager-checkbox-col"><input type="checkbox" checked={allSocietiesSelected} onChange={handleToggleAllSocieties} /></th><th>Society Name</th><th>Description</th><th>Club Type</th><th>Manager Status</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {societies.map((society) => {
+                <SearchBar
+                  value={societyDirectorySearch}
+                  onChange={(event) => setSocietyDirectorySearch(event.target.value)}
+                  placeholder="Search societies by name, description, or club type"
+                  className="society-directory-search"
+                />
+
+                {societies.length === 0 ? (
+                  <div className="manager-empty-state society-directory-empty-state">
+                    <p>No societies have been added yet.</p>
+                  </div>
+                ) : filteredSocieties.length === 0 ? (
+                  <div className="manager-empty-state society-directory-empty-state">
+                    <p>No societies match your current search.</p>
+                  </div>
+                ) : (
+                  <div className="manager-directory-shell society-directory-table-shell">
+                    <div className="manager-selection-bar society-directory-selection-bar">
+                      <div className="manager-selection-copy society-directory-selection-copy">
+                        <strong>{selectedSocietyIds.length}</strong> selected across the directory
+                      </div>
+                      <div className="manager-selection-tools">
+                        <button className="manager-selection-button society-directory-selection-button" onClick={handleToggleAllSocieties}>
+                          {allSocietiesSelected ? "Clear selection" : "Select all"}
+                        </button>
+                      </div>
+                    </div>
+
+                    <table className="manager-directory-table society-directory-table">
+                      <thead><tr><th className="manager-checkbox-col"><input type="checkbox" checked={allSocietiesSelected} onChange={handleToggleAllSocieties} /></th><th>Society Name</th><th>Description</th><th>Club Type</th><th>Manager Status</th><th>Actions</th></tr></thead>
+                      <tbody>
+                      {filteredSocieties.map((society) => {
                         const assignedManager = societyManagers.find((manager) => manager.societyId === society._id);
                         const isEditingSociety = editSocietyId === society._id;
                         const isSelectedSociety = selectedSocietyIds.includes(society._id);
+                        const clubTypeSlug = (society.clubType || "not-set").toLowerCase().replace(/\s+/g, "-");
                         return (
-                          <tr key={society._id} className={isSelectedSociety ? "manager-row-selected" : ""}>
+                          <tr key={society._id} className={`society-directory-row ${isSelectedSociety ? "manager-row-selected society-directory-row-selected" : ""}`}>
                             <td className="manager-checkbox-col">
                               <input
                                 type="checkbox"
@@ -1167,22 +1237,26 @@ function AdminDashboard() {
                                 onChange={() => handleToggleSocietySelection(society._id)}
                               />
                             </td>
-                            <td>{society.name || society.societyName}</td>
+                            <td>
+                              <div className="society-directory-name-cell">
+                                <strong>{society.name || society.societyName}</strong>
+                              </div>
+                            </td>
                             <td>
                               {isEditingSociety ? (
                                 <textarea
-                                  className="society-description-editor"
+                                  className="society-description-editor society-directory-description-editor"
                                   value={editSocietyDescription}
                                   onChange={(e) => setEditSocietyDescription(e.target.value)}
                                 />
                               ) : (
-                                society.description || "No description added"
+                                <span className="society-directory-description-text">{society.description || "No description added"}</span>
                               )}
                             </td>
                             <td>
                               {isEditingSociety ? (
                                 <select
-                                  className="society-clubtype-editor"
+                                  className="society-clubtype-editor society-directory-clubtype-editor"
                                   value={editSocietyClubType}
                                   onChange={(e) => setEditSocietyClubType(e.target.value)}
                                 >
@@ -1192,20 +1266,23 @@ function AdminDashboard() {
                                   ))}
                                 </select>
                               ) : (
-                                <span className="society-type-badge">{society.clubType || "Not set"}</span>
+                                <span className={`society-type-badge society-type-badge-${clubTypeSlug}`}>{society.clubType || "Not set"}</span>
                               )}
                             </td>
                             <td>
-                              <span className={`society-tag ${assignedManager ? "society-tag-assigned" : "society-tag-pending"}`}>
-                                {assignedManager ? assignedManager.name : "No manager assigned"}
-                              </span>
+                              <div className="society-directory-status-stack">
+                                <span className={`society-tag ${assignedManager ? "society-tag-assigned" : "society-tag-pending"}`}>
+                                  {assignedManager ? "Assigned" : "No manager assigned"}
+                                </span>
+                                {assignedManager && <span className="society-directory-manager-name">{assignedManager.name}</span>}
+                              </div>
                             </td>
-                            <td>
-                              <div className="society-action-group">
+                            <td className="society-directory-actions-col">
+                              <div className="society-action-group society-directory-action-group">
                                 {isEditingSociety ? (
                                   <>
                                     <button
-                                      className="dashboard-btn manager-action-btn"
+                                      className="dashboard-btn manager-action-btn society-directory-edit-btn"
                                       onClick={() => handleSaveSocietyEdit(society._id)}
                                     >
                                       Save
@@ -1220,13 +1297,13 @@ function AdminDashboard() {
                                 ) : (
                                   <>
                                     <button
-                                      className="dashboard-btn manager-action-btn"
+                                      className="dashboard-btn manager-action-btn society-directory-edit-btn"
                                       onClick={() => handleStartSocietyEdit(society)}
                                     >
                                       Edit
                                     </button>
                                     <button
-                                      className="dashboard-btn society-delete-btn"
+                                      className="dashboard-btn society-delete-btn society-directory-delete-row-btn"
                                       onClick={() => handleDeleteSociety(society._id)}
                                     >
                                       Delete
@@ -1238,10 +1315,11 @@ function AdminDashboard() {
                           </tr>
                         );
                       })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -292,6 +292,436 @@ tr:hover {
   width: 100%;
 }
 
+.society-page-shell {
+  position: relative;
+  width: 100%;
+  padding: 28px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.society-page-shell::before,
+.society-page-shell::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.society-page-shell::before {
+  top: -120px;
+  right: -80px;
+  width: 280px;
+  height: 280px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.society-page-shell::after {
+  left: -90px;
+  bottom: -120px;
+  width: 260px;
+  height: 260px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.society-page-card {
+  position: relative;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 34px 36px 38px;
+  border-radius: 20px;
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 50px rgba(30, 64, 175, 0.14);
+  box-sizing: border-box;
+}
+
+.society-page-card-glow {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, rgba(147, 197, 253, 0) 70%);
+  pointer-events: none;
+}
+
+.society-page-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 28px;
+}
+
+.society-page-kicker {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1d4ed8;
+}
+
+.society-page-header h2 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.society-page-subtext {
+  max-width: 760px;
+  margin-top: 14px;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.society-page-form-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 22px;
+}
+
+.society-page-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.society-page-field-full {
+  grid-column: 1 / -1;
+}
+
+.society-page-label {
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.society-page-card input,
+.society-page-card textarea,
+.society-page-card select {
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 16px;
+  margin-bottom: 0;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.society-page-card input::placeholder,
+.society-page-card textarea::placeholder {
+  color: #94a3b8;
+}
+
+.society-page-card input:focus,
+.society-page-card textarea:focus,
+.society-page-card select:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.16);
+  transform: translateY(-1px);
+}
+
+.society-page-description {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.society-page-select-wrap {
+  position: relative;
+}
+
+.society-page-select-wrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #2563eb;
+  border-bottom: 2px solid #2563eb;
+  transform: translateY(-60%) rotate(45deg);
+  pointer-events: none;
+}
+
+.society-page-card select {
+  appearance: none;
+  padding-right: 48px;
+}
+
+.society-page-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 28px;
+}
+
+.society-page-submit {
+  margin-top: 0;
+  min-width: 190px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.26);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.society-page-submit:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 18px 34px rgba(29, 78, 216, 0.32);
+}
+
+.society-directory-shell {
+  width: 100%;
+  padding: 28px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  box-sizing: border-box;
+}
+
+.society-directory-card {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  box-sizing: border-box;
+}
+
+.society-directory-header {
+  margin-bottom: 22px;
+}
+
+.society-directory-kicker {
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  color: #1d4ed8;
+}
+
+.society-directory-header h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.15;
+  color: #0f172a;
+}
+
+.society-directory-subtext {
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.society-directory-actions {
+  align-items: center;
+}
+
+.society-directory-count {
+  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+}
+
+.society-directory-delete-btn {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.18);
+}
+
+.society-directory-search {
+  width: min(100%, 700px);
+  margin: 0 auto 24px;
+}
+
+.society-directory-search .modern-search-bar__input {
+  border-color: #93c5fd;
+  box-shadow: 0 14px 28px rgba(59, 130, 246, 0.12);
+}
+
+.society-directory-search .modern-search-bar__input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18), 0 18px 34px rgba(59, 130, 246, 0.18);
+}
+
+.society-directory-empty-state {
+  border-style: solid;
+  border-color: #c7d2fe;
+  background: linear-gradient(135deg, #f8fbff 0%, #eff6ff 100%);
+}
+
+.society-directory-table-shell {
+  border-radius: 20px;
+  border-color: #bfdbfe;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.society-directory-selection-bar {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-bottom-color: #bfdbfe;
+}
+
+.society-directory-selection-copy {
+  color: #1e3a8a;
+}
+
+.society-directory-selection-button {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.society-directory-selection-button:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.society-directory-table {
+  min-width: 960px;
+}
+
+.society-directory-table th {
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.society-directory-table td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.society-directory-row:hover {
+  background: #eff6ff;
+}
+
+.society-directory-row-selected {
+  background: #e0f2fe;
+}
+
+.society-directory-name-cell strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.society-directory-description-text {
+  display: inline-block;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.society-directory-description-editor,
+.society-directory-clubtype-editor {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.society-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.society-type-badge-sports {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.society-type-badge-activity {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.society-type-badge-cultural {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.society-type-badge-media {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.society-type-badge-international {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.society-type-badge-religious {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.society-type-badge-not-set {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.society-directory-status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.society-directory-manager-name {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.society-directory-actions-col {
+  text-align: right;
+}
+
+.society-directory-action-group {
+  justify-content: flex-end;
+}
+
+.society-directory-edit-btn,
+.society-directory-delete-row-btn {
+  min-height: 38px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.society-directory-edit-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.society-directory-edit-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px) scale(1.01);
+}
+
+.society-directory-delete-row-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.18);
+}
+
+.society-directory-delete-row-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px) scale(1.01);
+}
+
 .society-manager-page-card {
   width: 100%;
   max-width: none;
@@ -891,6 +1321,34 @@ tr:hover {
     border-radius: 18px;
   }
 
+  .society-page-shell {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .society-directory-shell {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .society-page-card {
+    padding: 24px 20px 26px;
+    border-radius: 18px;
+  }
+
+  .society-directory-card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .society-page-header h2 {
+    font-size: 32px;
+  }
+
+  .society-page-subtext {
+    font-size: 15px;
+  }
+
   .society-manager-page-header .section-subtext {
     margin-top: 12px;
     font-size: 15px;
@@ -903,14 +1361,35 @@ tr:hover {
     align-items: stretch;
   }
 
+  .society-directory-header {
+    gap: 16px;
+  }
+
   .society-manager-page-footer {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .society-page-footer {
+    justify-content: stretch;
+  }
+
   .society-manager-submit {
     width: 100%;
     min-width: 0;
+  }
+
+  .society-page-submit {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .society-directory-search {
+    width: 100%;
+  }
+
+  .society-directory-action-group {
+    justify-content: flex-start;
   }
 
   .manager-selection-bar {
