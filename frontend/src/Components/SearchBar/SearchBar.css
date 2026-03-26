@@ -1,0 +1,113 @@
+.modern-search-bar {
+	position: relative;
+	width: min(100%, 780px);
+	margin: 0 auto 18px;
+}
+
+.modern-search-bar__input {
+	width: 100%;
+	min-height: 60px;
+	padding: 16px 112px 16px 26px;
+	border: 3px solid #35ace7;
+	border-radius: 999px;
+	background: linear-gradient(180deg, #ffffff 0%, #fbfeff 100%);
+	box-shadow: 0 14px 28px rgba(53, 172, 231, 0.12);
+	color: #0f172a;
+	font-size: 16px;
+	font-weight: 500;
+	line-height: 1.4;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.modern-search-bar__input::placeholder {
+	color: #8ecfeb;
+}
+
+.modern-search-bar__input:focus {
+	outline: none;
+	border-color: #1b92ce;
+	box-shadow: 0 0 0 4px rgba(53, 172, 231, 0.16), 0 18px 34px rgba(53, 172, 231, 0.18);
+	transform: translateY(-1px);
+}
+
+.modern-search-bar__button {
+	position: absolute;
+	top: 41%;
+	right: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 82px;
+	height: 52px;
+	transform: translateY(-50%);
+	border: none;
+	border-radius: 999px;
+	background: linear-gradient(135deg, #0b5f8a 0%, #084c6f 100%);
+	box-shadow: 0 10px 22px rgba(36, 159, 218, 0.28);
+	pointer-events: none;
+}
+
+.modern-search-bar__notch {
+	position: absolute;
+	top: 50%;
+	right: 70px;
+	width: 26px;
+	height: 26px;
+	background: #ffffff;
+	transform: translateY(-50%) rotate(45deg);
+	pointer-events: none;
+}
+
+.modern-search-bar__icon {
+	position: relative;
+	width: 22px;
+	height: 22px;
+}
+
+.modern-search-bar__icon::before,
+.modern-search-bar__icon::after {
+	content: "";
+	position: absolute;
+	box-sizing: border-box;
+}
+
+.modern-search-bar__icon::before {
+	width: 14px;
+	height: 14px;
+	border: 3px solid #ffffff;
+	border-radius: 50%;
+	top: 50%;
+	left: 50%;
+	transform: translate(-58%, -58%);
+}
+
+.modern-search-bar__icon::after {
+	width: 10px;
+	height: 3px;
+	border-radius: 999px;
+	background: #ffffff;
+	top: 58%;
+	left: 58%;
+	transform: rotate(45deg);
+	transform-origin: center;
+}
+
+@media (max-width: 640px) {
+	.modern-search-bar__input {
+		min-height: 56px;
+		padding: 14px 102px 14px 20px;
+		font-size: 15px;
+	}
+
+	.modern-search-bar__button {
+		width: 76px;
+		height: 48px;
+	}
+
+	.modern-search-bar__notch {
+		right: 65px;
+		width: 22px;
+		height: 22px;
+	}
+}

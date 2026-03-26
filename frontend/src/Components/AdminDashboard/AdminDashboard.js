@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import { FaCheckCircle, FaSearch, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 import { clubTypeOptions } from "../../data/clubData";
 
@@ -444,8 +444,6 @@ function AdminDashboard() {
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const [selectedManagerIds, setSelectedManagerIds] = useState([]);
   const [selectedSocietyIds, setSelectedSocietyIds] = useState([]);
-  const [managerSearchTerm, setManagerSearchTerm] = useState("");
-  const [societySearchTerm, setSocietySearchTerm] = useState("");
   const societyManagerFormRef = useRef(null);
   const societyManagerNameInputRef = useRef(null);
   const navigate = useNavigate();
@@ -664,16 +662,6 @@ function AdminDashboard() {
     );
 
   const societyManagers = users.filter((u) => u.role === "societyManager");
-  const normalizedManagerSearchTerm = managerSearchTerm.trim().toLowerCase();
-  const normalizedSocietySearchTerm = societySearchTerm.trim().toLowerCase();
-  const filteredSocietyManagers = societyManagers.filter((manager) =>
-    (manager.name || "").toLowerCase().includes(normalizedManagerSearchTerm)
-  );
-  const filteredSocieties = societies.filter((society) =>
-    (society.name || society.societyName || "").toLowerCase().includes(normalizedSocietySearchTerm)
-  );
-  const visibleSelectedManagerCount = filteredSocietyManagers.filter((manager) => selectedManagerIds.includes(manager._id)).length;
-  const visibleSelectedSocietyCount = filteredSocieties.filter((society) => selectedSocietyIds.includes(society._id)).length;
 
   useEffect(() => {
     const managerIds = new Set(societyManagers.map((manager) => manager._id));
@@ -703,18 +691,10 @@ function AdminDashboard() {
     });
   };
 
-  const allManagersSelected = filteredSocietyManagers.length > 0 && filteredSocietyManagers.every((manager) => selectedManagerIds.includes(manager._id));
+  const allManagersSelected = societyManagers.length > 0 && selectedManagerIds.length === societyManagers.length;
 
   const handleToggleAllManagers = () => {
-    const filteredManagerIds = filteredSocietyManagers.map((manager) => manager._id);
-
-    setSelectedManagerIds((currentIds) => {
-      if (allManagersSelected) {
-        return currentIds.filter((id) => !filteredManagerIds.includes(id));
-      }
-
-      return [...new Set([...currentIds, ...filteredManagerIds])];
-    });
+    setSelectedManagerIds(allManagersSelected ? [] : societyManagers.map((manager) => manager._id));
   };
 
   const handleToggleManagerSelection = (managerId) => {
@@ -724,18 +704,10 @@ function AdminDashboard() {
         : [...currentIds, managerId]
     );
   };
-  const allSocietiesSelected = filteredSocieties.length > 0 && filteredSocieties.every((society) => selectedSocietyIds.includes(society._id));
+  const allSocietiesSelected = societies.length > 0 && selectedSocietyIds.length === societies.length;
 
   const handleToggleAllSocieties = () => {
-    const filteredSocietyIds = filteredSocieties.map((society) => society._id);
-
-    setSelectedSocietyIds((currentIds) => {
-      if (allSocietiesSelected) {
-        return currentIds.filter((id) => !filteredSocietyIds.includes(id));
-      }
-
-      return [...new Set([...currentIds, ...filteredSocietyIds])];
-    });
+    setSelectedSocietyIds(allSocietiesSelected ? [] : societies.map((society) => society._id));
   };
 
   const handleToggleSocietySelection = (societyId) => {
@@ -1014,24 +986,14 @@ function AdminDashboard() {
                   <p className="section-subtext">Review assigned managers and track which societies already have ownership.</p>
                 </div>
                 <div className="manager-list-actions">
-                  <span className="manager-count-badge">{filteredSocietyManagers.length} of {societyManagers.length} registered</span>
+                  <span className="manager-count-badge">{societyManagers.length} registered</span>
                 </div>
               </div>
-              <div className="directory-search-shell">
-                <FaSearch className="directory-search-icon" />
-                <input
-                  type="text"
-                  className="directory-search-input"
-                  placeholder="Search managers..."
-                  value={managerSearchTerm}
-                  onChange={(e) => setManagerSearchTerm(e.target.value)}
-                />
-              </div>
-              {societyManagers.length === 0 ? <div className="manager-empty-state"><p>No society managers registered yet. Start by creating the first manager account.</p><button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Create First Manager</button></div> : filteredSocietyManagers.length === 0 ? <div className="manager-empty-state"><p>No society managers match your search.</p></div> : (
+              {societyManagers.length === 0 ? <div className="manager-empty-state"><p>No society managers registered yet. Start by creating the first manager account.</p><button className="dashboard-btn manager-action-btn" onClick={handleOpenSocietyManagerForm}>Create First Manager</button></div> : (
                 <div className="manager-directory-shell">
                   <div className="manager-selection-bar">
                     <div className="manager-selection-copy">
-                      <strong>{visibleSelectedManagerCount}</strong> of <strong>{filteredSocietyManagers.length}</strong> managers selected
+                      <strong>{selectedManagerIds.length}</strong> of <strong>{societyManagers.length}</strong> managers selected
                     </div>
                     <div className="manager-selection-tools">
                       <button className="manager-selection-button" onClick={handleToggleAllManagers}>
@@ -1055,7 +1017,7 @@ function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredSocietyManagers.map((m) => {
+                      {societyManagers.map((m) => {
                         const society = societies.find((s) => s._id === m.societyId);
                         const isSelected = selectedManagerIds.includes(m._id);
                         const initials = m.name
@@ -1127,21 +1089,29 @@ function AdminDashboard() {
         {/* Society Management */}
         {activeTab === "society" && (
           <div className="society-manager-dashboard-grid">
-            <div className="form-card society-list-card">
-              <div className="section-header-block">
-                <span className="section-kicker">Community</span>
-                <h2>Add Society</h2>
-                <p className="section-subtext">Create a society record and keep the community directory organized for manager assignment.</p>
+            <div className="society-page-shell">
+              <div className="form-card society-list-card society-page-card">
+                <div className="section-header-block society-page-header">
+                  <span className="section-kicker">Community</span>
+                  <h2>Add Society</h2>
+                  <p className="section-subtext">Create a society record and keep the community directory organized for manager assignment.</p>
+                </div>
+
+                <div className="society-page-form-grid">
+                  <input name="name" placeholder="Society Name" value={formData.name || ""} onChange={handleChange} />
+                  <textarea className="society-page-description" name="description" placeholder="Description" value={formData.description || ""} onChange={handleChange} />
+                  <select name="clubType" value={formData.clubType || ""} onChange={handleChange}>
+                    <option value="">Select Club Type</option>
+                    {clubTypes.map((option) => (
+                      <option key={option.slug || option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="society-page-footer">
+                  <button className="dashboard-btn society-page-submit" onClick={() => submitData("societies")}>Add Society</button>
+                </div>
               </div>
-              <input name="name" placeholder="Society Name" value={formData.name || ""} onChange={handleChange} />
-              <textarea name="description" placeholder="Description" value={formData.description || ""} onChange={handleChange} />
-              <select name="clubType" value={formData.clubType || ""} onChange={handleChange}>
-                <option value="">Select Club Type</option>
-                {clubTypes.map((option) => (
-                  <option key={option.slug || option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-              <button className="dashboard-btn" onClick={() => submitData("societies")}>Add Society</button>
             </div>
 
             <div className="form-card society-list-card society-list-card-full">
@@ -1152,41 +1122,27 @@ function AdminDashboard() {
                   <p className="section-subtext">All societies added through the admin panel are listed here.</p>
                 </div>
                 <div className="manager-list-actions">
-                  {filteredSocieties.length > 0 && (
+                  {societies.length > 0 && (
                     <button
                       className="dashboard-btn society-delete-btn"
                       onClick={handleDeleteSelectedSocieties}
                     >
-                      Delete Selected ({visibleSelectedSocietyCount})
+                      Delete Selected ({selectedSocietyIds.length})
                     </button>
                   )}
-                  <span className="manager-count-badge">{filteredSocieties.length} of {societies.length} societies</span>
+                  <span className="manager-count-badge">{societies.length} societies</span>
                 </div>
-              </div>
-              <div className="directory-search-shell">
-                <FaSearch className="directory-search-icon" />
-                <input
-                  type="text"
-                  className="directory-search-input"
-                  placeholder="Search societies..."
-                  value={societySearchTerm}
-                  onChange={(e) => setSocietySearchTerm(e.target.value)}
-                />
               </div>
 
               {societies.length === 0 ? (
                 <div className="manager-empty-state">
                   <p>No societies have been added yet.</p>
                 </div>
-              ) : filteredSocieties.length === 0 ? (
-                <div className="manager-empty-state">
-                  <p>No societies match your search.</p>
-                </div>
               ) : (
                 <div className="manager-directory-shell">
                   <div className="manager-selection-bar">
                     <div className="manager-selection-copy">
-                      <strong>{visibleSelectedSocietyCount}</strong> of <strong>{filteredSocieties.length}</strong> societies selected
+                      <strong>{selectedSocietyIds.length}</strong> of <strong>{societies.length}</strong> societies selected
                     </div>
                     <div className="manager-selection-tools">
                       <button className="manager-selection-button" onClick={handleToggleAllSocieties}>
@@ -1198,7 +1154,7 @@ function AdminDashboard() {
                   <table className="manager-directory-table">
                     <thead><tr><th className="manager-checkbox-col"><input type="checkbox" checked={allSocietiesSelected} onChange={handleToggleAllSocieties} /></th><th>Society Name</th><th>Description</th><th>Club Type</th><th>Manager Status</th><th>Actions</th></tr></thead>
                     <tbody>
-                      {filteredSocieties.map((society) => {
+                      {societies.map((society) => {
                         const assignedManager = societyManagers.find((manager) => manager.societyId === society._id);
                         const isEditingSociety = editSocietyId === society._id;
                         const isSelectedSociety = selectedSocietyIds.includes(society._id);
