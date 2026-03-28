@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navigation from "../HomeNav/HomeNav";
+import ClubGrid from "../ClubGrid/ClubGrid";
 import ImageSlider from "../ImageSlider/ImageSlider";
+import { clubData } from "../../data/clubData";
 import "./Home.css";
 
 function Home() {
@@ -38,6 +40,19 @@ function Home() {
 
       {/* Image Slider Section */}
       <ImageSlider images={sliderImages} />
+
+      <section className="campus-life-section">
+        <div className="campus-life-header">
+          <span className="campus-life-kicker">Student Life</span>
+          <h2>Discover Communities That Shape Campus Life</h2>
+          <p>
+            Explore student clubs and university communities that help you compete,
+            connect, create, and grow beyond the classroom.
+          </p>
+        </div>
+
+        <ClubGrid clubs={clubData} />
+      </section>
 
       {/* Features Section */}
       <section className="features">

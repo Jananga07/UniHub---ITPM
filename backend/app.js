@@ -1,5 +1,5 @@
 const express = require("express");
-const path = require("path");
+const path = require("node:path");
 const mongoose = require("mongoose");
 
 
@@ -17,6 +17,7 @@ const ResourceRoutes = require("./Routes/ResourceRoutes");
 const complaintRoutes = require("./Routes/complaintRoutes");
 const consultantBookingRoutes = require("./Routes/consultantBookingRoutes");
 const consultantRatingRoutes = require("./Routes/consultantRatingRoutes");
+const membershipRoutes = require("./Routes/membershipRoutes");
 
 // Middleware
 app.use(express.json());
@@ -40,6 +41,7 @@ app.use("/consultant-ratings", consultantRatingRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/consultant-bookings", consultantBookingRoutes);
 app.use("/api/consultant-ratings", consultantRatingRoutes);
+app.use("/api/memberships", membershipRoutes);
 // Routes
 
 
@@ -47,17 +49,19 @@ app.get("/", (req, res) => {
     res.send("It Is Working");
 });
 
-// MongoDB connection
-mongoose
-    .connect(
-        "mongodb+srv://unimate1:jwyTvwGxaT0Ig6r9@cluster0.uzozmrm.mongodb.net/"
-    )
-    .then(() => {
+const startServer = async () => {
+    try {
+        await mongoose.connect(
+            "mongodb+srv://unimate1:jwyTvwGxaT0Ig6r9@cluster0.uzozmrm.mongodb.net/"
+        );
+
         console.log("Connected to MongoDB");
         app.listen(5001, () => {
             console.log("Server running on port 5001");
         });
-    })
-    .catch((err) => {
+    } catch (err) {
         console.log("MongoDB connection error:", err);
-    });
+    }
+};
+
+startServer();

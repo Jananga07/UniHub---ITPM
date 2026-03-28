@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import ClubGrid from "../ClubGrid/ClubGrid";
+import Navigation from "../HomeNav/HomeNav";
+import { clubData } from "../../data/clubData";
 import "./SocietyPage.css";
+
+const studentLifeHeroImage = encodeURI("/Student Life.png");
 
 function SocietyPage() {
   const [societies, setSocieties] = useState([]);
@@ -21,61 +26,58 @@ function SocietyPage() {
     fetchSocieties();
   }, []);
 
-  if (loading) return <p className="loading-text">Loading societies...</p>;
-  if (!societies.length) return <p className="loading-text">No societies found.</p>;
-
   return (
-  <div className="dashboard-container">
+    <>
+      <Navigation />
+      <section
+        className="student-life-hero"
+      >
+        <div
+          className="student-life-hero__image"
+          style={{ backgroundImage: `url(${studentLifeHeroImage})` }}
+          aria-hidden="true"
+        />
+        <div className="student-life-hero__content">
+          <h1>Student Life</h1>
+          <p>Explore and join university societies, communities, and experiences that shape campus life.</p>
+        </div>
+      </section>
 
-    {/* Header Section */}
-    <div className="dashboard-header">
-      <div>
-        <h1>Student Societies</h1>
-        <p>Explore and join university societies</p>
-      </div>
-      <button className="primary-btn">+ Create Society</button>
-    </div>
+      <div className="dashboard-container">
 
-    {/* Stats Section */}
-    <div className="stats-grid">
-      <div className="stat-card">
-        <h3>Total Societies</h3>
-        <h2>{societies.length}</h2>
-      </div>
-
-      <div className="stat-card">
-        <h3>Active Societies</h3>
-        <h2>{societies.length}</h2>
-      </div>
-
-      <div className="stat-card">
-        <h3>Your Memberships</h3>
-        <h2>0</h2>
-      </div>
-    </div>
-
-    {/* Societies Section */}
-    <div className="societies-section">
-      <h2>All Societies</h2>
-      <div className="societies-grid">
-        {societies.map((soc) => (
-          <div className="society-card" key={soc._id}>
-            <div className="society-top">
-              <h3>{soc.societyName}</h3>
-            </div>
-
-            <p className="society-desc">
-              {soc.description}
-            </p>
-
-            <button className="join-btn">View Society</button>
+        {/* Stats Section */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Club Categories</h3>
+            <h2>{clubData.length}</h2>
           </div>
-        ))}
-      </div>
-    </div>
 
-  </div>
-);
+          <div className="stat-card">
+            <h3>Campus Communities</h3>
+            <h2>6</h2>
+          </div>
+
+          <div className="stat-card">
+            <h3>Live Club Pages</h3>
+            <h2>{clubData.length}</h2>
+          </div>
+        </div>
+
+        {/* Societies Section */}
+        <div className="societies-section">
+          <div className="societies-section-header">
+            <h2>Explore Club Types</h2>
+            <p className="societies-section-copy">
+              Select a club category to view only the societies assigned to that specific club type.
+            </p>
+          </div>
+
+          <ClubGrid clubs={clubData} />
+        </div>
+      </div>
+
+    </>
+  );
 }
 
 export default SocietyPage;
