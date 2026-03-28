@@ -12,14 +12,59 @@ const MembershipSchema = new mongoose.Schema(
       ref: "Society",
       required: true,
     },
-    status: {
+    fullName: {
       type: String,
-      enum: ["pending", "active"],
-      default: "pending",
+      required: true,
+      trim: true,
+    },
+    placeOfBirth: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    dateOfBirth: {
+      type: Date,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    nationality: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    cityCountry: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    membershipType: {
+      type: String,
+      required: true,
+      enum: ["Regular", "Gold", "Platinum"],
     },
   },
   {
-    timestamps: true,
+    timestamps: { createdAt: true, updatedAt: false },
   }
 );
 

@@ -3,23 +3,43 @@ const Membership = require("../Models/MembershipModel");
 const Society = require("../Models/SocietyModel");
 const User = require("../Models/User");
 
-const joinSociety = async (req, res) => {
-  const userId = String(req.body.userId || "").trim();
-  const societyId = String(req.body.societyId || "").trim();
+const requiredFields = [
+  "userId",
+  "societyId",
+  "fullName",
+  "placeOfBirth",
+  "dateOfBirth",
+  "address",
+  "nationality",
+  "cityCountry",
+  "gender",
+  "email",
+  "phone",
+  "membershipType",
+];
 
-  if (!userId || !societyId) {
-    return res.status(400).json({ message: "userId and societyId are required" });
+const createMembership = async (req, res) => {
+  const payload = requiredFields.reduce((result, field) => {
+    const value = req.body[field];
+    result[field] = typeof value === "string" ? value.trim() : value;
+    return result;
+  }, {});
+
+  const hasMissingField = requiredFields.some((field) => !payload[field]);
+
+  if (hasMissingField) {
+    return res.status(400).json({ message: "All required fields must be filled" });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(societyId)) {
+  if (!mongoose.Types.ObjectId.isValid(payload.userId) || !mongoose.Types.ObjectId.isValid(payload.societyId)) {
     return res.status(400).json({ message: "Invalid membership request" });
   }
 
   try {
     const [user, society, existingMembership] = await Promise.all([
-      User.findById(userId),
-      Society.findById(societyId),
-      Membership.findOne({ userId, societyId }),
+      User.findById(payload.userId),
+      Society.findById(payload.societyId),
+      Membership.findOne({ userId: payload.userId, societyId: payload.societyId }),
     ]);
 
     if (!user) {
@@ -31,35 +51,26 @@ const joinSociety = async (req, res) => {
     }
 
     if (existingMembership) {
-      return res.status(200).json({
-        message: "Already joined",
-        alreadyJoined: true,
-        membership: existingMembership,
-      });
+      return res.status(409).json({ message: "Already registered" });
     }
 
-    const membership = await Membership.create({
-      userId,
-      societyId,
-      status: "pending",
-    });
+    const membership = await Membership.create(payload);
 
     return res.status(201).json({
-      message: "Successfully joined",
-      alreadyJoined: false,
+      message: "Membership submitted successfully",
       membership,
     });
   } catch (error) {
     console.error(error);
 
     if (error?.code === 11000) {
-      return res.status(200).json({ message: "Already joined", alreadyJoined: true });
+      return res.status(409).json({ message: "Already registered" });
     }
 
-    return res.status(500).json({ message: "Failed to join society" });
+    return res.status(500).json({ message: "Failed to create membership" });
   }
 };
 
 module.exports = {
-  joinSociety,
+  createMembership,
 };

@@ -3,6 +3,6 @@ const MembershipController = require("../Controllers/MembershipController");
 
 const router = express.Router();
 
-router.post("/join", MembershipController.joinSociety);
+router.post("/", MembershipController.createMembership);
 
 module.exports = router;
