@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo } from "react";
+/* global globalThis */
+import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import "./SocietyModal.css";
 
@@ -6,6 +7,7 @@ const trimListMarker = (line) => line.replace(/^[-*•]\s*/, "").trim();
 
 function SocietyModal({ society, clubImage, isOpen, onClose }) {
   const description = society?.description?.trim() || "No description added for this society yet.";
+  const [isJoining, setIsJoining] = useState(false);
 
   const { paragraphs, bulletPoints } = useMemo(() => {
     const lines = description
@@ -38,6 +40,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
   useEffect(() => {
     if (!isOpen) {
+      setIsJoining(false);
       return undefined;
     }
 
@@ -50,11 +53,11 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
       }
     };
 
-    window.addEventListener("keydown", handleEscape);
+    globalThis.addEventListener("keydown", handleEscape);
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleEscape);
+      globalThis.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen, onClose]);
 
@@ -64,10 +67,28 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
   const societyName = society.name || society.societyName || "Untitled Society";
 
+  const handleJoinClick = () => {
+    if (isJoining) {
+      return;
+    }
+
+    setIsJoining(true);
+
+    globalThis.setTimeout(() => {
+      setIsJoining(false);
+      globalThis.alert("Request to join submitted");
+    }, 900);
+  };
+
   return (
-    <div className="society-modal" role="dialog" aria-modal="true" aria-labelledby="society-modal-title">
-      <div className="society-modal__overlay" onClick={onClose} />
-      <div className="society-modal__panel" onClick={(event) => event.stopPropagation()}>
+    <dialog className="society-modal" open aria-labelledby="society-modal-title">
+      <button
+        type="button"
+        className="society-modal__overlay"
+        onClick={onClose}
+        aria-label="Close society details"
+      />
+      <div className="society-modal__panel">
         <button type="button" className="society-modal__close" onClick={onClose} aria-label="Close society details">
           ×
         </button>
@@ -83,6 +104,16 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
                 <p key={`${societyName}-paragraph-${index}`}>{paragraph}</p>
               ))}
             </div>
+
+            <button
+              type="button"
+              className="join-btn"
+              onClick={handleJoinClick}
+              disabled={isJoining}
+            >
+              <span className="join-btn__icon" aria-hidden="true">+</span>
+              {isJoining ? "Joining..." : "Join Us"}
+            </button>
 
             {bulletPoints.length > 0 && (
               <ul className="society-modal__bullets">
@@ -100,7 +131,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 
