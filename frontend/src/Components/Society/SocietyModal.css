@@ -104,36 +104,69 @@
   line-height: 1.85;
 }
 
-.join-btn {
+.join-us-button {
+  position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 24px;
   border: none;
-  padding: 10px 20px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  padding: 14px 40px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
   color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+  overflow: hidden;
+  outline: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
   transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
-.join-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  box-shadow: 0 18px 34px rgba(29, 78, 216, 0.28);
+.join-us-button::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 7%;
+  width: 86%;
+  height: 46%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.06) 100%);
+  pointer-events: none;
 }
 
-.join-btn:disabled {
+.join-us-button:hover:not(:disabled) {
+  transform: scale(1.06);
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.52), inset 0 2px 4px rgba(255, 255, 255, 0.45);
+}
+
+.join-us-button:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.join-us-button:disabled {
   cursor: not-allowed;
   opacity: 0.78;
-  transform: none;
 }
 
-.join-btn__icon {
+.join-us-button--joined {
+  background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+  box-shadow: 0 10px 25px rgba(21, 128, 61, 0.32), inset 0 2px 4px rgba(255, 255, 255, 0.26);
+}
+
+.join-us-button__icon,
+.join-us-button__label {
+  position: relative;
+  z-index: 1;
+}
+
+.join-us-button__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;

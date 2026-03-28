@@ -1,13 +1,16 @@
 /* global globalThis */
 import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import "./SocietyModal.css";
 
 const trimListMarker = (line) => line.replace(/^[-*•]\s*/, "").trim();
+const API_BASE = "http://localhost:5001";
 
 function SocietyModal({ society, clubImage, isOpen, onClose }) {
   const description = society?.description?.trim() || "No description added for this society yet.";
   const [isJoining, setIsJoining] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
 
   const { paragraphs, bulletPoints } = useMemo(() => {
     const lines = description
@@ -41,6 +44,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) {
       setIsJoining(false);
+      setIsJoined(false);
       return undefined;
     }
 
@@ -66,18 +70,62 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
   }
 
   const societyName = society.name || society.societyName || "Untitled Society";
+  let joinButtonLabel = "Join Us";
 
-  const handleJoinClick = () => {
-    if (isJoining) {
+  if (isJoined) {
+    joinButtonLabel = "Joined";
+  } else if (isJoining) {
+    joinButtonLabel = "Joining...";
+  }
+
+  const handleJoinClick = async () => {
+    if (isJoining || isJoined) {
+      return;
+    }
+
+    const storedUser = globalThis.localStorage.getItem("user");
+
+    if (!storedUser) {
+      globalThis.alert("Please log in to join this society");
+      return;
+    }
+
+    let user;
+
+    try {
+      user = JSON.parse(storedUser);
+    } catch (error) {
+      console.error("Failed to parse stored user", error);
+      globalThis.alert("Unable to read your login session. Please log in again.");
+      return;
+    }
+
+    if (!user?._id || !society?._id) {
+      globalThis.alert("Missing membership details. Please try again.");
       return;
     }
 
     setIsJoining(true);
 
-    globalThis.setTimeout(() => {
+    try {
+      const response = await axios.post(`${API_BASE}/api/memberships/join`, {
+        userId: user._id,
+        societyId: society._id,
+      });
+
+      if (response.data?.alreadyJoined) {
+        setIsJoined(true);
+        globalThis.alert("You already joined this society");
+      } else {
+        setIsJoined(true);
+        globalThis.alert("Successfully joined");
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || "Unable to join this society right now.";
+      globalThis.alert(message);
+    } finally {
       setIsJoining(false);
-      globalThis.alert("Request to join submitted");
-    }, 900);
+    }
   };
 
   return (
@@ -107,12 +155,12 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
             <button
               type="button"
-              className="join-btn"
+              className={`join-us-button${isJoined ? " join-us-button--joined" : ""}`}
               onClick={handleJoinClick}
-              disabled={isJoining}
+              disabled={isJoining || isJoined}
             >
-              <span className="join-btn__icon" aria-hidden="true">+</span>
-              {isJoining ? "Joining..." : "Join Us"}
+              <span className="join-us-button__icon" aria-hidden="true">+</span>
+              <span className="join-us-button__label">{joinButtonLabel}</span>
             </button>
 
             {bulletPoints.length > 0 && (
@@ -137,6 +185,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
 SocietyModal.propTypes = {
   society: PropTypes.shape({
+    _id: PropTypes.string,
     name: PropTypes.string,
     societyName: PropTypes.string,
     description: PropTypes.string,
