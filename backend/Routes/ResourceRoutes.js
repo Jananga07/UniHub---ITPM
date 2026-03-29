@@ -46,7 +46,7 @@ router.get("/pdfs",                    ctrl.getPdfs);
 router.post("/pdfs/upload",            upload.single("file"), ctrl.uploadPdf);
 router.put("/pdfs/:id/approve",        ctrl.approvePdf);
 router.put("/pdfs/:id/reject",         ctrl.rejectPdf);
-router.put("/pdfs/:id",                ctrl.updatePdf);
+router.post("/pdfs/:id/update",          ctrl.updatePdf);
 router.delete("/pdfs/:id",             ctrl.deletePdf);
 router.get("/pdfs/:id/download",       ctrl.downloadPdf);
 router.post("/pdfs/:id/rate",          ctrl.ratePdf);

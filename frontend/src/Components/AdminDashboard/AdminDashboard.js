@@ -256,9 +256,12 @@ function ApprovalsTab() {
     if (!/^[a-zA-Z0-9\s]*$/.test(editForm.title)) return alert("Title can only contain letters and numbers.");
     if (!editForm.module || !editForm.category) return alert("Please select both module and category.");
     try {
-      await axios.put(`${API}/resources/pdfs/${id}`, { title: editForm.title.trim(), module: editForm.module, category: editForm.category });
+      await axios.post(`${API}/resources/pdfs/${id}/update`, { title: editForm.title.trim(), module: editForm.module, category: editForm.category });
       cancelEdit(); load();
-    } catch { alert("Failed to save changes."); }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Failed to save changes.";
+      alert("Save failed: " + msg);
+    }
   };
 
   return (
@@ -270,7 +273,7 @@ function ApprovalsTab() {
           <div className="table-container">
             <table>
               <thead>
-                <tr><th>Title</th><th>Module</th><th>Category</th><th>Uploaded By</th><th>Actions</th></tr>
+                <tr><th>Title</th><th>File</th><th>Module</th><th>Category</th><th>Uploaded By</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {pdfs.map((p) => (
@@ -304,6 +307,16 @@ function ApprovalsTab() {
                       ) : p.category}
                     </td>
                     <td>{p.uploadedBy || "anonymous"}</td>
+                    <td>
+                      <a
+                        href={`${API}/uploads/${p.filePath}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "#4f46e5", fontSize: 13, fontWeight: 600, textDecoration: "underline", whiteSpace: "nowrap" }}
+                      >
+                        📄 {p.fileName || "View PDF"}
+                      </a>
+                    </td>
                     <td>
                       {editId === p._id ? (
                         <>
