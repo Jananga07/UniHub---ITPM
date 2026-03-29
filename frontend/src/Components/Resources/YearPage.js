@@ -12,7 +12,7 @@ const YEARS = [
 
 function YearPage() {
   const navigate = useNavigate();
-  const { facultyId, facultyName } = useParams();
+  const { facultyId } = useParams();
 
   return (
     <div className="res-page">

@@ -850,17 +850,8 @@ function AdminDashboard() {
               ))}
             </div>
           )}
+        </div>
 
-        {/* Consultant Booking Management Link - UNCOMMENTED */}
-        <button 
-          className="sidebar-link" 
-          onClick={() => setActiveTab("consultantBookings")}
-          style={{ marginTop: '10px' }}
-        >
-          Consultant Bookings
-        </button>
-
-        {/* Complaint Handling Link - ADDED */}
         <button 
           className="sidebar-link" 
           onClick={() => setActiveTab("complaintHandling")}
@@ -868,15 +859,13 @@ function AdminDashboard() {
         >
           📋 Complaint Handling
         </button>
-      </div>
-          {/* Consultant Booking Management Link */}
-          <button
-            className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
-            onClick={() => setActiveTab("consultantBookings")}
-          >
-            Consultant Bookings
-          </button>
-        </div>
+
+        <button
+          className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
+          onClick={() => setActiveTab("consultantBookings")}
+        >
+          Consultant Bookings
+        </button>
       </aside>
 
       {/* Main Content */}
@@ -1184,12 +1173,14 @@ function AdminDashboard() {
                           .join("");
 
                         return (
-                          <tr key={m._id}>
-                            <td>{m.name}</td>
-                            <td>{m.gmail}</td>
-                            <td>{society ? society.societyName : "No society assigned"}</td>
-
-                          <tr key={m._id} className={isSelected ? "manager-row-selected manager-directory-page-row-selected" : "manager-directory-page-row"}>
+                          <tr
+                            key={m._id}
+                            className={
+                              isSelected
+                                ? "manager-row-selected manager-directory-page-row-selected"
+                                : "manager-directory-page-row"
+                            }
+                          >
                             <td className="manager-checkbox-col">
                               <input
                                 type="checkbox"
@@ -1208,8 +1199,14 @@ function AdminDashboard() {
                             </td>
                             <td>
                               <div className="manager-society-stack">
-                                <span className="society-tag">{society ? society.name || society.societyName : "No society assigned"}</span>
-                                <span className="manager-address-text">{m.address || "Address not added"}</span>
+                                <span className="society-tag">
+                                  {society
+                                    ? society.name || society.societyName
+                                    : "No society assigned"}
+                                </span>
+                                <span className="manager-address-text">
+                                  {m.address || "Address not added"}
+                                </span>
                               </div>
                             </td>
                             <td>
@@ -1500,7 +1497,6 @@ function AdminDashboard() {
 
         {/* Complaint Handling Tab - ADDED */}
         {activeTab === "complaintHandling" && <ComplaintHandling />}
-      </div>
       </main>
     </div>
   );
