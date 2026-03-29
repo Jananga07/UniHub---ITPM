@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import Home from './Components/Home/Home';
-import ClubDetails from './Components/ClubDetails/ClubDetails';
+import ClubDetails from './Components/ClubDetails/ClubDetails.js';
 import UserRegister from './Components/UserRegister/UserRegister';
 import Login from './Components/Login/Login';
 import StudentProfile from './Components/Student/StudentProfile';
@@ -11,7 +11,7 @@ import AddQuiz from './Components/Quiz/AddQuiz';
 import StudentQuiz from './Components/Quiz/StudentQuiz';
 import ModulePage from './Components/ModulePage/ModulePage';
 import SocietyPage from './Components/Society/SocietyPage';
-import MembershipForm from './Components/Society/MembershipForm';
+import MembershipForm from './Components/Society/MembershipForm.jsx';
 import ModuleDetailsPage from './Components/ModulePage/ModuleDetailsPage';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
 import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';

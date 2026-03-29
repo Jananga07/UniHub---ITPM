@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ClubGrid from "../ClubGrid/ClubGrid";
+import ClubGrid from "../ClubGrid/ClubGrid.js";
 import Navigation from "../HomeNav/HomeNav";
-import { clubData } from "../../data/clubData";
+import { clubData } from "../../data/clubData.js";
 import "./SocietyPage.css";
 
 const studentLifeHeroImage = encodeURI("/Student Life.png");

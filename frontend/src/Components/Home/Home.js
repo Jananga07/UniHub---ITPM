@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navigation from "../HomeNav/HomeNav";
-import ClubGrid from "../ClubGrid/ClubGrid";
+import ClubGrid from "../ClubGrid/ClubGrid.js";
 import ImageSlider from "../ImageSlider/ImageSlider";
-import { clubData } from "../../data/clubData";
+import { clubData } from "../../data/clubData.js";
 import "./Home.css";
 
 function Home() {

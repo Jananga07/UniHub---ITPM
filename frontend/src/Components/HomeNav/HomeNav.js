@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { clubData } from "../../data/clubData";
+import { clubData } from "../../data/clubData.js";
 import "./HomeNav.css";
 
 function Nav() {

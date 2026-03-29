@@ -13,10 +13,10 @@ import {
 import { Pie } from "react-chartjs-2";
 import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
-import SearchBar from "../SearchBar/SearchBar";
+import SearchBar from "../SearchBar/SearchBar.js";
 import "../SearchBar/managersSearch.css";
 import "../SearchBar/societiesSearch.css";
-import { clubTypeOptions } from "../../data/clubData";
+import { clubTypeOptions } from "../../data/clubData.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
