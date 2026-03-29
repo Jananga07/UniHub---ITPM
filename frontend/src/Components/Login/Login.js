@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-const API_BASE = "http://localhost:5001";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5001";
 
 /** Normalize DB role strings for routing (e.g. "Admin", "societyManager", "Society Manager"). */
 function normalizeRole(role) {

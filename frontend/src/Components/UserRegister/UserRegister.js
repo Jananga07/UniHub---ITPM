@@ -71,7 +71,7 @@ function UserRegister() {
         contact: inputs.contact.trim(),
       };
 
-      const res = await axios.post("http://localhost:5001/users", payload);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5001"}/users`, payload);
       console.log(res.data);
       alert("User Registered Successfully!");
       navigate("/login");
