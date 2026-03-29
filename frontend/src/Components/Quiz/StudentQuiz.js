@@ -15,7 +15,7 @@ function StudentQuiz() {
     if (moduleId) {
       fetchQuizzes();
     }
-  }, [moduleId]);
+  }, [moduleId, fetchQuizzes]);
 
   const fetchQuizzes = async () => {
     try {

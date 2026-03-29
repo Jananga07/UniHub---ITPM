@@ -72,7 +72,7 @@ function ConsultantRating() {
     setUserBookings(userConsultantIds);
     
     setLoading(false);
-  }, []);
+  }, [consultantsData]);
 
   const renderStars = (rating, interactive = false, onStarClick = null) => {
     const stars = [];

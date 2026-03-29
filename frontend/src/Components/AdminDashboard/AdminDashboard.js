@@ -850,17 +850,8 @@ function AdminDashboard() {
               ))}
             </div>
           )}
+        </div>
 
-        {/* Consultant Booking Management Link - UNCOMMENTED */}
-        <button 
-          className="sidebar-link" 
-          onClick={() => setActiveTab("consultantBookings")}
-          style={{ marginTop: '10px' }}
-        >
-          Consultant Bookings
-        </button>
-
-        {/* Complaint Handling Link - ADDED */}
         <button 
           className="sidebar-link" 
           onClick={() => setActiveTab("complaintHandling")}
@@ -868,15 +859,13 @@ function AdminDashboard() {
         >
           📋 Complaint Handling
         </button>
-      </div>
-          {/* Consultant Booking Management Link */}
-          <button
-            className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
-            onClick={() => setActiveTab("consultantBookings")}
-          >
-            Consultant Bookings
-          </button>
-        </div>
+
+        <button
+          className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
+          onClick={() => setActiveTab("consultantBookings")}
+        >
+          Consultant Bookings
+        </button>
       </aside>
 
       {/* Main Content */}

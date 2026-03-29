@@ -79,7 +79,7 @@ function ConsultantBooking() {
     
     setAvailableDates(dates);
     setLoading(false);
-  }, [consultantId]);
+  }, [consultantId, consultants]);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);

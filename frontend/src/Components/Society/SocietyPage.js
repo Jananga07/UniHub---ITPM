@@ -8,18 +8,12 @@ import "./SocietyPage.css";
 const studentLifeHeroImage = encodeURI("/Student Life.png");
 
 function SocietyPage() {
-  const [societies, setSocieties] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchSocieties = async () => {
       try {
         const res = await axios.get("http://localhost:5001/societies"); // fetch from backend
-        setSocieties(res.data.societies);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     };
 
