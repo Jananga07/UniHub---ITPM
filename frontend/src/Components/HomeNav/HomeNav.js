@@ -38,7 +38,7 @@ function Nav() {
     return () => {
       clearCloseTimeout();
     };
-  }, [location.pathname]);
+  }, [location.pathname, closeStudentLifeMenu]);
 
   return (
     <nav className="navbar">

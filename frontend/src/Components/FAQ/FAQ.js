@@ -86,7 +86,7 @@ function FAQ() {
       const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, faqData]);
 
   return (
     <div className="faq-container">
