@@ -9,6 +9,9 @@ const UserSchema = new Schema({
      gmail:{
         type:String, 
         required:true, 
+        trim: true,
+        lowercase: true,
+        match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address."],
      },
      password:{
          type:String,
@@ -29,12 +32,27 @@ const UserSchema = new Schema({
      contact:{
         type:String,
         required:false,
+        validate: {
+          validator: (value) => !value || /^\+?\d{10,15}$/.test(value),
+          message: "Contact number must be 10 to 15 digits.",
+        },
      },
      societyId:{
         type:String,
         required:false,
      },
 });
+
+UserSchema.index(
+   { societyId: 1 },
+   {
+      unique: true,
+      partialFilterExpression: {
+         role: "societyManager",
+         societyId: { $exists: true, $type: "string", $ne: "" },
+      },
+   }
+);
 
 module.exports = mongoose.model(
     "UserModel",
