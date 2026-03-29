@@ -52,19 +52,10 @@ function Nav() {
         <li><Link to="/login">Login</Link></li>
         <li><Link to="/admin">Admin</Link></li>
         <li><Link to="/modulepage">Module Page</Link></li>
-
-
-
-
         <li><Link to="/studentsupport">Student Support</Link></li>
         <li><Link to="/resources">Resources</Link></li>
         <li><Link to="/faq">FAQ</Link></li>
-
-        <li><NavLink to="/">Home</NavLink></li>
-        <li><NavLink to="/userRegister">Register</NavLink></li>
-        <li><NavLink to="/login">Login</NavLink></li>
-        <li><NavLink to="/admin">Admin</NavLink></li>
-        <li><NavLink to="/modulepage">Module Page</NavLink></li>
+        
         <li
           className={`nav-dropdown ${isStudentLifeOpen ? "nav-dropdown-open" : ""}`}
           onMouseEnter={handleStudentLifeEnter}
@@ -86,9 +77,9 @@ function Nav() {
             ))}
           </div>
         </li>
-        <li><NavLink to="/studentsupport">Student Support</NavLink></li>
-        <li><NavLink to="/resources">Resources</NavLink></li>
-        <li><NavLink to="/faq">FAQ</NavLink></li>
+        
+
+        
 
 
 
