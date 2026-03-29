@@ -1,0 +1,61 @@
+.society-search-bar {
+	position: relative;
+	width: min(100%, 700px);
+	margin: 0 auto 24px;
+}
+
+.society-search-bar .search-input-field {
+	width: 100%;
+	min-height: 60px;
+	padding: 16px 112px 16px 26px;
+	border: 3px solid #93c5fd;
+	border-radius: 999px;
+	background: linear-gradient(180deg, #ffffff 0%, #fbfeff 100%);
+	box-shadow: 0 14px 28px rgba(59, 130, 246, 0.12);
+	color: #0f172a;
+	font-size: 16px;
+	font-weight: 500;
+	line-height: 1.4;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.society-search-bar .search-input-field::placeholder {
+	color: #8ecfeb;
+}
+
+.society-search-bar .search-input-field:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18), 0 18px 34px rgba(59, 130, 246, 0.18);
+	transform: translateY(-1px);
+}
+
+.society-search-bar .search-bar-notch {
+	position: absolute;
+	top: 50%;
+	right: 70px;
+	width: 26px;
+	height: 26px;
+	background: #ffffff;
+	transform: translateY(-50%) rotate(45deg);
+	pointer-events: none;
+}
+
+@media (max-width: 768px) {
+	.society-search-bar {
+		width: 100%;
+	}
+
+	.society-search-bar .search-input-field {
+		min-height: 56px;
+		padding: 14px 102px 14px 20px;
+		font-size: 15px;
+	}
+
+	.society-search-bar .search-bar-notch {
+		right: 65px;
+		width: 22px;
+		height: 22px;
+	}
+}
