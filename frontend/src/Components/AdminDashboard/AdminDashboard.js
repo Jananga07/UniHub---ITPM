@@ -16,7 +16,7 @@ import ConsultantBookingManagement from "../ConsultantBookingManagement/Consulta
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const API = "http://localhost:5001";
+const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
 const CATEGORIES = ["Lecture Material", "Reading Material", "Short Notes", "Referral Sheets"];
 
 // ─── FACULTY MANAGEMENT TAB ─────────────────────────────────────────────────

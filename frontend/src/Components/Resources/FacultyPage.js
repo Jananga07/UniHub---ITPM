@@ -4,7 +4,7 @@ import Nav from "../HomeNav/HomeNav";
 import "./Resources.css";
 import axios from "axios";
 
-const API = "http://localhost:5001";
+const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
 
 function FacultyPage() {
   const navigate = useNavigate();
