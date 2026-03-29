@@ -24,6 +24,10 @@ const handleSocietyError = (res, err, fallbackMessage) => {
 
 // Add new society
 const addSociety = async (req, res) => {
+  const { societyName, description, category, color, imageUrl } = req.body;
+
+  if (!societyName || !description || !category) {
+    return res.status(400).json({ message: "Society name, description, and category are required" });
   const name = (req.body.name || req.body.societyName || "").trim();
   const description = (req.body.description || "").trim();
   const clubType = normalizeClubType(req.body.clubType || "");
@@ -47,6 +51,10 @@ const addSociety = async (req, res) => {
     const newSociety = new Society({
       name,
       description,
+      category,
+      color: color || "#007bff",
+      imageUrl: imageUrl || "",
+
       clubType,
     });
 

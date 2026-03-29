@@ -32,6 +32,19 @@ const SocietySchema = new mongoose.Schema(
       required: true,
       enum: CLUB_TYPES,
     },
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    color: {
+      type: String,
+      default: "#007bff", // default bootstrap blue
+    },
+    imageUrl: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

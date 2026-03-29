@@ -1,8 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Nav from "../HomeNav/HomeNav";
+import ClubsSection from "./ClubsSection";
+
 import Navigation from "../HomeNav/HomeNav";
 import ClubGrid from "../ClubGrid/ClubGrid.js";
 import ImageSlider from "../ImageSlider/ImageSlider";
+
 import { clubData } from "../../data/clubData.js";
 import "./Home.css";
 
@@ -80,6 +84,9 @@ function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Clubs Section */}
+      <ClubsSection />
 
       {/* Announcements Section */}
       <section className="announcements">
