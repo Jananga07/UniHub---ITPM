@@ -220,11 +220,17 @@ function ResourceModuleTab() {
 
 // ─── PENDING APPROVALS TAB ────────────────────────────────────────────────
 function ApprovalsTab() {
-  const [pdfs, setPdfs] = useState([]);
+  const [pdfs, setPdfs]         = useState([]);
+  const [modules, setModules]   = useState([]);
+  const [editId, setEditId]     = useState(null);
+  const [editForm, setEditForm] = useState({ title: "", module: "", category: "" });
 
-  const load = () =>
+  const load = () => {
     axios.get(`${API}/resources/pdfs`, { params: { status: "pending" } })
       .then((r) => setPdfs(r.data.pdfs));
+    axios.get(`${API}/resources/modules`)
+      .then((r) => setModules(r.data.modules));
+  };
 
   useEffect(() => { load(); }, []);
 
@@ -236,6 +242,23 @@ function ApprovalsTab() {
   const reject = async (id) => {
     await axios.put(`${API}/resources/pdfs/${id}/reject`);
     load();
+  };
+
+  const startEdit = (p) => {
+    setEditId(p._id);
+    setEditForm({ title: p.title || "", module: p.module?._id || "", category: p.category || "" });
+  };
+
+  const cancelEdit = () => { setEditId(null); setEditForm({ title: "", module: "", category: "" }); };
+
+  const saveEdit = async (id) => {
+    if (!editForm.title.trim()) return alert("Title cannot be empty.");
+    if (!/^[a-zA-Z0-9\s]*$/.test(editForm.title)) return alert("Title can only contain letters and numbers.");
+    if (!editForm.module || !editForm.category) return alert("Please select both module and category.");
+    try {
+      await axios.put(`${API}/resources/pdfs/${id}`, { title: editForm.title.trim(), module: editForm.module, category: editForm.category });
+      cancelEdit(); load();
+    } catch { alert("Failed to save changes."); }
   };
 
   return (
@@ -252,13 +275,48 @@ function ApprovalsTab() {
               <tbody>
                 {pdfs.map((p) => (
                   <tr key={p._id}>
-                    <td>{p.title}</td>
-                    <td>{p.module?.moduleName}</td>
-                    <td>{p.category}</td>
+                    <td>
+                      {editId === p._id ? (
+                        <input
+                          className="ra-input-sm"
+                          value={editForm.title}
+                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                          placeholder="PDF Title"
+                        />
+                      ) : p.title}
+                    </td>
+                    <td>
+                      {editId === p._id ? (
+                        <select className="ra-input-sm" value={editForm.module}
+                          onChange={(e) => setEditForm({ ...editForm, module: e.target.value })}>
+                          <option value="">Select Module</option>
+                          {modules.map((m) => <option key={m._id} value={m._id}>{m.moduleName}</option>)}
+                        </select>
+                      ) : p.module?.moduleName}
+                    </td>
+                    <td>
+                      {editId === p._id ? (
+                        <select className="ra-input-sm" value={editForm.category}
+                          onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
+                          <option value="">Select Category</option>
+                          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      ) : p.category}
+                    </td>
                     <td>{p.uploadedBy || "anonymous"}</td>
                     <td>
-                      <button className="dashboard-btn ra-btn-success" onClick={() => approve(p._id)}>Approve</button>{" "}
-                      <button className="dashboard-btn ra-btn-danger"  onClick={() => reject(p._id)}>Reject</button>
+                      {editId === p._id ? (
+                        <>
+                          <button className="dashboard-btn ra-btn-success" onClick={() => saveEdit(p._id)}>Save</button>{" "}
+                          <button className="dashboard-btn" onClick={cancelEdit}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="dashboard-btn" onClick={() => startEdit(p)}>Edit</button>{" "}
+                          <button className="dashboard-btn ra-btn-success" onClick={() => approve(p._id)}>Approve</button>{" "}
+                          <button className="dashboard-btn ra-btn-danger"  onClick={() => reject(p._id)}>Reject</button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -270,6 +328,7 @@ function ApprovalsTab() {
     </div>
   );
 }
+
 
 // ─── ADMIN PDF UPLOAD TAB ─────────────────────────────────────────────────
 function AdminUploadTab() {

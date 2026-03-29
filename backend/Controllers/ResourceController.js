@@ -227,6 +227,33 @@ const rejectPdf = async (req, res) => {
   }
 };
 
+const updatePdf = async (req, res) => {
+  try {
+    const { title, module: moduleId, category } = req.body;
+    if (!title && !moduleId && !category)
+      return res.status(400).json({ message: "Provide at least one field to update" });
+
+    const allowed = ["Lecture Material", "Reading Material", "Short Notes", "Referral Sheets"];
+    if (category && !allowed.includes(category))
+      return res.status(400).json({ message: "Invalid category" });
+
+    if (title && !/^[a-zA-Z0-9\s]*$/.test(title))
+      return res.status(400).json({ message: "Invalid title format. Letters and numbers only." });
+
+    const update = {};
+    if (title) update.title = title.trim();
+    if (moduleId) update.module = moduleId;
+    if (category) update.category = category;
+
+    const pdf = await PdfResource.findByIdAndUpdate(req.params.id, update, { new: true })
+      .populate({ path: "module", populate: { path: "faculty", select: "name" } });
+    if (!pdf) return res.status(404).json({ message: "PDF not found" });
+    res.json({ pdf });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating PDF", error: err.message });
+  }
+};
+
 const deletePdf = async (req, res) => {
   try {
     const pdf = await PdfResource.findByIdAndDelete(req.params.id);
@@ -333,6 +360,7 @@ module.exports = {
   uploadPdf,
   approvePdf,
   rejectPdf,
+  updatePdf,
   deletePdf,
   downloadPdf,
   ratePdf,
