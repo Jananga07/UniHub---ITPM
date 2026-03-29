@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navigation from '../HomeNav/HomeNav';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './ComplaintForm.css';
 
 function ComplaintForm() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    category: '',
-    title: '',
-    description: '',
-    urgency: 'medium',
-    contactEmail: '',
-    contactPhone: ''
-  });
-  
+  const location = useLocation();
+  const editingComplaint = location.state?.complaint; // complaint data if editing
+
+  const [formData, setFormData] = useState(
+    editingComplaint || {
+      category: '',
+      title: '',
+      description: '',
+      urgency: 'medium',
+      contactEmail: '',
+      contactPhone: ''
+    }
+  );
   const [errors, setErrors] = useState({});
 
   const categories = [
@@ -31,87 +34,88 @@ function ComplaintForm() {
 
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.category) {
-      newErrors.category = 'Please select a category';
-    }
-    
+    if (!formData.category) newErrors.category = 'Please select a category';
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
     } else if (formData.title.length < 10) {
       newErrors.title = 'Title must be at least 10 characters';
     }
-    
     if (!formData.description.trim()) {
       newErrors.description = 'Description is required';
     } else if (formData.description.length < 50) {
       newErrors.description = 'Description must be at least 50 characters';
     }
-    
     if (formData.contactEmail && !/\S+@\S+\.\S+/.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Please enter a valid email address';
     }
-    
     if (formData.contactPhone && !/^\d{10}$/.test(formData.contactPhone.replace(/\D/g, ''))) {
       newErrors.contactPhone = 'Please enter a valid phone number';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error for this field when user starts typing
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      // Here you would normally send the data to backend
+    if (!validateForm()) return;
+
+    if (editingComplaint) {
+      // Update existing complaint
+      const storedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      const updatedComplaints = storedComplaints.map(c =>
+        c.id === editingComplaint.id
+          ? {
+              ...c,
+              ...formData,
+              submittedDate: editingComplaint.submittedDate, // keep original date
+              // status remains unchanged (should stay pending)
+            }
+          : c
+      );
+      localStorage.setItem('complaints', JSON.stringify(updatedComplaints));
+      alert('Complaint updated successfully!');
+    } else {
+      // Create new complaint
       const complaintData = {
         ...formData,
         id: Date.now(),
         status: 'pending',
         submittedDate: new Date().toISOString(),
-        submittedBy: 'current-user' // This would come from auth context
+        submittedBy: 'current-user' // in real app, use auth user
       };
-      
-      // Save to localStorage for demo purposes
       const existingComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
       existingComplaints.push(complaintData);
       localStorage.setItem('complaints', JSON.stringify(existingComplaints));
-      
-      alert('Complaint submitted successfully! You can track its status in "My Complaints".');
-      navigate('/my-complaints');
+      alert('Complaint submitted successfully!');
     }
+    navigate('/my-complaints');
   };
 
   const handleCancel = () => {
-    navigate('/studentsupport');
+    navigate('/my-complaints');
   };
 
   return (
     <div className="complaint-form-container">
-      <Navigation />
       <div className="complaint-form-header">
-        <h1>File a Complaint</h1>
-        <p>We take your concerns seriously. Please provide detailed information about your issue.</p>
+        <h1>{editingComplaint ? 'Edit Complaint' : 'File a Complaint'}</h1>
+        <p>
+          {editingComplaint
+            ? 'Update your complaint details below.'
+            : 'We take your concerns seriously. Please provide detailed information about your issue.'}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="complaint-form">
+        {/* Category */}
         <div className="form-group">
           <label htmlFor="category" className="form-label">
             Category <span className="required">*</span>
@@ -124,15 +128,16 @@ function ComplaintForm() {
             className={`form-select ${errors.category ? 'error' : ''}`}
           >
             <option value="">Select a category</option>
-            {categories.map(category => (
-              <option key={category.value} value={category.value}>
-                {category.label}
+            {categories.map(cat => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label}
               </option>
             ))}
           </select>
           {errors.category && <span className="error-message">{errors.category}</span>}
         </div>
 
+        {/* Title */}
         <div className="form-group">
           <label htmlFor="title" className="form-label">
             Complaint Title <span className="required">*</span>
@@ -149,6 +154,7 @@ function ComplaintForm() {
           {errors.title && <span className="error-message">{errors.title}</span>}
         </div>
 
+        {/* Description */}
         <div className="form-group">
           <label htmlFor="description" className="form-label">
             Detailed Description <span className="required">*</span>
@@ -165,6 +171,7 @@ function ComplaintForm() {
           {errors.description && <span className="error-message">{errors.description}</span>}
         </div>
 
+        {/* Urgency */}
         <div className="form-group">
           <label htmlFor="urgency" className="form-label">
             Urgency Level
@@ -184,6 +191,7 @@ function ComplaintForm() {
           </select>
         </div>
 
+        {/* Contact fields */}
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="contactEmail" className="form-label">
@@ -218,17 +226,17 @@ function ComplaintForm() {
           </div>
         </div>
 
+        {/* Form actions */}
         <div className="form-actions">
           <button type="button" onClick={handleCancel} className="cancel-btn">
             Cancel
           </button>
           <button type="submit" className="submit-btn">
-            Submit Complaint
+            {editingComplaint ? 'Update Complaint' : 'Submit Complaint'}
           </button>
         </div>
       </form>
     </div>
   );
 }
-
 export default ComplaintForm;

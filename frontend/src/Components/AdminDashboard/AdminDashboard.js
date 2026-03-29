@@ -13,6 +13,8 @@ import {
 import { Pie } from "react-chartjs-2";
 import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
+import ComplaintHandling from "../ComplaintHandling/ComplaintHandling";
+
 import SearchBar from "../SearchBar/SearchBar.js";
 import "../SearchBar/managersSearch.css";
 import "../SearchBar/societiesSearch.css";
@@ -76,7 +78,9 @@ function FacultyTab() {
       </div>
       <div className="table-container">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Actions</th></tr>
+          </thead>
           <tbody>
             {faculties.map((f, i) => (
               <tr key={f._id}>
@@ -965,6 +969,13 @@ function AdminDashboard() {
       {/* Sidebar */}
       <aside className="sidebar">
         <h2>Uni Hub</h2>
+        <button className="sidebar-link" onClick={() => setActiveTab("dashboard")}>Dashboard</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("users")}>All Users</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("societyManager")}>Add Society Manager</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
+        <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
+        <button className="sidebar-link" onClick={() => navigate("/adquiz")}>Add Quiz</button>
+
         <div className="sidebar-nav">
           <button className={`sidebar-link ${activeTab === "dashboard" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button className={`sidebar-link ${activeTab === "users" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("users")}>All Users</button>
@@ -994,6 +1005,24 @@ function AdminDashboard() {
             </div>
           )}
 
+        {/* Consultant Booking Management Link - UNCOMMENTED */}
+        <button 
+          className="sidebar-link" 
+          onClick={() => setActiveTab("consultantBookings")}
+          style={{ marginTop: '10px' }}
+        >
+          Consultant Bookings
+        </button>
+
+        {/* Complaint Handling Link - ADDED */}
+        <button 
+          className="sidebar-link" 
+          onClick={() => setActiveTab("complaintHandling")}
+          style={{ marginTop: '10px' }}
+        >
+          📋 Complaint Handling
+        </button>
+      </div>
           {/* Consultant Booking Management Link */}
           <button
             className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
@@ -1011,45 +1040,75 @@ function AdminDashboard() {
           <div className="admin-profile">Admin</div>
         </div>
 
-       
         {/* Dashboard Cards */}
-{activeTab === "dashboard" && (
-  <div className="dashboard-grid">
-
-    <div className="dashboard-card">
-      <FaUsers className="card-icon" />
-      <h3>Total Users</h3>
-      <p>
-        <CountUp end={users.length} duration={2} />
-      </p>
-    </div>
-
-    <div className="dashboard-card">
-      <FaUserGraduate className="card-icon" />
-      <h3>Students</h3>
-      <p>
-        <CountUp 
-          end={users.filter(u => u.role === "Student").length} 
-          duration={2} 
-        />
-      </p>
-    </div>
-
-    <div className="dashboard-card">
-      <FaUserTie className="card-icon" />
-      <h3>Society Managers</h3>
-      <p>
-        <CountUp 
-          end={users.filter(u => u.role === "societyManager").length} 
-          duration={2} 
-        />
-      </p>
-    </div>
-
-  </div>
-)}
+        {activeTab === "dashboard" && (
+          <div className="dashboard-grid">
+            <div className="dashboard-card">
+              <FaUsers className="card-icon" />
+              <h3>Total Users</h3>
+              <p><CountUp end={users.length} duration={2} /></p>
+            </div>
+            <div className="dashboard-card">
+              <FaUserGraduate className="card-icon" />
+              <h3>Students</h3>
+              <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
+            </div>
+            <div className="dashboard-card">
+              <FaUserTie className="card-icon" />
+              <h3>Society Managers</h3>
+              <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
+            </div>
+          </div>
+        )}
 
         {/* Users Section */}
+        {activeTab === "users" && (
+          <div className="users-section">
+            <div className="category-tabs">
+              {["student", "societymanager"].map(cat => (
+                <button
+                  key={cat}
+                  className={userCategory === cat ? "active" : ""}
+                  onClick={() => setUserCategory(cat)}
+                >
+                  {cat === "societymanager" ? "Society Managers" : "Students"}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              placeholder={`Search ${userCategory}...`}
+              value={searchQuery[userCategory] || ""}
+              onChange={(e) =>
+                setSearchQuery({
+                  ...searchQuery,
+                  [userCategory]: e.target.value
+                })
+              }
+              className="search-input"
+            />
+            <div className="table-container">
+              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Email</th><th>Age</th><th>Address</th><th>Contact</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((u) => (
+                    <tr key={u._id}>
+                      <td>{u.name}</td>
+                      <td>{u.gmail}</td>
+                      <td>{u.age}</td>
+                      <td>{u.address}</td>
+                      <td>{u.contact}</td>
+                      <td><button className="dashboard-btn" onClick={() => handleDelete(u._id)}>Delete</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
        {activeTab === "users" && (
   <div className="users-section">
 
@@ -1279,6 +1338,11 @@ function AdminDashboard() {
                           .join("");
 
                         return (
+                          <tr key={m._id}>
+                            <td>{m.name}</td>
+                            <td>{m.gmail}</td>
+                            <td>{society ? society.societyName : "No society assigned"}</td>
+
                           <tr key={m._id} className={isSelected ? "manager-row-selected manager-directory-page-row-selected" : "manager-directory-page-row"}>
                             <td className="manager-checkbox-col">
                               <input
@@ -1587,6 +1651,10 @@ function AdminDashboard() {
         
         {/* Consultant Booking Management Tab */}
         {activeTab === "consultantBookings" && <ConsultantBookingManagement />}
+
+        {/* Complaint Handling Tab - ADDED */}
+        {activeTab === "complaintHandling" && <ComplaintHandling />}
+      </div>
       </main>
     </div>
   );

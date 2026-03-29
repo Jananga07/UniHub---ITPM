@@ -4,6 +4,11 @@ import Navigation from '../HomeNav/HomeNav';
 import './StudentSupport.css';
 
 function StudentSupport() {
+  // Get logged-in user from localStorage (set after login)
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const userId = user?._id;   // MongoDB _id
+
   const lecturers = [
     {
       id: 1,
@@ -109,6 +114,15 @@ function StudentSupport() {
             Rate Consultants
           </button>
         </Link>
+        {/* NEW PROFILE BUTTON – appears only if user is logged in */}
+        {userId && (
+          <Link to={`/student-profile/${userId}`}>
+            <button className="profile-btn">
+              <span className="profile-icon">👤</span>
+              My Profile
+            </button>
+          </Link>
+        )}
       </div>
 
       {/* Top Consultants */}

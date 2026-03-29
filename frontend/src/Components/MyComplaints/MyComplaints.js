@@ -9,10 +9,13 @@ function MyComplaints() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    // Load complaints from localStorage
+    loadComplaints();
+  }, []);
+
+  const loadComplaints = () => {
     const storedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
     setComplaints(storedComplaints);
-  }, []);
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -90,6 +93,26 @@ function MyComplaints() {
 
   const handleBack = () => {
     navigate('/studentsupport');
+  };
+
+  // Edit complaint – only allowed if status is 'pending'
+  const handleEdit = (complaint) => {
+    if (complaint.status !== 'pending') {
+      alert('You can only edit pending complaints.');
+      return;
+    }
+    navigate('/complaint-form', { state: { complaint } });
+  };
+
+  // Delete complaint
+  const handleDelete = (complaintId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this complaint? This action cannot be undone.');
+    if (!confirmDelete) return;
+
+    const updatedComplaints = complaints.filter(c => c.id !== complaintId);
+    setComplaints(updatedComplaints);
+    localStorage.setItem('complaints', JSON.stringify(updatedComplaints));
+    alert('Complaint deleted successfully.');
   };
 
   return (
@@ -192,6 +215,23 @@ function MyComplaints() {
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Edit & Delete buttons */}
+              <div className="complaint-actions">
+                <button
+                  className="edit-btn"
+                  onClick={() => handleEdit(complaint)}
+                  disabled={complaint.status !== 'pending'}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(complaint.id)}
+                >
+                  🗑️ Delete
+                </button>
               </div>
             </div>
           ))}
