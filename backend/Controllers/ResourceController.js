@@ -275,7 +275,7 @@ const downloadPdf = async (req, res) => {
     if (pdf.status !== "approved") return res.status(403).json({ message: "PDF not available" });
 // validation //
     // Increment counter
-    pdf.downloadCount += 1;
+    pdf.downloadCount += 1;//pdf download part//
     await pdf.save();
 
     const filePath = path.join(__dirname, "..", "uploads", pdf.filePath);
