@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "./StudentProfile.css";
 
@@ -7,26 +7,30 @@ function StudentProfile() {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("society");
+  const [activeTab, setActiveTab] = useState("society"); // default tab
 
   const navigate = useNavigate();
 
+  //Delete Account
   const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete your account?"
-    );
-    if (!confirmDelete) return;
+  const confirmDelete = window.confirm("Are you sure you want to delete your account?");
 
-    try {
-      await axios.delete(`http://localhost:5001/Users/${user._id}`);
-      alert("Account deleted successfully");
-      localStorage.removeItem("user");
-      navigate("/login");
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting account");
-    }
-  };
+  if (!confirmDelete) return;
+
+  try {
+    await axios.delete(`http://localhost:5001/users/${user._id}`);
+
+    alert("Account deleted successfully");
+
+    // logout user and redirect
+    localStorage.removeItem("user");
+    navigate("/login");
+
+  } catch (err) {
+    console.error(err);
+    alert("Error deleting account");
+  }
+};
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -43,155 +47,75 @@ function StudentProfile() {
     fetchUser();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="profile-page profile-page--loading">
-        <div className="profile-loading">
-          <div className="profile-loading__spinner" aria-hidden />
-          <p>Loading your profile…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="profile-page profile-page--empty">
-        <div className="profile-empty-card">
-          <h2>User not found</h2>
-          <p>We couldn’t load this profile. Try signing in again.</p>
-          <button
-            type="button"
-            className="profile-btn profile-btn--primary"
-            onClick={() => navigate("/login")}
-          >
-            Go to login
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <p>User not found</p>;
 
   return (
-    <div className="profile-page profile-page--student">
-      <aside className="profile-sidebar">
-        <div className="profile-sidebar__brand">Uni Hub</div>
+    <div className="profile-wrapper">
+      {/* Sidebar */}
+      <div className="sidebar">
+        <div className="avatar">{user.name.charAt(0).toUpperCase()}</div>
+        <h2>{user.name}</h2>
+        <p>{user.gmail}</p>
+        <ul className="profile-info">
+          <li>
+            Age: <span>{user.age || "N/A"}</span>
+          </li>
+          <li>
+            Address: <span>{user.address || "N/A"}</span>
+          </li>
+          <li>
+            Contact: <span>{user.contact || "N/A"}</span>
+          </li>
+          <li>
+            Role: <span>{user.role || "Student"}</span>
+          </li>
 
-        <div className="profile-avatar-wrap">
-          <div className="profile-avatar profile-avatar--student">
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-        </div>
-
-        <div className="profile-identity">
-          <h1 className="profile-name">{user.name}</h1>
-          <p className="profile-email">{user.gmail}</p>
-          <span className="profile-badge profile-badge--student">Student</span>
-        </div>
-
-        <dl className="profile-meta">
-          <div className="profile-meta__row">
-            <dt>Age</dt>
-            <dd>{user.age ?? "—"}</dd>
-          </div>
-          <div className="profile-meta__row">
-            <dt>Contact</dt>
-            <dd>{user.contact || "—"}</dd>
-          </div>
-          <div className="profile-meta__row profile-meta__row--block">
-            <dt>Address</dt>
-            <dd>{user.address || "—"}</dd>
-          </div>
-        </dl>
-
-        <nav className="profile-nav" aria-label="Profile sections">
           <button
-            type="button"
-            className={`profile-nav__btn ${
-              activeTab === "society" ? "is-active" : ""
-            }`}
-            onClick={() => setActiveTab("society")}
-          >
-            <span className="profile-nav__icon" aria-hidden>
-              ◎
-            </span>
-            Society
-          </button>
-          <button
-            type="button"
-            className={`profile-nav__btn ${
-              activeTab === "module" ? "is-active" : ""
-            }`}
-            onClick={() => setActiveTab("module")}
-          >
-            <span className="profile-nav__icon" aria-hidden>
-              ▤
-            </span>
-            Modules
-          </button>
-        </nav>
-
+            className="delete-btn"
+            onClick={handleDelete}
+          
+          >Delete Account</button>
+        </ul>
         <button
-          type="button"
-          className="profile-btn profile-btn--danger profile-btn--block"
-          onClick={handleDelete}
+          className={activeTab === "society" ? "active" : ""}
+          onClick={() => setActiveTab("society")}
         >
-          Delete account
+          Society
         </button>
-      </aside>
+        <button
+          className={activeTab === "module" ? "active" : ""}
+          onClick={() => setActiveTab("module")}
+        >
+          Module
+        </button>
+      </div>
 
-      <main className="profile-main">
-        <header className="profile-main__header">
-          <p className="profile-main__eyebrow">Student dashboard</p>
-          <h2 className="profile-main__title">
-            {activeTab === "society" ? "Societies" : "Learning modules"}
-          </h2>
-          <p className="profile-main__subtitle">
-            {activeTab === "society"
-              ? "Explore societies and stay connected with campus life."
-              : "Access your modules and course resources in one place."}
-          </p>
-        </header>
-
-        <section className="profile-panel">
+      {/* Main content */}
+      <div className="main-content">
+        <div className="tab-content">
           {activeTab === "society" && (
-            <div className="profile-panel__body">
-              <div className="profile-feature">
-                <h3 className="profile-feature__title">Your societies</h3>
-                <p className="profile-feature__text">
-                  Browse university societies, events, and memberships. Content
-                  can be wired to your backend when ready.
-                </p>
-                <button
-                  type="button"
-                  className="profile-btn profile-btn--primary"
-                  onClick={() => navigate("/societypage")}
-                >
-                  Open societies
-                </button>
-              </div>
+            <div>
+              <h2>Society Page</h2>
+              <p>Here you can see and manage your societies.</p>
+              {/* Add society content or fetch from backend */}
             </div>
           )}
           {activeTab === "module" && (
-            <div className="profile-panel__body">
-              <div className="profile-feature">
-                <h3 className="profile-feature__title">Module hub</h3>
-                <p className="profile-feature__text">
-                  Jump to the module overview to see codes, details, and related
-                  materials.
-                </p>
-                <button
-                  type="button"
-                  className="profile-btn profile-btn--primary"
-                  onClick={() => navigate("/modulepage")}
-                >
-                  Go to module page
-                </button>
-              </div>
+            <div>
+              <h2>Module Page</h2>
+              <p>Here you can see your modules and related content.</p>
+
+              <button 
+              className="navigate-module-btn"
+              onClick={() => navigate("/modulepage")}
+              >Go to Module Page</button>
+              
+              {/* Add module content or fetch from backend */}
             </div>
           )}
-        </section>
-      </main>
+        </div>
+      </div>
     </div>
   );
 }

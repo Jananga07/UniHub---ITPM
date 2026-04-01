@@ -24,21 +24,16 @@ const handleSocietyError = (res, err, fallbackMessage) => {
 
 // Add new society
 const addSociety = async (req, res) => {
+  const { societyName, description, category, color, imageUrl } = req.body;
+
+  if (!societyName || !description || !category) {
+    return res.status(400).json({ message: "Society name, description, and category are required" });
   const name = (req.body.name || req.body.societyName || "").trim();
   const description = (req.body.description || "").trim();
-  const { color, imageUrl } = req.body;
+  const clubType = normalizeClubType(req.body.clubType || "");
 
-  // clubType / category: optional in request — defaults keep admin "Add Society" form working
-  let clubType = normalizeClubType(req.body.clubType || "");
-  if (!clubType) {
-    clubType = "Activity";
-  }
-  const category = (req.body.category || "").trim() || clubType;
-
-  if (!name || !description) {
-    return res.status(400).json({
-      message: "Society name and description are required",
-    });
+  if (!name || !description || !clubType) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
@@ -59,6 +54,7 @@ const addSociety = async (req, res) => {
       category,
       color: color || "#007bff",
       imageUrl: imageUrl || "",
+
       clubType,
     });
 
@@ -68,6 +64,7 @@ const addSociety = async (req, res) => {
       message: "Society added successfully",
       society: newSociety,
     });
+
   } catch (err) {
     return handleSocietyError(res, err, "Failed to add society");
   }
