@@ -973,7 +973,7 @@ function AdminDashboard() {
           <button className={`sidebar-link ${activeTab === "dashboard" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button className={`sidebar-link ${activeTab === "users" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("users")}>All Users</button>
           <button className={`sidebar-link ${activeTab === "societyManager" ? "sidebar-link-active" : ""}`} onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
-          <button className={`sidebar-link ${activeTab === "module" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("module")}>Add Module</button>
+          
           <button className={`sidebar-link ${activeTab === "society" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("society")}>Add Society</button>
           <button className="sidebar-link sidebar-link-primary" onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
@@ -1568,22 +1568,7 @@ function AdminDashboard() {
           </div>
         )}
 
-        {/* Existing: Module form */}
-        {activeTab === "module" && (
-          <div className="form-card">
-            <h2>Add Module</h2>
-            <input name="moduleName" placeholder="Module Name" onChange={handleChange} />
-            <input name="moduleCode" placeholder="Module Code" onChange={handleChange} />
-            {modules.length > 0 && (
-              <div className="module-list">
-                <h3>All Modules</h3>
-                <ul>{modules.map((m) => <li key={m._id}>{m.moduleName} ({m.moduleCode})</li>)}</ul>
-              </div>
-            )}
-            <button className="dashboard-btn" onClick={() => submitData("modules")}>Add Module</button>
-          </div>
-        )}
-
+       
         {/* ── Resources Admin Tabs ─────────────────────────────────── */}
         {activeTab === "resourceFaculty"   && <FacultyTab />}
         {activeTab === "resourceModule"    && <ResourceModuleTab />}

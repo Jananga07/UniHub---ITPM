@@ -1,5 +1,5 @@
 const Quiz = require("../Models/QuizModel");
-const Module = require("../Models/ModuleModel");
+//const Module = require("../Models/ModuleModel");
 
 // Add quiz under module
 const addQuiz = async (req, res) => {
