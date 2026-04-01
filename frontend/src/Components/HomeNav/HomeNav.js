@@ -48,10 +48,9 @@ function Nav() {
 
       <ul className="nav-links">
         <li><Link to="/">Home</Link></li>
-        <li><Link to="/userRegister">Register</Link></li>
         <li><Link to="/login">Login</Link></li>
+        <li><Link to="/userRegister">Register</Link></li>
         <li><Link to="/admin">Admin</Link></li>
-        <li><Link to="/modulepage">Module Page</Link></li>
         <li><Link to="/studentsupport">Student Support</Link></li>
         <li><Link to="/resources">Resources</Link></li>
         <li><Link to="/faq">FAQ</Link></li>
@@ -77,15 +76,7 @@ function Nav() {
             ))}
           </div>
         </li>
-        
-
-        
-
-
-
-        <li><Link to="/societypage">Society Page</Link></li>
-
-
+      
       </ul>
     </nav>
   );

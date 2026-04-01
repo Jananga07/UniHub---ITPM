@@ -9,10 +9,9 @@ import StudentProfile from './Components/Student/StudentProfile';
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import AddQuiz from './Components/Quiz/AddQuiz';
 import StudentQuiz from './Components/Quiz/StudentQuiz';
-import ModulePage from './Components/ModulePage/ModulePage';
+
 import SocietyPage from './Components/Society/SocietyPage';
 import MembershipForm from './Components/Society/MembershipForm.jsx';
-import ModuleDetailsPage from './Components/ModulePage/ModuleDetailsPage';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
 import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';
 
@@ -52,9 +51,9 @@ function App() {
       <Route path="/admin"         element={<AdminDashboard />} />
       <Route path="/adquiz"        element={<AddQuiz />} />
       <Route path="/student-quiz/:moduleId" element={<StudentQuiz />} />
-      <Route path="/modulepage"    element={<ModulePage />} />
+      
       <Route path="/societypage"   element={<SocietyPage />} />
-      <Route path="/modules/:id"   element={<ModuleDetailsPage />} />
+      
       <Route path="/studentsupport" element={<StudentSupport />} />
       <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
       <Route path="/consultant-time/:consultantId/:date" element={<ConsultantTime />} />
@@ -63,9 +62,9 @@ function App() {
       <Route path="/my-complaints" element={<MyComplaints />} />
       <Route path="/complaint-handling" element={<ComplaintHandling />} />
 
-      <Route path="/modulepage" element={<ModulePage/>}/>
+     
       <Route path="/societypage" element={<SocietyPage/>}/>
-      <Route path="/modules/:id" element={<ModuleDetailsPage />} />
+      
       <Route path="/studentsupport" element={<StudentSupport/>} />
       <Route path="/consultant-booking/:consultantId" element={<ConsultantBooking />} />
       <Route path="/consultant-time/:consultantId/:date" element={<ConsultantTime />} />

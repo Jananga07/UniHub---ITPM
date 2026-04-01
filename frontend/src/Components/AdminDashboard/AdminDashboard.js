@@ -969,18 +969,11 @@ function AdminDashboard() {
       {/* Sidebar */}
       <aside className="sidebar">
         <h2>Uni Hub</h2>
-        <button className="sidebar-link" onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("users")}>All Users</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("societyManager")}>Add Society Manager</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("module")}>Add Module</button>
-        <button className="sidebar-link" onClick={() => setActiveTab("society")}>Add Society</button>
-        <button className="sidebar-link" onClick={() => navigate("/adquiz")}>Add Quiz</button>
-
         <div className="sidebar-nav">
           <button className={`sidebar-link ${activeTab === "dashboard" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button className={`sidebar-link ${activeTab === "users" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("users")}>All Users</button>
           <button className={`sidebar-link ${activeTab === "societyManager" ? "sidebar-link-active" : ""}`} onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
-          <button className={`sidebar-link ${activeTab === "module" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("module")}>Add Module</button>
+          
           <button className={`sidebar-link ${activeTab === "society" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("society")}>Add Society</button>
           <button className="sidebar-link sidebar-link-primary" onClick={() => navigate("/adquiz")}>Add Quiz</button>
 
@@ -1052,53 +1045,6 @@ function AdminDashboard() {
 
         {/* Users Section */}
         {activeTab === "users" && (
-          <div className="users-section">
-            <div className="category-tabs">
-              {["student", "societymanager"].map(cat => (
-                <button
-                  key={cat}
-                  className={userCategory === cat ? "active" : ""}
-                  onClick={() => setUserCategory(cat)}
-                >
-                  {cat === "societymanager" ? "Society Managers" : "Students"}
-                </button>
-              ))}
-            </div>
-            <input
-              type="text"
-              placeholder={`Search ${userCategory}...`}
-              value={searchQuery[userCategory] || ""}
-              onChange={(e) =>
-                setSearchQuery({
-                  ...searchQuery,
-                  [userCategory]: e.target.value
-                })
-              }
-              className="search-input"
-            />
-            <div className="table-container">
-              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
-              <table>
-                <thead>
-                  <tr><th>Name</th><th>Email</th><th>Age</th><th>Address</th><th>Contact</th><th>Actions</th></tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((u) => (
-                    <tr key={u._id}>
-                      <td>{u.name}</td>
-                      <td>{u.gmail}</td>
-                      <td>{u.age}</td>
-                      <td>{u.address}</td>
-                      <td>{u.contact}</td>
-                      <td><button className="dashboard-btn" onClick={() => handleDelete(u._id)}>Delete</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-       {activeTab === "users" && (
   <div className="users-section">
 
     {/* Tabs */}
@@ -1622,22 +1568,7 @@ function AdminDashboard() {
           </div>
         )}
 
-        {/* Existing: Module form */}
-        {activeTab === "module" && (
-          <div className="form-card">
-            <h2>Add Module</h2>
-            <input name="moduleName" placeholder="Module Name" onChange={handleChange} />
-            <input name="moduleCode" placeholder="Module Code" onChange={handleChange} />
-            {modules.length > 0 && (
-              <div className="module-list">
-                <h3>All Modules</h3>
-                <ul>{modules.map((m) => <li key={m._id}>{m.moduleName} ({m.moduleCode})</li>)}</ul>
-              </div>
-            )}
-            <button className="dashboard-btn" onClick={() => submitData("modules")}>Add Module</button>
-          </div>
-        )}
-
+       
         {/* ── Resources Admin Tabs ─────────────────────────────────── */}
         {activeTab === "resourceFaculty"   && <FacultyTab />}
         {activeTab === "resourceModule"    && <ResourceModuleTab />}
