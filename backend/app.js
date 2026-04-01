@@ -9,7 +9,6 @@ const cors = require("cors");
 
 const UserRouter =require("./Routes/UserRoutes");
 const QuizRoutes =require("./Routes/QuizRoutes");
-const ModuleRouter = require("./Routes/ModuleRoutes");
 const societyRoutes = require("./Routes/SocietyRoutes");
 const studentQuizeRoutes = require("./Routes/StudentQuizRoutes");
 const StudentSupportRoutes = require("./Routes/StudentSupportRoutes");
@@ -29,8 +28,6 @@ app.use("/Users", UserRouter);
 // Lowercase alias so frontend can POST /users/login and /users
 app.use("/users", UserRouter);
 app.use("/quiz",QuizRoutes);
-app.use("/modules",ModuleRouter);
-app.use("/api/modules", ModuleRouter);
 app.use("/societies",societyRoutes);
 app.use("/student-quiz", studentQuizeRoutes);
 app.use("/studentsupport", StudentSupportRoutes);
