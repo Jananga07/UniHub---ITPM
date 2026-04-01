@@ -5,6 +5,7 @@ import Home from './Components/Home/Home';
 import ClubDetails from './Components/ClubDetails/ClubDetails.js';
 import UserRegister from './Components/UserRegister/UserRegister';
 import Login from './Components/Login/Login';
+import AdminLogin from './Components/Login/AdminLogin';
 import StudentProfile from './Components/Student/StudentProfile';
 import AdminDashboard from './Components/AdminDashboard/AdminDashboard';
 import AddQuiz from './Components/Quiz/AddQuiz';
@@ -44,6 +45,7 @@ function App() {
       <Route path="/membership/:societyId" element={<MembershipForm />} />
       <Route path="/userRegister"  element={<UserRegister />} />
       <Route path="/login"         element={<Login />} />
+      <Route path="/admin-login"   element={<AdminLogin />} />
       <Route path="/studentprofile/:id" element={<StudentProfile />} />
       <Route path="/societymanagerprofile/:id" element={<SocietyManagerProfile />} />
       {/* Compatibility route (case-sensitive match in some setups) */}

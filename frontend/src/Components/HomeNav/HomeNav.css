@@ -152,3 +152,18 @@
     transform: translateX(0) translateY(0);
   }
 }
+
+.nav-logout-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  padding: 5px 14px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 15px;
+  transition: background 0.2s;
+}
+
+.nav-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}

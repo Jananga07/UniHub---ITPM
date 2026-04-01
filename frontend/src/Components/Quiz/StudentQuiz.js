@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./StudentQuiz.css";
@@ -13,41 +13,54 @@ function StudentQuiz() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchQuizzes = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${API}/quiz/module/${moduleId}`);
-      setQuizzes(res.data.quizzes || []);
-    } catch (err) {
-      console.error(err);
-      alert("Error fetching quizzes");
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    if (!moduleId) return;
+    setLoading(true);
+    axios
+      .get(`${API}/quiz/module/${moduleId}`)
+      .then((res) => setQuizzes(res.data.quizzes || []))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, [moduleId]);
 
-  useEffect(() => {
-    if (moduleId) fetchQuizzes();
-  }, [moduleId, fetchQuizzes]);
-
   const handleSelect = (questionId, optionIndex) => {
-    if (!submitted) {
-      setAnswers({ ...answers, [questionId]: optionIndex });
-    }
+    if (!submitted) setAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
   };
 
-  const submitQuiz = () => {
+  const submitQuiz = async () => {
     let scoreCount = 0;
+    let totalQ = 0;
+
     quizzes.forEach((quiz) => {
       quiz.questions.forEach((q) => {
+        totalQ++;
         if (answers[q._id] === q.correctIndex) scoreCount++;
       });
     });
+
     setScore(scoreCount);
     setSubmitted(true);
+
+    // Save each quiz attempt
+    const user = (() => { try { return JSON.parse(localStorage.getItem("user")); } catch { return null; } })();
+    if (user?._id) {
+      for (const quiz of quizzes) {
+        try {
+          await axios.post(`${API}/student-quiz/submit`, {
+            studentId: user._id,
+            moduleId,
+            quizId: quiz._id,
+            score: scoreCount,
+            totalQuestions: totalQ,
+          });
+        } catch (err) {
+          console.error("Failed to save quiz attempt", err);
+        }
+      }
+    }
   };
 
-  const totalQuestions = quizzes.reduce((sum, quiz) => sum + quiz.questions.length, 0);
+  const totalQuestions = quizzes.reduce((sum, q) => sum + q.questions.length, 0);
 
   if (loading) return <div className="quiz-container"><p>Loading quizzes...</p></div>;
 
@@ -67,20 +80,17 @@ function StudentQuiz() {
       {quizzes.map((quiz) => (
         <div key={quiz._id}>
           <h3>{quiz.quizName}</h3>
-
           {quiz.questions.map((q, idx) => (
             <div key={q._id} className="quiz-question">
               <p>{idx + 1}. {q.questionText}</p>
-
               {q.options.map((opt, optIdx) => {
-                let className = "option-container";
+                let cls = "option-container";
                 if (submitted) {
-                  if (optIdx === q.correctIndex) className += " correct";
-                  else if (answers[q._id] === optIdx) className += " wrong";
+                  if (optIdx === q.correctIndex) cls += " correct";
+                  else if (answers[q._id] === optIdx) cls += " wrong";
                 }
-
                 return (
-                  <div key={optIdx} className={className} onClick={() => handleSelect(q._id, optIdx)}>
+                  <div key={optIdx} className={cls} onClick={() => handleSelect(q._id, optIdx)}>
                     <input
                       type="radio"
                       name={q._id}
@@ -92,25 +102,18 @@ function StudentQuiz() {
                   </div>
                 );
               })}
-
               {submitted && answers[q._id] !== q.correctIndex && (
-                <p className="correct-answer-text">
-                  Correct Answer: {q.options[q.correctIndex]}
-                </p>
+                <p className="correct-answer-text">Correct Answer: {q.options[q.correctIndex]}</p>
               )}
             </div>
           ))}
         </div>
       ))}
 
-      {!submitted && (
-        <button onClick={submitQuiz}>Submit Quiz</button>
-      )}
+      {!submitted && <button onClick={submitQuiz}>Submit Quiz</button>}
 
       {score !== null && (
-        <div className="quiz-score">
-          Your Score: {score} / {totalQuestions}
-        </div>
+        <div className="quiz-score">Your Score: {score} / {totalQuestions}</div>
       )}
     </div>
   );
