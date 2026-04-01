@@ -69,6 +69,24 @@ function CategoryPage() {
         ))}
       </div>
 
+      <div style={{ textAlign: "center", margin: "24px 0" }}>
+        <button
+          onClick={() => navigate(`/student-quiz/${moduleId}`)}
+          style={{
+            padding: "12px 32px",
+            background: "#4a90e2",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "16px",
+            fontWeight: "bold",
+          }}
+        >
+          📝 Take Quiz
+        </button>
+      </div>
+
       {/* Upload section for users */}
       <UploadSection moduleId={moduleId} />
     </div>

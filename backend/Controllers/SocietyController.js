@@ -7,27 +7,24 @@ const normalizeClubType = (value = "") => {
   return CLUB_TYPES.find((type) => type.toLowerCase() === normalizedValue) || null;
 };
 
-const escapeRegex = (value = "") => ["\\", ".", "*", "+", "?", "^", "$", "{", "}", "(", ")", "|", "[", "]"]
-  .reduce((result, character) => result.replaceAll(character, `\\${character}`), value);
+const escapeRegex = (value = "") =>
+  ["\\", ".", "*", "+", "?", "^", "$", "{", "}", "(", ")", "|", "[", "]"].reduce(
+    (result, character) => result.replaceAll(character, `\\${character}`),
+    value
+  );
 
 const DUPLICATE_SOCIETY_MESSAGE = "Society already exists";
 
 const handleSocietyError = (res, err, fallbackMessage) => {
   console.error(err);
-
   if (err?.code === 11000) {
     return res.status(409).json({ message: DUPLICATE_SOCIETY_MESSAGE });
   }
-
   return res.status(500).json({ message: fallbackMessage });
 };
 
 // Add new society
 const addSociety = async (req, res) => {
-  const { societyName, description, category, color, imageUrl } = req.body;
-
-  if (!societyName || !description || !category) {
-    return res.status(400).json({ message: "Society name, description, and category are required" });
   const name = (req.body.name || req.body.societyName || "").trim();
   const description = (req.body.description || "").trim();
   const clubType = normalizeClubType(req.body.clubType || "");
@@ -48,31 +45,22 @@ const addSociety = async (req, res) => {
       return res.status(409).json({ message: DUPLICATE_SOCIETY_MESSAGE });
     }
 
-    const newSociety = new Society({
-      name,
-      description,
-      category,
-      color: color || "#007bff",
-      imageUrl: imageUrl || "",
-
-      clubType,
-    });
-
+    const newSociety = new Society({ name, description, clubType });
     await newSociety.save();
 
     return res.status(201).json({
       message: "Society added successfully",
       society: newSociety,
     });
-
   } catch (err) {
     return handleSocietyError(res, err, "Failed to add society");
   }
 };
-// Get all Societies
+
+// Get all societies
 const getAllSocieties = async (req, res) => {
   try {
-    const societies = await Society.find().sort({ createdAt: -1 }); // latest first
+    const societies = await Society.find().sort({ createdAt: -1 });
     res.status(200).json({ societies });
   } catch (err) {
     console.error(err);
@@ -102,7 +90,6 @@ const getClubTypes = (_req, res) => {
     label: type,
     slug: type.toLowerCase(),
   }));
-
   return res.status(200).json({ clubTypes });
 };
 
@@ -137,21 +124,17 @@ const updateSociety = async (req, res) => {
 
   if (typeof req.body.description === "string") {
     const description = req.body.description.trim();
-
     if (!description) {
       return res.status(400).json({ message: "Description is required" });
     }
-
     updates.description = description;
   }
 
   if (req.body.clubType !== undefined) {
     const clubType = normalizeClubType(req.body.clubType || "");
-
     if (!clubType) {
       return res.status(400).json({ message: "Valid club type is required" });
     }
-
     updates.clubType = clubType;
   }
 
@@ -160,11 +143,10 @@ const updateSociety = async (req, res) => {
   }
 
   try {
-    const updatedSociety = await Society.findByIdAndUpdate(
-      id,
-      updates,
-      { new: true, runValidators: true }
-    );
+    const updatedSociety = await Society.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedSociety) {
       return res.status(404).json({ message: "Society not found" });
@@ -178,7 +160,6 @@ const updateSociety = async (req, res) => {
     return handleSocietyError(res, err, "Failed to update society");
   }
 };
-
 
 module.exports = {
   addSociety,

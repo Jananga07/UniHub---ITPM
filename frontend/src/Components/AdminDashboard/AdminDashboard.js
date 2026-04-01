@@ -14,6 +14,7 @@ import { Pie } from "react-chartjs-2";
 import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 import ComplaintHandling from "../ComplaintHandling/ComplaintHandling";
+import AddQuiz from "../Quiz/AddQuiz";
 
 import SearchBar from "../SearchBar/SearchBar.js";
 import "../SearchBar/managersSearch.css";
@@ -975,7 +976,7 @@ function AdminDashboard() {
           <button className={`sidebar-link ${activeTab === "societyManager" ? "sidebar-link-active" : ""}`} onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
           
           <button className={`sidebar-link ${activeTab === "society" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("society")}>Add Society</button>
-          <button className="sidebar-link sidebar-link-primary" onClick={() => navigate("/adquiz")}>Add Quiz</button>
+          <button className="sidebar-link sidebar-link-primary" onClick={() => setActiveTab("quiz")}>Add Quiz</button>
 
           <button
             className={`sidebar-link sidebar-toggle ${showResourcesMenu || isResourceTabActive ? "sidebar-link-active" : ""}`}
@@ -1582,6 +1583,7 @@ function AdminDashboard() {
 
         {/* Complaint Handling Tab - ADDED */}
         {activeTab === "complaintHandling" && <ComplaintHandling />}
+        {activeTab === "quiz" && <AddQuiz />}
       </main>
     </div>
   );
