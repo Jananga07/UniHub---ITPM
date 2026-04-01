@@ -54,7 +54,7 @@ function Nav() {
         {!user && (
           <>
             <li><Link to="/">Home</Link></li>
-            <li><Link to="/login">Login</Link></li>
+            <li><Link to="/login">Student Login</Link></li>
             <li><Link to="/admin-login">Admin Login</Link></li>
             <li><Link to="/faq">FAQ</Link></li>
           </>
