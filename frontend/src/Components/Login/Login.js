@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./Login.css";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5001";
@@ -44,7 +44,7 @@ function Login() {
 
         // Same form for all roles — route by normalized role
         if (role === "student") {
-          navigate(`/studentprofile/${user._id}`);
+          navigate("/");
         } else if (role === "societymanager" || role === "manager") {
           navigate(`/SocietyManagerProfile/${user._id}`);
         } else if (role === "admin" || role === "administrator") {
@@ -91,6 +91,13 @@ function Login() {
           />
 
           <button type="submit">Login</button>
+
+          <p style={{ textAlign: "center", marginTop: "16px", fontSize: "14px", color: "#64748b" }}>
+            Don't have an account?{" "}
+            <Link to="/userRegister" style={{ color: "#2563eb", fontWeight: "600", textDecoration: "none" }}>
+              Register here
+            </Link>
+          </p>
         </form>
       </div>
     </div>

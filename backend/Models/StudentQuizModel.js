@@ -8,7 +8,7 @@ const StudentQuizSchema = new mongoose.Schema({
   },
   module: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Module",
+    ref: "ResourceModule",
     required: true,
   },
   quiz: {
@@ -16,14 +16,14 @@ const StudentQuizSchema = new mongoose.Schema({
     ref: "Quiz",
     required: true,
   },
-  answers: [
-    {
-      question: String,
-      selectedOption: String,
-      correctAnswer: String,
-    },
-  ],
-  score: Number,
+  score: {
+    type: Number,
+    default: 0,
+  },
+  totalQuestions: {
+    type: Number,
+    default: 0,
+  },
   attemptedAt: {
     type: Date,
     default: Date.now,
