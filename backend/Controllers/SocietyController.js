@@ -15,6 +15,19 @@ const escapeRegex = (value = "") =>
 
 const DUPLICATE_SOCIETY_MESSAGE = "Society already exists";
 
+const buildSocietyPayload = (body = {}) => {
+  const name = (body.name || body.societyName || "").trim();
+  const description = (body.description || "").trim();
+  const clubType = normalizeClubType(body.clubType || body.category || "");
+
+  return {
+    name,
+    description,
+    clubType,
+    category: clubType,
+  };
+};
+
 const handleSocietyError = (res, err, fallbackMessage) => {
   console.error(err);
   if (err?.code === 11000) {
@@ -25,11 +38,9 @@ const handleSocietyError = (res, err, fallbackMessage) => {
 
 // Add new society
 const addSociety = async (req, res) => {
-  const name = (req.body.name || req.body.societyName || "").trim();
-  const description = (req.body.description || "").trim();
-  const clubType = normalizeClubType(req.body.clubType || "");
+  const { name, description, clubType, category } = buildSocietyPayload(req.body);
 
-  if (!name || !description || !clubType) {
+  if (!name || !description || !clubType || !category) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -45,7 +56,7 @@ const addSociety = async (req, res) => {
       return res.status(409).json({ message: DUPLICATE_SOCIETY_MESSAGE });
     }
 
-    const newSociety = new Society({ name, description, clubType });
+    const newSociety = new Society({ name, description, clubType, category });
     await newSociety.save();
 
     return res.status(201).json({
@@ -76,7 +87,9 @@ const getSocietiesByType = async (req, res) => {
   }
 
   try {
-    const societies = await Society.find({ clubType }).sort({ createdAt: -1 });
+    const societies = await Society.find({
+      $or: [{ clubType }, { category: clubType }],
+    }).sort({ createdAt: -1 });
     return res.status(200).json({ societies, clubType });
   } catch (err) {
     console.error(err);
@@ -130,12 +143,13 @@ const updateSociety = async (req, res) => {
     updates.description = description;
   }
 
-  if (req.body.clubType !== undefined) {
-    const clubType = normalizeClubType(req.body.clubType || "");
+  if (req.body.clubType !== undefined || req.body.category !== undefined) {
+    const clubType = normalizeClubType(req.body.clubType || req.body.category || "");
     if (!clubType) {
       return res.status(400).json({ message: "Valid club type is required" });
     }
     updates.clubType = clubType;
+    updates.category = clubType;
   }
 
   if (Object.keys(updates).length === 0) {

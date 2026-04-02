@@ -1,12 +1,12 @@
 const publicImage = (fileName) => encodeURI(`/${fileName}`);
 
 export const clubTypeOptions = [
-  { slug: "sports", label: "Sports" },
-  { slug: "activity", label: "Activity" },
-  { slug: "cultural", label: "Cultural" },
-  { slug: "media", label: "Media" },
-  { slug: "international", label: "International" },
-  { slug: "religious", label: "Religious" },
+  { slug: "sports", value: "Sports", label: "Sports" },
+  { slug: "activity", value: "Activity", label: "Activity" },
+  { slug: "cultural", value: "Cultural", label: "Cultural" },
+  { slug: "media", value: "Media", label: "Media" },
+  { slug: "international", value: "International", label: "International" },
+  { slug: "religious", value: "Religious", label: "Religious" },
 ];
 
 export const clubData = [
