@@ -588,6 +588,139 @@ function RatingsTab() {
   );
 }
 
+// ─── QUIZ OVERVIEW TAB ───────────────────────────────────────────────────────
+function QuizOverviewTab() {
+  const [modules, setModules] = useState([]);
+  const [quizMap, setQuizMap] = useState({});
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const modRes = await axios.get(`${API}/resources/modules`);
+        const mods = modRes.data.modules || [];
+        setModules(mods);
+
+        // For each module fetch its quizzes
+        const map = {};
+        await Promise.all(
+          mods.map(async (m) => {
+            try {
+              const qRes = await axios.get(`${API}/quiz/module/${m._id}`);
+              map[m._id] = qRes.data.quizzes || [];
+            } catch {
+              map[m._id] = [];
+            }
+          })
+        );
+        setQuizMap(map);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const withQuiz    = modules.filter((m) => quizMap[m._id]?.length > 0);
+  const withoutQuiz = modules.filter((m) => !quizMap[m._id]?.length);
+
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+
+  return (
+    <div style={{ padding: "10px 0" }}>
+      <h2 style={{ marginBottom: 4 }}>Quiz Overview</h2>
+      <p style={{ color: "#64748b", marginBottom: 24, fontSize: 14 }}>
+        See which modules have quizzes and which still need one.
+      </p>
+
+      {/* Summary cards */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 28, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 140, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{withQuiz.length}</div>
+          <div style={{ fontSize: 13, color: "#15803d", marginTop: 4 }}>Modules with Quiz</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 140, background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#ea580c" }}>{withoutQuiz.length}</div>
+          <div style={{ fontSize: 13, color: "#c2410c", marginTop: 4 }}>Modules without Quiz</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 140, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#2563eb" }}>{modules.length}</div>
+          <div style={{ fontSize: 13, color: "#1d4ed8", marginTop: 4 }}>Total Modules</div>
+        </div>
+      </div>
+
+      {/* Modules WITHOUT quiz */}
+      <div style={{ marginBottom: 28 }}>
+        <h3 style={{ color: "#ea580c", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          ⚠️ Modules Without Quiz
+          <span style={{ background: "#fed7aa", color: "#ea580c", fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>
+            {withoutQuiz.length}
+          </span>
+        </h3>
+        {withoutQuiz.length === 0 ? (
+          <p style={{ color: "#94a3b8", fontSize: 14 }}>All modules have quizzes. 🎉</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {withoutQuiz.map((m) => (
+              <div key={m._id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 10, padding: "12px 16px" }}>
+                <div>
+                  <strong style={{ color: "#1e293b" }}>{m.moduleName}</strong>
+                  {m.moduleCode && <span style={{ marginLeft: 8, fontSize: 12, color: "#94a3b8", background: "#f1f5f9", padding: "2px 8px", borderRadius: 99 }}>{m.moduleCode}</span>}
+                </div>
+                <button
+                  onClick={() => navigate("/admin")}
+                  style={{ background: "#ea580c", color: "#fff", border: "none", borderRadius: 7, padding: "6px 14px", fontSize: 13, cursor: "pointer" }}
+                >
+                  + Add Quiz
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modules WITH quiz */}
+      <div>
+        <h3 style={{ color: "#16a34a", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          ✅ Modules With Quiz
+          <span style={{ background: "#bbf7d0", color: "#16a34a", fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>
+            {withQuiz.length}
+          </span>
+        </h3>
+        {withQuiz.length === 0 ? (
+          <p style={{ color: "#94a3b8", fontSize: 14 }}>No quizzes added yet.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {withQuiz.map((m) => (
+              <div key={m._id} style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "12px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div>
+                    <strong style={{ color: "#1e293b" }}>{m.moduleName}</strong>
+                    {m.moduleCode && <span style={{ marginLeft: 8, fontSize: 12, color: "#94a3b8", background: "#f1f5f9", padding: "2px 8px", borderRadius: 99 }}>{m.moduleCode}</span>}
+                  </div>
+                  <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 600 }}>
+                    {quizMap[m._id].length} quiz{quizMap[m._id].length !== 1 ? "zes" : ""}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {quizMap[m._id].map((q) => (
+                    <span key={q._id} style={{ background: "#dcfce7", color: "#15803d", fontSize: 12, padding: "3px 10px", borderRadius: 99, border: "1px solid #bbf7d0" }}>
+                      📝 {q.quizName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ADMIN DASHBOARD ─────────────────────────────────────────────────
 function AdminDashboard() {
   const [users, setUsers]       = useState([]);
@@ -977,6 +1110,7 @@ function AdminDashboard() {
           
           <button className={`sidebar-link ${activeTab === "society" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("society")}>Add Society</button>
           <button className="sidebar-link sidebar-link-primary" onClick={() => setActiveTab("quiz")}>Add Quiz</button>
+          <button className={`sidebar-link ${activeTab === "quizOverview" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("quizOverview")}>📊 Quiz Overview</button>
 
           <button
             className={`sidebar-link sidebar-toggle ${showResourcesMenu || isResourceTabActive ? "sidebar-link-active" : ""}`}
@@ -1584,6 +1718,7 @@ function AdminDashboard() {
         {/* Complaint Handling Tab - ADDED */}
         {activeTab === "complaintHandling" && <ComplaintHandling />}
         {activeTab === "quiz" && <AddQuiz />}
+        {activeTab === "quizOverview" && <QuizOverviewTab />}
       </main>
     </div>
   );
