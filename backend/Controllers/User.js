@@ -184,6 +184,11 @@ const addUsers = async (req, res) => {
       }
     }
 
+    // Auto-generate 6-digit PIN for students
+    const pin = role === "student"
+      ? String(Math.floor(100000 + Math.random() * 900000))
+      : undefined;
+
     const newUser = new User({
       name,
       gmail: normalizedEmail,
@@ -193,10 +198,11 @@ const addUsers = async (req, res) => {
       address,
       contact: normalizedContact,
       societyId: normalizedSocietyId || undefined,
+      pin,
     });
 
     await newUser.save();
-    return res.status(201).json({newUser });
+    return res.status(201).json({ newUser });
   } catch (err) {
     console.error("Add member error:", err);
 
@@ -230,7 +236,8 @@ const loginUser = async (req, res) => {
         user: {
           _id: user._id,
           gmail: user.gmail,
-          role: user.role   
+          role: user.role,
+          pin: user.pin || null,
         }
       });
     } else {

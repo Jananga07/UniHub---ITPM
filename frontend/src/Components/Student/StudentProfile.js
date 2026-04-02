@@ -10,9 +10,12 @@ function StudentProfile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("society");
-  const [quizHistory, setQuizHistory] = useState([]);
-  const [quizLoading, setQuizLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("available");
+
+  const [quizHistory, setQuizHistory]       = useState([]);
+  const [quizLoading, setQuizLoading]       = useState(false);
+  const [availableQuizzes, setAvailableQuizzes] = useState([]);
+  const [availableLoading, setAvailableLoading] = useState(false);
 
   useEffect(() => {
     axios
@@ -22,6 +25,18 @@ function StudentProfile() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // Fetch available quizzes
+  useEffect(() => {
+    if (!id) return;
+    setAvailableLoading(true);
+    axios
+      .get(`${API}/quiz/available/${id}`)
+      .then((res) => setAvailableQuizzes(res.data.quizzes || []))
+      .catch((err) => console.error(err))
+      .finally(() => setAvailableLoading(false));
+  }, [id]);
+
+  // Fetch quiz history when tab opens
   useEffect(() => {
     if (activeTab !== "quiz" || !id) return;
     setQuizLoading(true);
@@ -62,16 +77,25 @@ function StudentProfile() {
           <li>Address <span>{user.address || "N/A"}</span></li>
           <li>Contact <span>{user.contact || "N/A"}</span></li>
           <li>Role    <span>{user.role    || "Student"}</span></li>
+          {user.pin && (
+            <li>Quiz PIN <span style={{ letterSpacing: "3px", fontSize: "16px" }}>🔐 {user.pin}</span></li>
+          )}
         </ul>
 
+        <button className={`profile-tab-btn ${activeTab === "available" ? "active" : ""}`} onClick={() => setActiveTab("available")}>
+          🆕 Available Quizzes
+          {availableQuizzes.length > 0 && (
+            <span className="quiz-badge">{availableQuizzes.length}</span>
+          )}
+        </button>
+        <button className={`profile-tab-btn ${activeTab === "quiz" ? "active" : ""}`} onClick={() => setActiveTab("quiz")}>
+          🎯 My Results
+        </button>
         <button className={`profile-tab-btn ${activeTab === "society" ? "active" : ""}`} onClick={() => setActiveTab("society")}>
           🏛 Society
         </button>
         <button className={`profile-tab-btn ${activeTab === "module" ? "active" : ""}`} onClick={() => setActiveTab("module")}>
           📚 Module
-        </button>
-        <button className={`profile-tab-btn ${activeTab === "quiz" ? "active" : ""}`} onClick={() => setActiveTab("quiz")}>
-          🎯 My Quizzes
         </button>
 
         <button className="delete-btn" onClick={handleDelete}>Delete Account</button>
@@ -81,23 +105,59 @@ function StudentProfile() {
       <div className="profile-main">
         <div className="tab-content">
 
-          {activeTab === "society" && (
+          {/* ── Available Quizzes ── */}
+          {activeTab === "available" && (
             <div>
-              <h2>Society</h2>
-              <p>Here you can see and manage your societies.</p>
+              <h2>Available Quizzes</h2>
+              <p style={{ color: "#64748b", marginBottom: "20px" }}>
+                New quizzes you haven't attempted yet.
+              </p>
+
+              {availableLoading && <p>Loading...</p>}
+
+              {!availableLoading && availableQuizzes.length === 0 && (
+                <div className="quiz-empty-state">
+                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>🎉</div>
+                  <p>You've completed all available quizzes!</p>
+                  <button className="navigate-module-btn" onClick={() => navigate("/resources")}>
+                    Browse Resources
+                  </button>
+                </div>
+              )}
+
+              {!availableLoading && availableQuizzes.length > 0 && (
+                <div className="available-quiz-list">
+                  {availableQuizzes.map((quiz) => (
+                    <div key={quiz._id} className="available-quiz-card">
+                      <div className="available-quiz-info">
+                        <div className="available-quiz-badge">NEW</div>
+                        <div>
+                          <h3>{quiz.quizName}</h3>
+                          <p>
+                            📚 {quiz.moduleName}
+                            {quiz.moduleCode && <span className="quiz-module-code" style={{ marginLeft: "8px" }}>{quiz.moduleCode}</span>}
+                          </p>
+                          <p style={{ fontSize: "13px", color: "#94a3b8" }}>
+                            {quiz.questionCount} question{quiz.questionCount !== 1 ? "s" : ""}
+                            &nbsp;·&nbsp;
+                            Added {new Date(quiz.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        className="navigate-module-btn"
+                        onClick={() => navigate(`/student-quiz/${quiz.moduleId}`)}
+                      >
+                        Start Quiz →
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          {activeTab === "module" && (
-            <div>
-              <h2>Module</h2>
-              <p>Here you can see your modules and related content.</p>
-              <button className="navigate-module-btn" onClick={() => navigate("/resources")}>
-                Go to Resources
-              </button>
-            </div>
-          )}
-
+          {/* ── My Results ── */}
           {activeTab === "quiz" && (
             <div>
               <h2>My Quiz Results</h2>
@@ -108,8 +168,8 @@ function StudentProfile() {
               {!quizLoading && quizHistory.length === 0 && (
                 <div className="quiz-empty-state">
                   <p>You haven't attempted any quizzes yet.</p>
-                  <button className="navigate-module-btn" onClick={() => navigate("/resources")}>
-                    Browse Modules
+                  <button className="navigate-module-btn" onClick={() => setActiveTab("available")}>
+                    See Available Quizzes
                   </button>
                 </div>
               )}
@@ -123,14 +183,12 @@ function StudentProfile() {
                       {mod.moduleCode && <span className="quiz-module-code">{mod.moduleCode}</span>}
                     </div>
                   </div>
-
                   <div className="quiz-attempts-list">
                     {mod.attempts.map((attempt, idx) => {
                       const pct = attempt.totalQuestions > 0
                         ? Math.round((attempt.score / attempt.totalQuestions) * 100)
                         : 0;
                       const color = pct >= 70 ? "#22c55e" : pct >= 40 ? "#f59e0b" : "#ef4444";
-
                       return (
                         <div key={idx} className="quiz-attempt-row">
                           <div className="quiz-attempt-info">
@@ -141,10 +199,7 @@ function StudentProfile() {
                           </div>
                           <div className="quiz-attempt-score">
                             <div className="quiz-score-bar-wrap">
-                              <div
-                                className="quiz-score-bar"
-                                style={{ width: `${pct}%`, background: color }}
-                              />
+                              <div className="quiz-score-bar" style={{ width: `${pct}%`, background: color }} />
                             </div>
                             <span className="quiz-score-text" style={{ color }}>
                               {attempt.score}/{attempt.totalQuestions} ({pct}%)
@@ -159,9 +214,27 @@ function StudentProfile() {
             </div>
           )}
 
+          {/* ── Society ── */}
+          {activeTab === "society" && (
+            <div>
+              <h2>Society</h2>
+              <p>Here you can see and manage your societies.</p>
+            </div>
+          )}
+
+          {/* ── Module ── */}
+          {activeTab === "module" && (
+            <div>
+              <h2>Module</h2>
+              <p>Here you can see your modules and related content.</p>
+              <button className="navigate-module-btn" onClick={() => navigate("/resources")}>
+                Go to Resources
+              </button>
+            </div>
+          )}
+
         </div>
       </div>
-
     </div>
   );
 }

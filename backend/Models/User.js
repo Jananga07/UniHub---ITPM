@@ -41,6 +41,10 @@ const UserSchema = new Schema({
         type:String,
         required:false,
      },
+     pin:{
+        type:String,
+        required:false,
+     },
 });
 
 UserSchema.index(
