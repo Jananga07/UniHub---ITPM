@@ -12,7 +12,6 @@ import AddQuiz from './Components/Quiz/AddQuiz';
 import StudentQuiz from './Components/Quiz/StudentQuiz';
 
 import SocietyPage from './Components/Society/SocietyPage';
-import MembershipForm from './Components/Society/MembershipForm.jsx';
 import StudentSupport from './Components/StudentSupport/StudentSupport';
 import ConsultantBooking from './Components/ConsultantBooking/ConsultantBooking';
 
@@ -42,7 +41,6 @@ function App() {
       <Route path="/mainhome"      element={<Home />} />
       <Route path="/clubs/:clubName" element={<ClubDetails />} />
       <Route path="/student-life"   element={<SocietyPage />} />
-      <Route path="/membership/:societyId" element={<MembershipForm />} />
       <Route path="/userRegister"  element={<UserRegister />} />
       <Route path="/login"         element={<Login />} />
       <Route path="/admin-login"   element={<AdminLogin />} />

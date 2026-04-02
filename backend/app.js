@@ -19,7 +19,6 @@ const ResourceRoutes = require("./Routes/ResourceRoutes");
 const complaintRoutes = require("./Routes/complaintRoutes");
 const consultantBookingRoutes = require("./Routes/consultantBookingRoutes");
 const consultantRatingRoutes = require("./Routes/consultantRatingRoutes");
-const membershipRoutes = require("./Routes/membershipRoutes");
 
 // Middleware
 app.use(express.json());
@@ -32,9 +31,6 @@ app.use("/Users", UserRouter);
 app.use("/users", UserRouter);
 app.use("/quiz",QuizRoutes);
 
-
-//app.use("/api/modules", ModuleRouter);
-
 app.use("/societies",societyRoutes);
 app.use("/student-quiz", studentQuizeRoutes);
 app.use("/studentsupport", StudentSupportRoutes);
@@ -45,7 +41,6 @@ app.use("/consultant-ratings", consultantRatingRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/consultant-bookings", consultantBookingRoutes);
 app.use("/api/consultant-ratings", consultantRatingRoutes);
-app.use("/api/memberships", membershipRoutes);
 // Routes
 
 

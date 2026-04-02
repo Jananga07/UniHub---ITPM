@@ -1,15 +1,12 @@
 /* global globalThis */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
 import "./SocietyModal.css";
 
 const trimListMarker = (line) => line.replace(/^[-*•]\s*/, "").trim();
 
 function SocietyModal({ society, clubImage, isOpen, onClose }) {
   const description = society?.description?.trim() || "No description added for this society yet.";
-  const [isJoining, setIsJoining] = useState(false);
-  const navigate = useNavigate();
 
   const { paragraphs, bulletPoints } = useMemo(() => {
     const lines = description
@@ -42,7 +39,6 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
   useEffect(() => {
     if (!isOpen) {
-      setIsJoining(false);
       return undefined;
     }
 
@@ -69,21 +65,6 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
   const societyName = society.name || society.societyName || "Untitled Society";
 
-  const handleJoinClick = () => {
-    if (isJoining) {
-      return;
-    }
-
-    setIsJoining(true);
-    onClose();
-    navigate(`/membership/${society._id || ""}`, {
-      state: {
-        societyName,
-      },
-    });
-    setIsJoining(false);
-  };
-
   return (
     <dialog className="society-modal" open aria-labelledby="society-modal-title">
       <button
@@ -108,11 +89,6 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
                 <p key={`${societyName}-paragraph-${index}`}>{paragraph}</p>
               ))}
             </div>
-
-            <button type="button" className="join-us-btn" onClick={handleJoinClick} disabled={isJoining}>
-              <span className="join-us-btn__icon" aria-hidden="true">+</span>
-              <span className="join-us-btn__label">{isJoining ? "Joining..." : "Join Us"}</span>
-            </button>
 
             {bulletPoints.length > 0 && (
               <ul className="society-modal__bullets">
