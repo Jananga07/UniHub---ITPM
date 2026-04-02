@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import "../Student/StudentProfile.css";
 import "./SocietyManagerProfile.css";
 
 function SocietyManagerProfile() {
