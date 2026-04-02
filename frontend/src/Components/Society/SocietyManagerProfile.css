@@ -1,12 +1,317 @@
-/* Extra polish for society manager content cards */
-.profile-panel--manager {
-  border-color: rgba(13, 148, 136, 0.15);
-  box-shadow: 0 16px 40px rgba(13, 148, 136, 0.08);
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+.profile-page {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  background: #f0f4f8;
 }
 
-.manager-society-card {
-  padding: 4px 0 0;
+.profile-page--loading,
+.profile-page--empty {
+  align-items: center;
+  justify-content: center;
 }
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+.profile-loading {
+  text-align: center;
+  color: #64748b;
+}
+
+.profile-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #6a11cb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Empty / error card ──────────────────────────────────────────────────── */
+.profile-empty-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  max-width: 400px;
+}
+
+.profile-empty-card h2 { margin: 0 0 8px; color: #1e293b; }
+.profile-empty-card p  { color: #64748b; margin-bottom: 20px; }
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.profile-page .profile-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: linear-gradient(180deg, #0f766e 0%, #0369a1 100%);
+  color: #fff;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 2px 0 16px rgba(0,0,0,0.12);
+}
+
+.profile-sidebar__brand {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 6px;
+  align-self: flex-start;
+}
+
+/* ── Avatar ──────────────────────────────────────────────────────────────── */
+.profile-avatar-wrap {
+  margin: 6px 0 4px;
+}
+
+.profile-avatar {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  border: 3px solid rgba(255,255,255,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ── Identity ────────────────────────────────────────────────────────────── */
+.profile-identity {
+  text-align: center;
+  width: 100%;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.profile-email {
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  margin: 0 0 8px;
+  word-break: break-all;
+}
+
+.profile-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.profile-badge--manager {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.35);
+}
+
+/* ── Meta info list ──────────────────────────────────────────────────────── */
+.profile-meta {
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 6px 0;
+}
+
+.profile-meta__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-size: 13px;
+}
+
+.profile-meta__row:last-child { border-bottom: none; }
+
+.profile-meta__row dt {
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+.profile-meta__row dd {
+  color: #fde68a;
+  font-weight: 600;
+  margin: 0;
+  text-align: right;
+  max-width: 55%;
+  word-break: break-word;
+}
+
+.profile-meta__row--block {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.profile-meta__row--block dd {
+  text-align: left;
+  max-width: 100%;
+}
+
+/* ── Nav buttons ─────────────────────────────────────────────────────────── */
+.profile-nav {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.profile-nav__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.profile-nav__btn:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateX(3px);
+}
+
+.profile-nav__btn.is-active {
+  background: #fde68a;
+  color: #1e293b;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+.profile-nav__icon {
+  font-size: 16px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.profile-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+
+.profile-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.profile-btn--primary {
+  background: linear-gradient(90deg, #0f766e, #0369a1);
+  color: #fff;
+}
+
+.profile-btn--danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.profile-btn--block {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ── Main content ────────────────────────────────────────────────────────── */
+.profile-page .profile-main {
+  flex: 1;
+  padding: 36px 40px;
+  overflow-y: auto;
+}
+
+.profile-main__header {
+  margin-bottom: 24px;
+}
+
+.profile-main__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #0f766e;
+  margin: 0 0 4px;
+}
+
+.profile-main__title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 6px;
+}
+
+.profile-main__subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.profile-panel {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+.profile-panel--manager {
+  border-color: rgba(13,148,136,0.2);
+  box-shadow: 0 8px 28px rgba(13,148,136,0.08);
+}
+
+.profile-panel__body {
+  padding: 28px;
+}
+
+/* ── Feature block ───────────────────────────────────────────────────────── */
+.profile-feature__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 10px;
+}
+
+.profile-feature__text {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.65;
+  margin: 0 0 20px;
+  max-width: 60ch;
+}
+
+/* ── Society card ────────────────────────────────────────────────────────── */
+.manager-society-card { padding: 4px 0 0; }
 
 .manager-society-card__header {
   display: flex;
@@ -34,4 +339,22 @@
   line-height: 1.65;
   color: #475569;
   max-width: 65ch;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .profile-page {
+    flex-direction: column;
+  }
+
+  .profile-page .profile-sidebar {
+    width: 100%;
+    min-width: unset;
+    border-radius: 0;
+    padding: 20px;
+  }
+
+  .profile-page .profile-main {
+    padding: 20px;
+  }
 }
