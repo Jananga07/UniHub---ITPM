@@ -1,6 +1,7 @@
 /* global globalThis */
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
 import {
   FiBriefcase,
   FiChevronDown,
@@ -39,6 +40,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
   const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const description = society?.description?.trim() || "No description added for this society yet.";
 
@@ -77,6 +79,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
       setFormState(INITIAL_FORM_STATE);
       setFormErrors({});
       setIsSubmitting(false);
+      setSubmitError("");
       return undefined;
     }
 
@@ -102,6 +105,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
     setFormState(INITIAL_FORM_STATE);
     setFormErrors({});
     setIsSubmitting(false);
+    setSubmitError("");
   }, [society?._id]);
 
   if (!isOpen || !society) {
@@ -115,6 +119,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
     setFormState(INITIAL_FORM_STATE);
     setFormErrors({});
     setIsSubmitting(false);
+    setSubmitError("");
   };
 
   const handleClose = () => {
@@ -129,6 +134,8 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
       ...current,
       [name]: value,
     }));
+
+    setSubmitError("");
 
     setFormErrors((current) => {
       if (!current[name]) {
@@ -186,15 +193,34 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
     }
 
     setIsSubmitting(true);
+    setSubmitError("");
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 800);
-    });
+    try {
+      await axios.post("http://localhost:5001/api/membership/apply", {
+        club_id: society._id,
+        club_name: societyName,
+        manager_id: society.managerId || "",
+        name: formState.fullName,
+        email: formState.email,
+        contact: formState.contactNumber,
+        student_id: formState.studentId,
+        faculty: formState.faculty,
+        year: formState.year,
+        reason: formState.reason,
+      });
 
-    setIsSubmitting(false);
-    setModalView("success");
-    setFormState(INITIAL_FORM_STATE);
-    setFormErrors({});
+      setIsSubmitting(false);
+      setModalView("success");
+      setFormState(INITIAL_FORM_STATE);
+      setFormErrors({});
+    } catch (error) {
+      console.error(error);
+      setIsSubmitting(false);
+      setSubmitError(
+        error.response?.data?.message ||
+          "Unable to submit your membership application right now."
+      );
+    }
   };
 
   const renderTextField = ({ name, label, placeholder, icon, type = "text", autoComplete }) => (
@@ -303,6 +329,10 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
             </div>
 
             <form className="society-form" onSubmit={handleSubmit} noValidate>
+              {submitError && (
+                <div className="society-form__submit-error">{submitError}</div>
+              )}
+
               <div className="society-form__grid">
                 {renderTextField({
                   name: "fullName",
@@ -389,6 +419,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 SocietyModal.propTypes = {
   society: PropTypes.shape({
     _id: PropTypes.string,
+    managerId: PropTypes.string,
     name: PropTypes.string,
     societyName: PropTypes.string,
     description: PropTypes.string,

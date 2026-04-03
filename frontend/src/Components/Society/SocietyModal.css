@@ -212,6 +212,14 @@
   gap: 22px;
 }
 
+.society-form__submit-error {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
 .society-form__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
