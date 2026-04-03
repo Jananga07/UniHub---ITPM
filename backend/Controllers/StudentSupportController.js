@@ -101,8 +101,69 @@ const deleteLecturer = async (req, res) => {
   }
 };
 
+// Rate lecturer
+const rateLecturer = async (req, res) => {
+  const { id } = req.params;
+  const { rating, feedback, studentEmail, studentName } = req.body;
+
+  try {
+    const lecturer = await StudentSupport.findById(id);
+    if (!lecturer) {
+      return res.status(404).json({ message: "Lecturer not found" });
+    }
+
+    const newTotalStars = (lecturer.totalStars || 0) + Number(rating);
+    const newNumberOfReviews = (lecturer.numberOfReviews || 0) + 1;
+    const newAverageRating = newTotalStars / newNumberOfReviews;
+
+    const updatedLecturer = await StudentSupport.findByIdAndUpdate(
+      id,
+      { 
+        totalStars: newTotalStars, 
+        numberOfReviews: newNumberOfReviews, 
+        averageRating: parseFloat(newAverageRating.toFixed(1)) 
+      },
+      { new: true }
+    );
+
+    // Save to ConsultantRating history (optional based on schema but keeps history)
+    const ConsultantRating = require("../Models/ConsultantRatingModel");
+    const newRatingDoc = new ConsultantRating({
+      consultantId: id,
+      consultantName: lecturer.name,
+      rating,
+      feedback,
+      studentEmail,
+      studentName
+    });
+    await newRatingDoc.save();
+
+    return res.status(200).json({ message: "Rating saved successfully", updatedLecturer });
+  } catch (err) {
+    console.error("Rate lecturer error:", err);
+    return res.status(500).json({ message: "Error rating lecturer" });
+  }
+};
+
+// Get Top Consultants
+const getTopConsultants = async (req, res) => {
+  try {
+    const topConsultants = await StudentSupport.find()
+      .sort({ averageRating: -1 })
+      .limit(3);
+      
+    return res.status(200).json({ topConsultants });
+  } catch (err) {
+    console.error("Get top consultants error:", err);
+    return res.status(500).json({ message: "Error retrieving top consultants" });
+  }
+};
+
 exports.getAllLecturers = getAllLecturers;
 exports.getLecturerById = getLecturerById;
 exports.addLecturer = addLecturer;
 exports.updateAvailability = updateAvailability;
 exports.deleteLecturer = deleteLecturer;
+exports.rateLecturer = rateLecturer;
+exports.getTopConsultants = getTopConsultants;
+

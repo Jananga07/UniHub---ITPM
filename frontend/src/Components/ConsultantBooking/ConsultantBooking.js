@@ -1,89 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import './ConsultantBooking.css';
 
 function ConsultantBooking() {
   const { consultantId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   
-  const [consultant, setConsultant] = useState(null);
+  const [consultant, setConsultant] = useState(location.state?.consultant || null);
   const [selectedDate, setSelectedDate] = useState('');
   const [availableDates, setAvailableDates] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!location.state?.consultant);
 
-  const consultants = [
-    {
-      id: 1,
-      name: "Dr. Alice Perera",
-      title: "Consultation",
-      faculty: "FACULTY OF COMPUTING",
-      expertise: "PhD in Computer Science Specialist in Algorithms and Data Structures",
-      room: "Room CS-201",
-      email: "alice.perera@university.edu",
-      rating: 4.5,
-      totalBookings: 45
-    },
-    {
-      id: 2,
-      name: "Prof. Nimal Fernando",
-      title: "Senior Consultant",
-      faculty: "FACULTY OF ENGINEERING",
-      expertise: "PhD in Software Engineering Specialist in Machine Learning and AI",
-      room: "Room EN-305",
-      email: "nimal.fernando@university.edu",
-      rating: 4.8,
-      totalBookings: 62
-    },
-    {
-      id: 3,
-      name: "Dr. Sarah Kumar",
-      title: "Consultation",
-      faculty: "FACULTY OF BUSINESS",
-      expertise: "PhD in Business Administration Specialist in Marketing and Management",
-      room: "Room BU-102",
-      email: "sarah.kumar@university.edu",
-      rating: 4.2,
-      totalBookings: 38
-    },
-    {
-      id: 4,
-      name: "Prof. Kamal Rajapaksa",
-      title: "Senior Consultant",
-      faculty: "FACULTY OF COMPUTING",
-      expertise: "PhD in Data Science Specialist in Big Data Analytics",
-      room: "Room CS-401",
-      email: "kamal.r@university.edu",
-      rating: 4.9,
-      totalBookings: 71
-    }
-  ];
-
-  useEffect(() => {
-    // Find consultant by ID
-    const foundConsultant = consultants.find(c => c.id === parseInt(consultantId));
-    setConsultant(foundConsultant);
-    
-    // Generate available dates for the next 14 days (excluding weekends)
+  // Generate available dates for next 14 days (excluding weekends)
+  const generateDates = () => {
     const dates = [];
     const today = new Date();
     
     for (let i = 1; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      
-      // Skip weekends (Saturday = 6, Sunday = 0)
+      const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
       if (date.getDay() !== 0 && date.getDay() !== 6) {
         dates.push(date.toISOString().split('T')[0]);
       }
     }
-    
-    setAvailableDates(dates);
-    setLoading(false);
-  }, [consultantId, consultants]);
+    return dates;
+  };
+
+  // Fetch consultant from backend if not in state
+  useEffect(() => {
+    if (consultant) {
+      setAvailableDates(generateDates());
+      setLoading(false);
+      return;
+    }
+
+    const fetchConsultant = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/studentsupport/${consultantId}`);
+        setConsultant(response.data.lecturer || response.data);
+        setAvailableDates(generateDates());
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching consultant:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchConsultant();
+  }, [consultantId, consultant]);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
-    navigate(`/consultant-time/${consultantId}/${date}`);
+    // Navigate to time selection page with both consultantId and date, passing consultant state
+    navigate(`/consultant-time/${consultantId}/${date}`, { state: { consultant } });
   };
 
   const handleBack = () => {
@@ -134,13 +104,13 @@ function ConsultantBooking() {
             <h2>{consultant.name}</h2>
             <span className="consultant-title">{consultant.title}</span>
             <div className="rating">
-              {renderStars(consultant.rating)}
-              <span className="rating-text">({consultant.rating})</span>
+              {renderStars(consultant.rating || 0)}
+              <span className="rating-text">({consultant.rating || 0})</span>
             </div>
           </div>
           <div className="consultant-stats">
             <div className="stat-item">
-              <span className="stat-number">{consultant.totalBookings}</span>
+              <span className="stat-number">{consultant.totalBookings || 0}</span>
               <span className="stat-label">Total Bookings</span>
             </div>
           </div>
@@ -197,4 +167,3 @@ function ConsultantBooking() {
 }
 
 export default ConsultantBooking;
-// frontend
