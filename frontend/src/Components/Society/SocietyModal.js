@@ -12,6 +12,16 @@ import {
 import { PiStudentBold } from "react-icons/pi";
 import "./SocietyModal.css";
 
+const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  } catch {
+    return null;
+  }
+};
+
 const trimListMarker = (line) => line.replace(/^[-*•]\s*/, "").trim();
 
 const INITIAL_FORM_STATE = {
@@ -35,9 +45,17 @@ const FACULTY_OPTIONS = [
 
 const YEAR_OPTIONS = ["1", "2", "3", "4"];
 
+const buildInitialFormState = (storedUser) => ({
+  ...INITIAL_FORM_STATE,
+  fullName: storedUser?.name || "",
+  email: storedUser?.gmail || "",
+  contactNumber: storedUser?.contact || "",
+});
+
 function SocietyModal({ society, clubImage, isOpen, onClose }) {
+  const storedUser = getStoredUser();
   const [modalView, setModalView] = useState("details");
-  const [formState, setFormState] = useState(INITIAL_FORM_STATE);
+  const [formState, setFormState] = useState(buildInitialFormState(storedUser));
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -76,7 +94,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) {
       setModalView("details");
-      setFormState(INITIAL_FORM_STATE);
+      setFormState(buildInitialFormState(storedUser));
       setFormErrors({});
       setIsSubmitting(false);
       setSubmitError("");
@@ -102,11 +120,11 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
   useEffect(() => {
     setModalView("details");
-    setFormState(INITIAL_FORM_STATE);
+    setFormState(buildInitialFormState(storedUser));
     setFormErrors({});
     setIsSubmitting(false);
     setSubmitError("");
-  }, [society?._id]);
+  }, [society?._id, storedUser?.contact, storedUser?.gmail, storedUser?.name]);
 
   if (!isOpen || !society) {
     return null;
@@ -116,7 +134,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
   const resetModalState = () => {
     setModalView("details");
-    setFormState(INITIAL_FORM_STATE);
+    setFormState(buildInitialFormState(storedUser));
     setFormErrors({});
     setIsSubmitting(false);
     setSubmitError("");
@@ -196,7 +214,8 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
     setSubmitError("");
 
     try {
-      await axios.post("http://localhost:5001/api/membership/apply", {
+      await axios.post(`${API}/api/membership/apply`, {
+        user_id: storedUser?._id || "",
         club_id: society._id,
         club_name: societyName,
         manager_id: society.managerId || "",
@@ -211,7 +230,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
       setIsSubmitting(false);
       setModalView("success");
-      setFormState(INITIAL_FORM_STATE);
+      setFormState(buildInitialFormState(storedUser));
       setFormErrors({});
     } catch (error) {
       console.error(error);
