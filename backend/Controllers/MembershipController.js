@@ -3,6 +3,8 @@ const Society = require("../Models/SocietyModel");
 const User = require("../Models/User");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const studentIdRegex = /^it\d{8}$/i;
+const contactRegex = /^\d{10}$/;
 
 const normalizeString = (value = "") => String(value).trim();
 const createHttpError = (status, message) => {
@@ -33,7 +35,13 @@ const validateApplication = (payload) => {
   if (!payload.email) return "Email address is required.";
   if (!emailRegex.test(payload.email)) return "Enter a valid email address.";
   if (!payload.contact) return "Contact number is required.";
+  if (!contactRegex.test(payload.contact)) {
+    return "Contact number must contain exactly 10 digits.";
+  }
   if (!payload.student_id) return "Student ID is required.";
+  if (!studentIdRegex.test(payload.student_id)) {
+    return "Student ID must be in the format IT22574886 with 8 digits after IT.";
+  }
   if (!payload.faculty) return "Faculty is required.";
   if (!payload.year) return "Year is required.";
   if (!payload.reason) return "Reason is required.";

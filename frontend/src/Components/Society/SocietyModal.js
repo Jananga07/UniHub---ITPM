@@ -13,6 +13,8 @@ import { PiStudentBold } from "react-icons/pi";
 import "./SocietyModal.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
+const STUDENT_ID_REGEX = /^it\d{8}$/i;
+const CONTACT_NUMBER_REGEX = /^\d{10}$/;
 
 const getStoredUser = () => {
   try {
@@ -181,10 +183,14 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
 
     if (!formState.contactNumber.trim()) {
       nextErrors.contactNumber = "Contact number is required.";
+    } else if (!CONTACT_NUMBER_REGEX.test(formState.contactNumber.trim())) {
+      nextErrors.contactNumber = "Contact number must contain exactly 10 digits.";
     }
 
     if (!formState.studentId.trim()) {
       nextErrors.studentId = "Student ID is required.";
+    } else if (!STUDENT_ID_REGEX.test(formState.studentId.trim())) {
+      nextErrors.studentId = "Student ID must be in the format IT22574886.";
     }
 
     if (!formState.faculty) {
