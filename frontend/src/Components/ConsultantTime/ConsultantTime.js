@@ -1,33 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import './ConsultantTime.css';
-
-const CONSULTANTS = [
-  {
-    id: 1,
-    name: "Dr. Alice Perera",
-    title: "Consultation",
-    faculty: "FACULTY OF COMPUTING"
-  },
-  {
-    id: 2,
-    name: "Prof. Nimal Fernando",
-    title: "Senior Consultant",
-    faculty: "FACULTY OF ENGINEERING"
-  },
-  {
-    id: 3,
-    name: "Dr. Sarah Kumar",
-    title: "Consultation",
-    faculty: "FACULTY OF BUSINESS"
-  },
-  {
-    id: 4,
-    name: "Prof. Kamal Rajapaksa",
-    title: "Senior Consultant",
-    faculty: "FACULTY OF COMPUTING"
-  }
-];
 
 const TIME_SLOTS = [
   '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
@@ -39,72 +13,90 @@ const TIME_SLOTS = [
 function ConsultantTime() {
   const { consultantId, date } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   
-  const [consultant, setConsultant] = useState(null);
+  const [consultant, setConsultant] = useState(location.state?.consultant || null);
   const [selectedTime, setSelectedTime] = useState('');
   const [availableSlots, setAvailableSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!location.state?.consultant);
 
   useEffect(() => {
-    // Find consultant by ID
-    const foundConsultant = CONSULTANTS.find(c => c.id === parseInt(consultantId));
-    setConsultant(foundConsultant);
-    
-    // Simulate some slots being already booked
-    const bookedSlots = ['10:00 AM', '11:30 AM', '02:30 PM', '04:00 PM'];
-    const available = TIME_SLOTS.filter(slot => !bookedSlots.includes(slot));
-    setAvailableSlots(available);
-    setLoading(false);
-  }, [consultantId]);
+    const fetchConsultantAndSlots = async () => {
+      try {
+        if (!consultant) {
+          // Fetch consultant from backend
+          const consultantResponse = await axios.get(`http://localhost:5001/studentsupport/${consultantId}`);
+          setConsultant(consultantResponse.data.lecturer || consultantResponse.data);
+        }
+        
+        // Simulate some slots being already booked (in real app, this would come from backend)
+        const bookedSlots = ['10:00 AM', '11:30 AM', '02:30 PM', '04:00 PM'];
+        const available = TIME_SLOTS.filter(slot => !bookedSlots.includes(slot));
+        setAvailableSlots(available);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching consultant:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchConsultantAndSlots();
+  }, [consultantId, consultant]);
 
   const handleTimeSelect = (time) => {
     setSelectedTime(time);
   };
 
-  const handleBookingConfirm = () => {
+  const handleBooking = () => {
     if (!selectedTime) {
       alert('Please select a time slot');
       return;
     }
 
-    // Create booking object
+    // Save booking to localStorage (in real app, this would be an API call)
     const booking = {
-      id: Date.now(),
-      consultantId: parseInt(consultantId),
+      consultantId,
       consultantName: consultant.name,
-      date: date,
+      date,
       time: selectedTime,
-      status: 'confirmed',
-      bookingDate: new Date().toISOString(),
-      studentEmail: 'student@example.com' // This would come from auth context
+      timestamp: new Date().toISOString()
     };
 
-    // Save to localStorage
     const existingBookings = JSON.parse(localStorage.getItem('consultantBookings') || '[]');
     existingBookings.push(booking);
     localStorage.setItem('consultantBookings', JSON.stringify(existingBookings));
 
-    // Navigate to confirmation or back to student support
-    alert(`Booking confirmed!\n\nConsultant: ${consultant.name}\nDate: ${date}\nTime: ${selectedTime}\n\nYou will receive a confirmation email shortly.`);
+    alert(`Booking confirmed for ${consultant.name} on ${date} at ${selectedTime}`);
     navigate('/studentsupport');
   };
 
   const handleBack = () => {
-    navigate(`/consultant-booking/${consultantId}`);
+    navigate(`/consultant-booking/${consultantId}`, { state: { consultant } });
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span key={i} className="star full">★</span>);
+    }
+    
+    if (hasHalfStar) {
+      stars.push(<span key="half" className="star half">★</span>);
+    }
+    
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<span key={`empty-${i}`} className="star empty">★</span>);
+    }
+    
+    return stars;
   };
 
   if (loading) {
-    return <div className="loading">Loading available time slots...</div>;
+    return <div className="loading">Loading time slots...</div>;
   }
 
   if (!consultant) {
@@ -120,31 +112,35 @@ function ConsultantTime() {
         <h1>Select Time Slot</h1>
       </div>
 
-      <div className="booking-summary">
-        <div className="summary-card">
-          <h3>Booking Summary</h3>
-          <div className="summary-details">
-            <div className="summary-item">
-              <span className="label">Consultant:</span>
-              <span className="value">{consultant.name}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Date:</span>
-              <span className="value">{formatDate(date)}</span>
-            </div>
-            {selectedTime && (
-              <div className="summary-item">
-                <span className="label">Selected Time:</span>
-                <span className="value selected">{selectedTime}</span>
-              </div>
-            )}
+      <div className="consultant-summary">
+        <div className="consultant-info">
+          <h3>{consultant.name}</h3>
+          <span className="consultant-title">{consultant.title}</span>
+          <div className="rating">
+            {renderStars(consultant.rating || 0)}
+            <span className="rating-text">({consultant.rating || 0})</span>
+          </div>
+        </div>
+        
+        <div className="booking-details">
+          <div className="detail-item">
+            <span className="label">Date:</span>
+            <span className="value">{new Date(date).toLocaleDateString()}</span>
+          </div>
+          <div className="detail-item">
+            <span className="label">Faculty:</span>
+            <span className="value">{consultant.faculty}</span>
+          </div>
+          <div className="detail-item">
+            <span className="label">Room:</span>
+            <span className="value">{consultant.room}</span>
           </div>
         </div>
       </div>
 
       <div className="time-selection">
         <h3>Available Time Slots</h3>
-        <p>Each consultation session lasts 30 minutes</p>
+        <p>Click on a time slot to select it for your booking</p>
         
         <div className="time-slots-grid">
           {availableSlots.map((time) => (
@@ -157,61 +153,37 @@ function ConsultantTime() {
             </button>
           ))}
         </div>
-        
-        {availableSlots.length === 0 && (
-          <div className="no-slots">
-            <p>No available time slots for this date. Please select another date.</p>
-            <button onClick={handleBack} className="back-to-dates-btn">
-              Choose Different Date
-            </button>
-          </div>
-        )}
       </div>
 
-      {selectedTime && (
-        <div className="booking-confirmation">
-          <div className="confirmation-card">
-            <h4>📋 Booking Details</h4>
-            <div className="booking-details">
-              <div className="detail-row">
-                <span>Consultation Type:</span>
-                <span>Academic Advisory</span>
-              </div>
-              <div className="detail-row">
-                <span>Duration:</span>
-                <span>30 minutes</span>
-              </div>
-              <div className="detail-row">
-                <span>Location:</span>
-                <span>Virtual Meeting (Link will be sent via email)</span>
-              </div>
-              <div className="detail-row">
-                <span>Preparation:</span>
-                <span>Please prepare your questions in advance</span>
-              </div>
-            </div>
-            
-            <div className="confirmation-actions">
-              <button onClick={handleBack} className="cancel-btn">
-                Cancel
-              </button>
-              <button onClick={handleBookingConfirm} className="confirm-btn">
-                Confirm Booking
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="important-notes">
-        <div className="notes-card">
-          <h4>⚠️ Important Notes</h4>
+      <div className="booking-actions">
+        <div className="info-card">
+          <h4>📅 Booking Summary</h4>
           <ul>
-            <li>Please arrive 5 minutes early for virtual consultations</li>
-            <li>Have your questions and relevant materials ready</li>
+            <li>Consultant: {consultant.name}</li>
+            <li>Date: {new Date(date).toLocaleDateString()}</li>
+            <li>Time: {selectedTime || 'Not selected'}</li>
+            <li>Duration: 30 minutes</li>
+            <li>Location: {consultant.room}</li>
+          </ul>
+          
+          <button
+            onClick={handleBooking}
+            className="confirm-booking-btn"
+            disabled={!selectedTime}
+          >
+            Confirm Booking
+          </button>
+        </div>
+      </div>
+
+      <div className="booking-info">
+        <div className="info-card">
+          <h4>ℹ️ Important Information</h4>
+          <ul>
+            <li>Please arrive 5 minutes before your scheduled time</li>
             <li>Cancellations must be made at least 2 hours in advance</li>
-            <li>You will receive a calendar invitation and meeting link via email</li>
-            <li>If you need to reschedule, please contact the consultant directly</li>
+            <li>You will receive a confirmation email after booking</li>
+            <li>Consultation fee may apply</li>
           </ul>
         </div>
       </div>
