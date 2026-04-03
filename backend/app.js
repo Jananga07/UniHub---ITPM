@@ -41,6 +41,7 @@ app.use("/consultant-bookings", consultantBookingRoutes);
 app.use("/consultant-ratings", consultantRatingRoutes);
 app.use("/api/membership", membershipRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/consultants", StudentSupportRoutes);
 app.use("/api/consultant-bookings", consultantBookingRoutes);
 app.use("/api/consultant-ratings", consultantRatingRoutes);
 // Routes

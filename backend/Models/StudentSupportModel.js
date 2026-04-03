@@ -37,6 +37,18 @@ const StudentSupportSchema = new Schema({
     department: {
         type: String,
         required: false,
+    },
+    totalStars: {
+        type: Number,
+        default: 0
+    },
+    numberOfReviews: {
+        type: Number,
+        default: 0
+    },
+    averageRating: {
+        type: Number,
+        default: 0
     }
 });
 
