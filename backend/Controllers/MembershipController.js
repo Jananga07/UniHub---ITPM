@@ -5,8 +5,14 @@ const User = require("../Models/User");
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const normalizeString = (value = "") => String(value).trim();
+const createHttpError = (status, message) => {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+};
 
 const buildPayload = (body = {}, resolvedManagerId = "") => ({
+  user_id: normalizeString(body.user_id),
   club_id: normalizeString(body.club_id),
   club_name: normalizeString(body.club_name),
   manager_id: resolvedManagerId || normalizeString(body.manager_id),
@@ -34,6 +40,26 @@ const validateApplication = (payload) => {
   return "";
 };
 
+const resolveStudentUserId = async (userId, email) => {
+  const normalizedUserId = normalizeString(userId);
+  const normalizedEmail = normalizeString(email).toLowerCase();
+
+  if (normalizedUserId) {
+    const existingUser = await User.findById(normalizedUserId).select("_id").lean();
+
+    if (existingUser?._id) {
+      return String(existingUser._id);
+    }
+  }
+
+  if (!normalizedEmail) {
+    return "";
+  }
+
+  const matchedUser = await User.findOne({ gmail: normalizedEmail }).select("_id").lean();
+  return matchedUser?._id ? String(matchedUser._id) : "";
+};
+
 const resolveManagerId = async (clubId, fallbackManagerId) => {
   const normalizedClubId = normalizeString(clubId);
   const normalizedFallback = normalizeString(fallbackManagerId);
@@ -48,11 +74,11 @@ const resolveManagerId = async (clubId, fallbackManagerId) => {
   ]);
 
   if (!society) {
-    throw { status: 404, message: "Selected club was not found." };
+    throw createHttpError(404, "Selected club was not found.");
   }
 
   if (!manager) {
-    throw { status: 400, message: "This club does not have an assigned manager yet." };
+    throw createHttpError(400, "This club does not have an assigned manager yet.");
   }
 
   return String(manager._id);
@@ -61,6 +87,7 @@ const resolveManagerId = async (clubId, fallbackManagerId) => {
 const serializeRequest = (request) => ({
   id: request._id,
   _id: request._id,
+  user_id: request.user_id,
   club_id: request.club_id,
   club_name: request.club_name,
   manager_id: request.manager_id,
@@ -73,12 +100,14 @@ const serializeRequest = (request) => ({
   reason: request.reason,
   status: request.status,
   created_at: request.created_at,
+  updated_at: request.updated_at,
 });
 
 const applyMembership = async (req, res) => {
   try {
     const managerId = await resolveManagerId(req.body.club_id, req.body.manager_id);
-    const payload = buildPayload(req.body, managerId);
+    const resolvedUserId = await resolveStudentUserId(req.body.user_id, req.body.email);
+    const payload = buildPayload({ ...req.body, user_id: resolvedUserId }, managerId);
     const validationMessage = validateApplication(payload);
 
     if (validationMessage) {
@@ -123,6 +152,42 @@ const getManagerRequests = async (req, res) => {
   }
 };
 
+const getStudentRequests = async (req, res) => {
+  try {
+    const userId = normalizeString(req.params.userId);
+    const requestedEmail = normalizeString(req.query.email).toLowerCase();
+
+    if (!userId && !requestedEmail) {
+      return res.status(400).json({ message: "Student user ID or email is required." });
+    }
+
+    const user = userId
+      ? await User.findById(userId).select("_id gmail").lean()
+      : null;
+    const resolvedEmail = requestedEmail || normalizeString(user?.gmail).toLowerCase();
+    const orFilters = [];
+
+    if (userId) {
+      orFilters.push({ user_id: userId });
+    }
+
+    if (resolvedEmail) {
+      orFilters.push({ email: resolvedEmail });
+    }
+
+    const query = orFilters.length === 1 ? orFilters[0] : { $or: orFilters };
+
+    const requests = await MembershipRequest.find(query)
+      .sort({ created_at: -1 })
+      .lean();
+
+    return res.status(200).json({ requests: requests.map(serializeRequest) });
+  } catch (error) {
+    console.error("Get student membership requests error:", error);
+    return res.status(500).json({ message: "Unable to fetch your membership requests." });
+  }
+};
+
 const updateMembershipStatus = async (req, res) => {
   try {
     const requestId = normalizeString(req.params.id);
@@ -158,4 +223,5 @@ const updateMembershipStatus = async (req, res) => {
 
 exports.applyMembership = applyMembership;
 exports.getManagerRequests = getManagerRequests;
+exports.getStudentRequests = getStudentRequests;
 exports.updateMembershipStatus = updateMembershipStatus;
