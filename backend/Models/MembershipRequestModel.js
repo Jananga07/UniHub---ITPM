@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const MembershipRequestSchema = new mongoose.Schema(
   {
+    user_id: {
+      type: String,
+      trim: true,
+      index: true,
+      default: "",
+    },
     club_id: {
       type: String,
       required: true,
