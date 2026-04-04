@@ -1166,7 +1166,7 @@ function AdminDashboard() {
             })}
 
             <button
-              className={`sidebar-link sidebar-link-primary ${activeTab === "quiz" ? "sidebar-link-active" : ""}`}
+              className={`sidebar-link ${activeTab === "quiz" ? "sidebar-link-active" : ""}`}
               onClick={() => setActiveTab("quiz")}
             >
               <span className="sidebar-link-main">
