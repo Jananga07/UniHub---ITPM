@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './ComplaintHandling.css';
+import BarChartAnalytics from '../BarChartAnalytics/BarChartAnalytics';
 
 function ComplaintHandling() {
   const [complaints, setComplaints] = useState([]);
@@ -16,55 +17,38 @@ function ComplaintHandling() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'resolved':
-        return '#10b981';
-      case 'in_progress':
-        return '#f59e0b';
-      case 'pending':
-        return '#6b7280';
-      default:
-        return '#6b7280';
+      case 'resolved': return '#10b981';
+      case 'in_progress': return '#f59e0b';
+      case 'pending': return '#6b7280';
+      default: return '#6b7280';
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'resolved':
-        return 'Resolved';
-      case 'in_progress':
-        return 'In Progress';
-      case 'pending':
-        return 'Pending';
-      default:
-        return 'Unknown';
+      case 'resolved': return 'Resolved';
+      case 'in_progress': return 'In Progress';
+      case 'pending': return 'Pending';
+      default: return 'Unknown';
     }
   };
 
   const getCategoryIcon = (category) => {
     switch (category) {
-      case 'lecture_materials':
-        return '📚';
-      case 'club_events':
-        return '🎉';
-      case 'others':
-        return '📝';
-      default:
-        return '📋';
+      case 'lecture_materials': return '📚';
+      case 'club_events': return '🎉';
+      case 'others': return '📝';
+      default: return '📋';
     }
   };
 
   const getUrgencyColor = (urgency) => {
     switch (urgency) {
-      case 'urgent':
-        return '#ef4444';
-      case 'high':
-        return '#f59e0b';
-      case 'medium':
-        return '#3b82f6';
-      case 'low':
-        return '#10b981';
-      default:
-        return '#6b7280';
+      case 'urgent': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#3b82f6';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
     }
   };
 
@@ -80,9 +64,9 @@ function ComplaintHandling() {
   };
 
   const handleStatusChange = (complaintId, newStatus) => {
-    const updatedComplaints = complaints.map(complaint => 
-      complaint.id === complaintId 
-        ? { ...complaint, status: newStatus, resolvedDate: newStatus === 'resolved' ? new Date().toISOString() : null }
+    const updatedComplaints = complaints.map(complaint =>
+      complaint.id === complaintId
+        ? { ...complaint, status: newStatus, resolvedDate: newStatus === 'resolved' ? new Date().toISOString() : complaint.resolvedDate || null }
         : complaint
     );
     setComplaints(updatedComplaints);
@@ -96,7 +80,7 @@ function ComplaintHandling() {
     return statusMatch && categoryMatch;
   });
 
-  const generatePDF = () => {
+  const generateCSV = () => {
     const filteredData = filteredComplaints.map(complaint => ({
       ID: complaint.id,
       Title: complaint.title,
@@ -109,14 +93,17 @@ function ComplaintHandling() {
       Description: complaint.description.substring(0, 100) + '...'
     }));
 
-    // Create CSV content (simplified PDF generation)
-    const headers = Object.keys(filteredData[0] || {});
+    if (filteredData.length === 0) {
+      alert('No complaints to export.');
+      return;
+    }
+
+    const headers = Object.keys(filteredData[0]);
     const csvContent = [
       headers.join(','),
       ...filteredData.map(row => headers.map(header => `"${row[header]}"`).join(','))
     ].join('\n');
 
-    // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -129,21 +116,19 @@ function ComplaintHandling() {
   };
 
   const getCategoryStats = () => {
-    const stats = {
+    return {
       lecture_materials: complaints.filter(c => c.category === 'lecture_materials').length,
       club_events: complaints.filter(c => c.category === 'club_events').length,
       others: complaints.filter(c => c.category === 'others').length
     };
-    return stats;
   };
 
   const getStatusStats = () => {
-    const stats = {
+    return {
       pending: complaints.filter(c => c.status === 'pending').length,
       in_progress: complaints.filter(c => c.status === 'in_progress').length,
       resolved: complaints.filter(c => c.status === 'resolved').length
     };
-    return stats;
   };
 
   const categoryStats = getCategoryStats();
@@ -182,32 +167,8 @@ function ComplaintHandling() {
           </div>
         </div>
 
-        {/* Category Distribution */}
-        <div className="category-chart">
-          <h3>Complaints by Category</h3>
-          <div className="chart-container">
-            <div className="pie-chart">
-              <div className="chart-segment" style={{ 
-                background: '#3b82f6', 
-                width: `${(categoryStats.lecture_materials / totalComplaints) * 100}%` 
-              }}>
-                📚 Lecture Materials ({categoryStats.lecture_materials})
-              </div>
-              <div className="chart-segment" style={{ 
-                background: '#10b981', 
-                width: `${(categoryStats.club_events / totalComplaints) * 100}%` 
-              }}>
-                🎉 Club Events ({categoryStats.club_events})
-              </div>
-              <div className="chart-segment" style={{ 
-                background: '#f59e0b', 
-                width: `${(categoryStats.others / totalComplaints) * 100}%` 
-              }}>
-                📝 Others ({categoryStats.others})
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Bar Chart Analytics */}
+        <BarChartAnalytics categoryStats={categoryStats} totalComplaints={totalComplaints} />
       </div>
 
       {/* Filters and Actions */}
@@ -222,7 +183,7 @@ function ComplaintHandling() {
               <option value="resolved">Resolved</option>
             </select>
           </div>
-          
+
           <div className="filter-group">
             <label>Category:</label>
             <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
@@ -234,7 +195,7 @@ function ComplaintHandling() {
           </div>
         </div>
 
-        <button onClick={generatePDF} className="download-btn">
+        <button onClick={generateCSV} className="download-btn">
           📊 Download Report (CSV)
         </button>
       </div>
@@ -242,7 +203,7 @@ function ComplaintHandling() {
       {/* Complaints List */}
       <div className="complaints-list">
         <h2>Complaints ({filteredComplaints.length})</h2>
-        
+
         {filteredComplaints.length > 0 ? (
           <div className="complaints-grid">
             {filteredComplaints.map((complaint) => (
@@ -253,13 +214,13 @@ function ComplaintHandling() {
                     <h3 className="complaint-title">{complaint.title}</h3>
                   </div>
                   <div className="complaint-meta">
-                    <span 
+                    <span
                       className="status-badge"
                       style={{ backgroundColor: getStatusColor(complaint.status) }}
                     >
                       {getStatusText(complaint.status)}
                     </span>
-                    <span 
+                    <span
                       className="urgency-badge"
                       style={{ color: getUrgencyColor(complaint.urgency) }}
                     >
@@ -267,11 +228,11 @@ function ComplaintHandling() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="complaint-description">
                   <p>{complaint.description}</p>
                 </div>
-                
+
                 <div className="complaint-footer">
                   <div className="complaint-info">
                     <span className="category">
@@ -286,7 +247,7 @@ function ComplaintHandling() {
                       </span>
                     )}
                   </div>
-                  
+
                   {(complaint.contactEmail || complaint.contactPhone) && (
                     <div className="contact-info">
                       {complaint.contactEmail && (
@@ -303,21 +264,21 @@ function ComplaintHandling() {
                 <div className="status-management">
                   <label>Update Status:</label>
                   <div className="status-actions">
-                    <button 
+                    <button
                       onClick={() => handleStatusChange(complaint.id, 'pending')}
                       className={`status-btn ${complaint.status === 'pending' ? 'active' : ''}`}
                       style={{ backgroundColor: getStatusColor('pending') }}
                     >
                       Pending
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleStatusChange(complaint.id, 'in_progress')}
                       className={`status-btn ${complaint.status === 'in_progress' ? 'active' : ''}`}
                       style={{ backgroundColor: getStatusColor('in_progress') }}
                     >
                       In Progress
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleStatusChange(complaint.id, 'resolved')}
                       className={`status-btn ${complaint.status === 'resolved' ? 'active' : ''}`}
                       style={{ backgroundColor: getStatusColor('resolved') }}
@@ -333,9 +294,9 @@ function ComplaintHandling() {
           <div className="no-complaints">
             <h3>No complaints found</h3>
             <p>
-              {filter === 'all' && categoryFilter === 'all' 
-                ? "No complaints have been submitted yet." 
-                : `No complaints match the current filters.`
+              {filter === 'all' && categoryFilter === 'all'
+                ? "No complaints have been submitted yet."
+                : "No complaints match the current filters."
               }
             </p>
           </div>
