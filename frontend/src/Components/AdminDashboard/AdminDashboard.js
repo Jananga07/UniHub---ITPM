@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./AdminDashboard.css";
 import "./ResourcesAdmin.css";
@@ -41,6 +41,8 @@ import "../SearchBar/societiesSearch.css";
 import { clubTypeOptions } from "../../data/clubData.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
+
+const ANALYTICS_PIE_COLORS = ["#4f46e5", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
 const CATEGORIES = ["Lecture Material", "Reading Material", "Short Notes", "Referral Sheets"];
@@ -473,60 +475,101 @@ function AdminUploadTab() {
   );
 }
 
-// ─── ANALYTICS TAB ────────────────────────────────────────────────────────
-function AnalyticsTab() {
-  const [data, setData]     = useState([]);
-  const [total, setTotal]   = useState(0);
+function useResourceAnalytics() {
+  const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     setLoading(true);
-    axios.get(`${API}/resources/analytics`)
-      .then((r) => { setData(r.data.pdfs); setTotal(r.data.totalDownloads); })
+    axios
+      .get(`${API}/resources/analytics`)
+      .then((r) => {
+        setData(r.data.pdfs);
+        setTotal(r.data.totalDownloads);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  return { data, total, loading, loadData };
+}
+
+function DownloadDistributionPie({ data, total }) {
+  const pieData = {
+    labels: data.map((d) => (d.title.length > 20 ? `${d.title.slice(0, 20)}…` : d.title)),
+    datasets: [
+      {
+        data: data.map((d) => d.downloadCount),
+        backgroundColor: data.map((_, i) => ANALYTICS_PIE_COLORS[i % ANALYTICS_PIE_COLORS.length]),
+        borderWidth: 1,
+      },
+    ],
   };
 
-  useEffect(() => { loadData(); }, []);
+  return (
+    <>
+      <div className="ra-analytics-summary">
+        <div className="dashboard-card">
+          <h3>Total Downloads</h3>
+          <CountUp end={total} duration={2} />
+        </div>
+        <div className="dashboard-card">
+          <h3>Approved PDFs</h3>
+          <CountUp end={data.length} duration={2} />
+        </div>
+      </div>
+
+      {data.length > 0 && (
+        <div className="ra-chart-wrap">
+          <h3 style={{ marginBottom: 16, fontWeight: 600, color: "#1e1b4b" }}>Download Distribution</h3>
+          <div style={{ maxWidth: 380, margin: "0 auto" }}>
+            <Pie data={pieData} options={{ plugins: { legend: { position: "bottom" } } }} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function DashboardDownloadAnalytics() {
+  const { data, total, loading } = useResourceAnalytics();
+
+  return (
+    <div className="dashboard-resource-analytics">
+      <h2 className="ra-section-title dashboard-resource-analytics-heading">Resource download analytics</h2>
+      {loading ? <p className="dashboard-resource-analytics-loading">Loading…</p> : <DownloadDistributionPie data={data} total={total} />}
+    </div>
+  );
+}
+
+// ─── ANALYTICS TAB ────────────────────────────────────────────────────────
+function AnalyticsTab() {
+  const { data, total, loading, loadData } = useResourceAnalytics();
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this PDF permanently?")) {
       try {
         await axios.delete(`${API}/resources/pdfs/${id}`);
         loadData();
-      } catch (err) { alert("Failed to delete PDF"); }
+      } catch (err) {
+        alert("Failed to delete PDF");
+      }
     }
-  };
-
-  const COLORS = ["#4f46e5","#06b6d4","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6"];
-
-  const pieData = {
-    labels: data.map((d) => d.title.length > 20 ? d.title.slice(0, 20) + "…" : d.title),
-    datasets: [{
-      data: data.map((d) => d.downloadCount),
-      backgroundColor: data.map((_, i) => COLORS[i % COLORS.length]),
-      borderWidth: 1,
-    }],
   };
 
   return (
     <div>
       <h2 className="ra-section-title">Download Analytics</h2>
-      {loading ? <p>Loading…</p> : (
+      {loading ? (
+        <p>Loading…</p>
+      ) : (
         <>
-          <div className="ra-analytics-summary">
-            <div className="dashboard-card"><h3>Total Downloads</h3><CountUp end={total} duration={2} /></div>
-            <div className="dashboard-card"><h3>Approved PDFs</h3><CountUp end={data.length} duration={2} /></div>
-          </div>
-
-          {data.length > 0 && (
-            <div className="ra-chart-wrap">
-              <h3 style={{ marginBottom: 16, fontWeight: 600, color: "#1e1b4b" }}>Download Distribution</h3>
-              <div style={{ maxWidth: 380, margin: "0 auto" }}>
-                <Pie data={pieData} options={{ plugins: { legend: { position: "bottom" } } }} />
-              </div>
-            </div>
-          )}
+          <DownloadDistributionPie data={data} total={total} />
 
           <div className="table-container" style={{ marginTop: 24 }}>
             <table>
@@ -1254,23 +1297,26 @@ function AdminDashboard() {
 
         {/* Dashboard Cards */}
         {activeTab === "dashboard" && (
-          <div className="dashboard-grid">
-            <div className="dashboard-card">
-              <FaUsers className="card-icon" />
-              <h3>Total Users</h3>
-              <p><CountUp end={users.length} duration={2} /></p>
+          <>
+            <div className="dashboard-grid">
+              <div className="dashboard-card">
+                <FaUsers className="card-icon" />
+                <h3>Total Users</h3>
+                <p><CountUp end={users.length} duration={2} /></p>
+              </div>
+              <div className="dashboard-card">
+                <FaUserGraduate className="card-icon" />
+                <h3>Students</h3>
+                <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
+              </div>
+              <div className="dashboard-card">
+                <FaUserTie className="card-icon" />
+                <h3>Society Managers</h3>
+                <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
+              </div>
             </div>
-            <div className="dashboard-card">
-              <FaUserGraduate className="card-icon" />
-              <h3>Students</h3>
-              <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
-            </div>
-            <div className="dashboard-card">
-              <FaUserTie className="card-icon" />
-              <h3>Society Managers</h3>
-              <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
-            </div>
-          </div>
+            <DashboardDownloadAnalytics />
+          </>
         )}
 
         {/* Users Section */}
