@@ -133,6 +133,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
   }
 
   const societyName = society.name || society.societyName || "Untitled Society";
+  const isImmersiveView = modalView === "form";
 
   const resetModalState = () => {
     setModalView("details");
@@ -235,9 +236,10 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
       });
 
       setIsSubmitting(false);
-      setModalView("success");
+      setModalView("details");
       setFormState(buildInitialFormState(storedUser));
       setFormErrors({});
+      onClose();
     } catch (error) {
       console.error(error);
       setIsSubmitting(false);
@@ -300,8 +302,13 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
         onClick={handleClose}
         aria-label="Close society details"
       />
-      <div className="society-modal__panel">
-        <button type="button" className="society-modal__close" onClick={handleClose} aria-label="Close society details">
+      <div className={`society-modal__panel ${isImmersiveView ? "society-modal__panel--immersive" : ""}`}>
+        <button
+          type="button"
+          className={`society-modal__close ${isImmersiveView ? "society-modal__close--immersive" : ""}`}
+          onClick={handleClose}
+          aria-label="Close society details"
+        >
           ×
         </button>
 
@@ -344,7 +351,7 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
         )}
 
         {modalView === "form" && (
-          <div className="society-modal__form-wrap">
+          <div className="society-modal__form-wrap society-modal__form-wrap--immersive">
             <div className="society-modal__form-header">
               <span className="society-modal__eyebrow">Membership Application</span>
               <h2 id="society-modal-title">Join {societyName}</h2>
@@ -424,18 +431,6 @@ function SocietyModal({ society, clubImage, isOpen, onClose }) {
           </div>
         )}
 
-        {modalView === "success" && (
-          <div className="society-modal__success">
-            <span className="society-modal__success-chip">Application Submitted</span>
-            <h2 id="society-modal-title">Join {societyName}</h2>
-            <p>
-              Your application to {societyName} has been submitted and is pending approval.
-            </p>
-            <button type="button" className="society-form__submit society-form__submit--secondary" onClick={handleClose}>
-              Close
-            </button>
-          </div>
-        )}
       </div>
     </dialog>
   );
