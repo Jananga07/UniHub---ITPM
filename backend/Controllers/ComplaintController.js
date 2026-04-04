@@ -52,22 +52,41 @@ const getComplaintById = async (req, res) => {
 const createComplaint = async (req, res) => {
   const { title, description, category, urgency, contactEmail, contactPhone, studentId } = req.body;
 
+  if (!title || !description || !category || !urgency) {
+    return res.status(400).json({ message: 'Title, description, category, and urgency are required.' });
+  }
+
+  const validCategories = ['lecture_materials', 'club_events', 'others'];
+  const validUrgencies = ['low', 'medium', 'high', 'urgent'];
+
+  if (!validCategories.includes(category)) {
+    return res.status(400).json({ message: 'Invalid complaint category.' });
+  }
+
+  if (!validUrgencies.includes(urgency)) {
+    return res.status(400).json({ message: 'Invalid urgency level.' });
+  }
+
   try {
-    const newComplaint = new Complaint({
+    const complaintData = {
       title,
       description,
       category,
       urgency,
       contactEmail,
-      contactPhone,
-      studentId
-    });
+      contactPhone
+    };
 
+    if (studentId) {
+      complaintData.studentId = studentId;
+    }
+
+    const newComplaint = new Complaint(complaintData);
     await newComplaint.save();
     return res.status(201).json({ newComplaint });
   } catch (err) {
-    console.error("Create complaint error:", err);
-    return res.status(500).json({ message: "Error creating complaint" });
+    console.error('Create complaint error:', err);
+    return res.status(500).json({ message: 'Error creating complaint' });
   }
 };
 
@@ -81,12 +100,19 @@ const updateComplaintStatus = async (req, res) => {
   }
 
   try {
+    const updateData = {
+      status
+    };
+
+    if (status === 'resolved') {
+      updateData.resolvedDate = new Date();
+    } else {
+      updateData.resolvedDate = null;
+    }
+
     const updatedComplaint = await Complaint.findByIdAndUpdate(
       id,
-      { 
-        status,
-        resolvedDate: status === 'resolved' ? new Date() : undefined
-      },
+      updateData,
       { new: true }
     );
 
@@ -126,29 +152,42 @@ const deleteComplaint = async (req, res) => {
 // Get complaint statistics
 const getComplaintStats = async (req, res) => {
   try {
-    const stats = await Complaint.aggregate([
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      },
+    const totalComplaints = await Complaint.countDocuments();
+
+    const statusCounts = await Complaint.aggregate([
       {
         $group: {
           _id: '$status',
           count: { $sum: 1 }
         }
-      },
-      {
-        $group: null,
-        total: { $sum: 1 }
       }
     ]);
 
+    const categoryCounts = await Complaint.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const stats = {
+      total: totalComplaints,
+      status: statusCounts.reduce((acc, item) => {
+        acc[item._id] = item.count;
+        return acc;
+      }, {}),
+      category: categoryCounts.reduce((acc, item) => {
+        acc[item._id] = item.count;
+        return acc;
+      }, {})
+    };
+
     return res.status(200).json({ stats });
   } catch (err) {
-    console.error("Get complaint stats error:", err);
-    return res.status(500).json({ message: "Error retrieving complaint statistics" });
+    console.error('Get complaint stats error:', err);
+    return res.status(500).json({ message: 'Error retrieving complaint statistics' });
   }
 };
 

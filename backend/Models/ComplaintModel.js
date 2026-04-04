@@ -38,8 +38,7 @@ const ComplaintSchema = new mongoose.Schema({
   },
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
   },
   submittedDate: {
     type: Date,
