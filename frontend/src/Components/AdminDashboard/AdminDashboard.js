@@ -11,7 +11,26 @@ import {
   Legend,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import { FaCheckCircle, FaTrashAlt, FaUsers, FaUserGraduate, FaUserTie } from "react-icons/fa";
+import {
+  FaBookOpen,
+  FaCalendarAlt,
+  FaChartPie,
+  FaCheckCircle,
+  FaChevronDown,
+  FaChevronUp,
+  FaClipboardList,
+  FaFileUpload,
+  FaFolderOpen,
+  FaGraduationCap,
+  FaHome,
+  FaLayerGroup,
+  FaPlusCircle,
+  FaStar,
+  FaTrashAlt,
+  FaUserGraduate,
+  FaUserTie,
+  FaUsers,
+} from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 import ComplaintHandling from "../ComplaintHandling/ComplaintHandling";
 import AddQuiz from "../Quiz/AddQuiz";
@@ -1097,65 +1116,133 @@ function AdminDashboard() {
     );
   };
   const RESOURCE_TABS = [
-    { key: "resourceFaculty",    label: "📁 Faculties" },
-    { key: "resourceModule",     label: "📚 Res. Modules" },
-    { key: "resourceApprovals",  label: "✅ Approvals" },
-    { key: "resourceUpload",     label: "📤 Upload PDF" },
-    { key: "resourceAnalytics",  label: "📊 Analytics" },
-    { key: "resourceRatings",    label: "⭐ Ratings" },
+    { key: "resourceFaculty", label: "Faculties", icon: FaFolderOpen },
+    { key: "resourceModule", label: "Res. Modules", icon: FaBookOpen },
+    { key: "resourceApprovals", label: "Approvals", icon: FaCheckCircle },
+    { key: "resourceUpload", label: "Upload PDF", icon: FaFileUpload },
+    { key: "resourceAnalytics", label: "Analytics", icon: FaChartPie },
+    { key: "resourceRatings", label: "Ratings", icon: FaStar },
   ];
   const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
+  const SIDEBAR_LINKS = [
+    { key: "dashboard", label: "Dashboard", icon: FaHome, onClick: () => setActiveTab("dashboard") },
+    { key: "users", label: "All Users", icon: FaUsers, onClick: () => setActiveTab("users") },
+    { key: "societyManager", label: "Add Society Manager", icon: FaUserTie, onClick: handleOpenSocietyManagerForm },
+    { key: "society", label: "Add Society", icon: FaPlusCircle, onClick: () => setActiveTab("society") },
+  ];
 
   return (
     <div className="admin-dashboard">
       {/* Sidebar */}
       <aside className="sidebar">
-        <h2>Uni Hub</h2>
-        <div className="sidebar-nav">
-          <button className={`sidebar-link ${activeTab === "dashboard" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-          <button className={`sidebar-link ${activeTab === "users" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("users")}>All Users</button>
-          <button className={`sidebar-link ${activeTab === "societyManager" ? "sidebar-link-active" : ""}`} onClick={handleOpenSocietyManagerForm}>Add Society Manager</button>
-          
-          <button className={`sidebar-link ${activeTab === "society" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("society")}>Add Society</button>
-          <button className="sidebar-link sidebar-link-primary" onClick={() => setActiveTab("quiz")}>Add Quiz</button>
-          <button className={`sidebar-link ${activeTab === "quizOverview" ? "sidebar-link-active" : ""}`} onClick={() => setActiveTab("quizOverview")}>📊 Quiz Overview</button>
-
-          <button
-            className={`sidebar-link sidebar-toggle ${showResourcesMenu || isResourceTabActive ? "sidebar-link-active" : ""}`}
-            onClick={() => setShowResourcesMenu(!showResourcesMenu)}
-          >
-            <span>Resources Management</span>
-            <span>{showResourcesMenu ? "▲" : "▼"}</span>
-          </button>
-          {showResourcesMenu && (
-            <div className="sidebar-submenu">
-              {RESOURCE_TABS.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setActiveTab(t.key)}
-                  className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
-                >
-                  {t.label}
-                </button>
-              ))}
+        <div className="sidebar-panel">
+          <div className="sidebar-brand">
+            <div className="sidebar-brand-mark">
+              <FaGraduationCap />
             </div>
-          )}
+            <div className="sidebar-brand-copy">
+              <h2>Uni Hub</h2>
+              <p>Admin console</p>
+            </div>
+          </div>
+
+          <div className="sidebar-nav">
+            <div className="sidebar-section-label">Main Menu</div>
+            {SIDEBAR_LINKS.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <button
+                  key={item.key}
+                  className={`sidebar-link ${activeTab === item.key ? "sidebar-link-active" : ""}`}
+                  onClick={item.onClick}
+                >
+                  <span className="sidebar-link-main">
+                    <span className="sidebar-link-icon"><Icon /></span>
+                    <span className="sidebar-link-label">{item.label}</span>
+                  </span>
+                </button>
+              );
+            })}
+
+            <button
+              className={`sidebar-link sidebar-link-primary ${activeTab === "quiz" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("quiz")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaPlusCircle /></span>
+                <span className="sidebar-link-label">Add Quiz</span>
+              </span>
+            </button>
+
+            <button
+              className={`sidebar-link ${activeTab === "quizOverview" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("quizOverview")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaChartPie /></span>
+                <span className="sidebar-link-label">Quiz Overview</span>
+              </span>
+            </button>
+
+            <div className="sidebar-section-label sidebar-section-label-spaced">Resources</div>
+            <button
+              className={`sidebar-link sidebar-toggle ${showResourcesMenu || isResourceTabActive ? "sidebar-link-active" : ""}`}
+              onClick={() => setShowResourcesMenu(!showResourcesMenu)}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaLayerGroup /></span>
+                <span className="sidebar-link-label">Resources Management</span>
+              </span>
+              <span className="sidebar-toggle-icon">{showResourcesMenu ? <FaChevronUp /> : <FaChevronDown />}</span>
+            </button>
+            {showResourcesMenu && (
+              <div className="sidebar-submenu">
+                {RESOURCE_TABS.map((t) => {
+                  const Icon = t.icon;
+
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setActiveTab(t.key)}
+                      className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
+                    >
+                      <span className="sidebar-submenu-icon"><Icon /></span>
+                      <span>{t.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="sidebar-footer">
+            <button
+              className={`sidebar-link ${activeTab === "complaintHandling" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("complaintHandling")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaClipboardList /></span>
+                <span className="sidebar-link-label">Complaint Handling</span>
+              </span>
+            </button>
+
+            <button
+              className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("consultantBookings")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaCalendarAlt /></span>
+                <span className="sidebar-link-label">Consultant Bookings</span>
+              </span>
+            </button>
+
+            <div className="sidebar-footnote">
+              <span className="sidebar-footnote-dot" />
+              <span>University management workspace</span>
+            </div>
+          </div>
         </div>
-
-        <button 
-          className="sidebar-link" 
-          onClick={() => setActiveTab("complaintHandling")}
-          style={{ marginTop: '10px' }}
-        >
-          📋 Complaint Handling
-        </button>
-
-        <button
-          className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
-          onClick={() => setActiveTab("consultantBookings")}
-        >
-          Consultant Bookings
-        </button>
       </aside>
 
       {/* Main Content */}
