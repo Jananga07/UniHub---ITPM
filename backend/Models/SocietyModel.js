@@ -51,6 +51,8 @@ const SocietySchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
       transform: (_doc, ret) => {
+        ret.clubType = ret.clubType || ret.category || "";
+        ret.category = ret.category || ret.clubType || "";
         ret.societyName = ret.name;
         return ret;
       },
@@ -62,6 +64,14 @@ const SocietySchema = new mongoose.Schema(
 SocietySchema.pre("validate", function syncLegacySocietyName() {
   if (this.name) {
     this.societyName = this.name;
+  }
+
+  if (this.clubType && !this.category) {
+    this.category = this.clubType;
+  }
+
+  if (this.category && !this.clubType) {
+    this.clubType = this.category;
   }
 });
 

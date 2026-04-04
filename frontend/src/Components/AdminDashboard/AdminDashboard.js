@@ -795,18 +795,26 @@ function AdminDashboard() {
     return "";
   };
 
+  const validateSocietyForm = (data) => {
+    const name = (data.name || "").trim();
+    const description = (data.description || "").trim();
+    const clubType = (data.clubType || "").trim();
+
+    if (!name || !description || !clubType) {
+      return null;
+    }
+
+    return { name, description, clubType };
+  };
+
   const submitData = async (endpoint, role) => {
     try {
       let data = role ? { ...formData, role } : { ...formData };
 
       if (endpoint === "societies") {
-        data = {
-          name: (formData.name || "").trim(),
-          description: (formData.description || "").trim(),
-          clubType: formData.clubType || "",
-        };
+        data = validateSocietyForm(formData);
 
-        if (!data.name || !data.description || !data.clubType) {
+        if (!data) {
           alert("All fields are required");
           return;
         }

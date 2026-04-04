@@ -1,14 +1,36 @@
+/* global globalThis */
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "./StudentProfile.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
+const SOCIETY_STATUS_META = {
+  pending: { label: "Pending", className: "pending" },
+  approved: { label: "Approved", className: "approved" },
+  rejected: { label: "Rejected", className: "rejected" },
+};
+
+const getScoreColor = (percentage) => {
+  if (percentage >= 70) return "#22c55e";
+  if (percentage >= 40) return "#f59e0b";
+  return "#ef4444";
+};
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("user")) || null;
+  } catch {
+    return null;
+  }
+};
 
 function StudentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const loggedInUser = getStoredUser();
   const [user, setUser] = useState(null);
+  const studentLookupId = user?._id || id || loggedInUser?._id;
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("available");
 
@@ -16,6 +38,9 @@ function StudentProfile() {
   const [quizLoading, setQuizLoading]       = useState(false);
   const [availableQuizzes, setAvailableQuizzes] = useState([]);
   const [availableLoading, setAvailableLoading] = useState(false);
+  const [societyRequests, setSocietyRequests] = useState([]);
+  const [societyLoading, setSocietyLoading] = useState(false);
+  const [societyError, setSocietyError] = useState("");
 
   useEffect(() => {
     axios
@@ -47,16 +72,53 @@ function StudentProfile() {
       .finally(() => setQuizLoading(false));
   }, [activeTab, id]);
 
+  useEffect(() => {
+    if (activeTab !== "society" || !studentLookupId) return;
+
+    let isMounted = true;
+
+    setSocietyLoading(true);
+    setSocietyError("");
+
+    axios
+      .get(`${API}/api/membership/student/${studentLookupId}`, {
+        params: {
+          email: user?.gmail || loggedInUser?.gmail || "",
+        },
+      })
+      .then((res) => {
+        if (!isMounted) return;
+        setSocietyRequests(res.data.requests || []);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (!isMounted) return;
+        setSocietyError(
+          err.response?.data?.message || "Unable to load your society applications."
+        );
+        setSocietyRequests([]);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setSocietyLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab, studentLookupId, user?.gmail, loggedInUser?.gmail]);
+
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete your account?")) return;
-    try {
-      await axios.delete(`${API}/users/${user._id}`);
-      alert("Account deleted successfully");
-      localStorage.removeItem("user");
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting account");
+    if (globalThis.confirm("Are you sure you want to delete your account?")) {
+      try {
+        await axios.delete(`${API}/users/${user._id}`);
+        alert("Account deleted successfully");
+        localStorage.removeItem("user");
+        navigate("/");
+      } catch (err) {
+        console.error(err);
+        alert("Error deleting account");
+      }
     }
   };
 
@@ -138,7 +200,7 @@ function StudentProfile() {
                             {quiz.moduleCode && <span className="quiz-module-code" style={{ marginLeft: "8px" }}>{quiz.moduleCode}</span>}
                           </p>
                           <p style={{ fontSize: "13px", color: "#94a3b8" }}>
-                            {quiz.questionCount} question{quiz.questionCount !== 1 ? "s" : ""}
+                            {quiz.questionCount} {quiz.questionCount === 1 ? "question" : "questions"}
                             &nbsp;·&nbsp;
                             Added {new Date(quiz.createdAt).toLocaleDateString()}
                           </p>
@@ -188,9 +250,9 @@ function StudentProfile() {
                       const pct = attempt.totalQuestions > 0
                         ? Math.round((attempt.score / attempt.totalQuestions) * 100)
                         : 0;
-                      const color = pct >= 70 ? "#22c55e" : pct >= 40 ? "#f59e0b" : "#ef4444";
+                      const color = getScoreColor(pct);
                       return (
-                        <div key={idx} className="quiz-attempt-row">
+                        <div key={attempt._id || `${attempt.quizName}-${attempt.attemptedAt || idx}`} className="quiz-attempt-row">
                           <div className="quiz-attempt-info">
                             <span className="quiz-attempt-name">{attempt.quizName}</span>
                             <span className="quiz-attempt-date">
@@ -216,9 +278,60 @@ function StudentProfile() {
 
           {/* ── Society ── */}
           {activeTab === "society" && (
-            <div>
+            <div className="society-tab-content">
               <h2>Society</h2>
-              <p>Here you can see and manage your societies.</p>
+              <p>Applications you submitted to societies will appear here with their latest status.</p>
+
+              {societyLoading && <p>Loading your applications...</p>}
+
+              {!societyLoading && societyError && (
+                <div className="society-message society-message--error">{societyError}</div>
+              )}
+
+              {!societyLoading && !societyError && societyRequests.length === 0 && (
+                <div className="society-empty-state">
+                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>🏛</div>
+                  <p>You have not submitted any society applications yet.</p>
+                </div>
+              )}
+
+              {!societyLoading && !societyError && societyRequests.length > 0 && (
+                <div className="society-request-list">
+                  {societyRequests.map((request) => {
+                    const statusKey = (request.status || "pending").toLowerCase();
+                    const statusMeta = SOCIETY_STATUS_META[statusKey] || SOCIETY_STATUS_META.pending;
+
+                    return (
+                      <article
+                        key={request._id || request.id}
+                        className={`society-request-card society-request-card--${statusMeta.className}`}
+                      >
+                        <div className="society-request-card__header">
+                          <div>
+                            <h3>{request.club_name}</h3>
+                            <p>Student ID: {request.student_id || "N/A"}</p>
+                          </div>
+                          <span className={`society-request-card__status society-request-card__status--${statusMeta.className}`}>
+                            {statusMeta.label}
+                          </span>
+                        </div>
+
+                        <div className="society-request-card__meta">
+                          <span>{request.faculty}</span>
+                          <span>Year {request.year}</span>
+                          <span>
+                            Submitted {new Date(request.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <div className="society-request-card__body">
+                          <p>{request.reason}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

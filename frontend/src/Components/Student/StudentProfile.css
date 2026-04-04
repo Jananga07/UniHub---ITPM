@@ -364,3 +364,131 @@
   font-size: 13px;
   color: #64748b;
 }
+
+/* ── Society Applications ───────────────────────────────────────────────── */
+.society-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.society-message {
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.society-message--error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.society-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+}
+
+.society-request-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.society-request-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 5px solid #94a3b8;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.society-request-card--pending {
+  border-left-color: #f59e0b;
+}
+
+.society-request-card--approved {
+  border-left-color: #22c55e;
+}
+
+.society-request-card--rejected {
+  border-left-color: #ef4444;
+}
+
+.society-request-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.society-request-card__header h3 {
+  margin: 0 0 4px;
+  color: #1e293b;
+  font-size: 18px;
+}
+
+.society-request-card__header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.society-request-card__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.society-request-card__status--pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.society-request-card__status--approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.society-request-card__status--rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.society-request-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.society-request-card__meta span {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.society-request-card__body p {
+  margin: 0;
+  line-height: 1.6;
+  color: #334155;
+}
+
+@media (max-width: 768px) {
+  .society-request-card__header {
+    flex-direction: column;
+  }
+}

@@ -32,9 +32,6 @@ app.use("/Users", UserRouter);
 app.use("/users", UserRouter);
 app.use("/quiz",QuizRoutes);
 
-
-//app.use("/api/modules", ModuleRouter);
-
 app.use("/societies",societyRoutes);
 app.use("/student-quiz", studentQuizeRoutes);
 app.use("/studentsupport", StudentSupportRoutes);
@@ -42,11 +39,11 @@ app.use("/resources", ResourceRoutes);
 app.use("/complaints", complaintRoutes);
 app.use("/consultant-bookings", consultantBookingRoutes);
 app.use("/consultant-ratings", consultantRatingRoutes);
+app.use("/api/membership", membershipRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/consultants", StudentSupportRoutes);
 app.use("/api/consultant-bookings", consultantBookingRoutes);
 app.use("/api/consultant-ratings", consultantRatingRoutes);
-app.use("/api/memberships", membershipRoutes);
 // Routes
 
 

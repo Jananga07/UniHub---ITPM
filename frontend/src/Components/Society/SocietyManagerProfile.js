@@ -1,6 +1,8 @@
+/* global globalThis */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import MembershipRequestsPanel from "./MembershipRequestsPanel";
 import "./SocietyManagerProfile.css";
 
 function SocietyManagerProfile() {
@@ -12,6 +14,21 @@ function SocietyManagerProfile() {
   const [loading, setLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState("society");
+
+  let mainTitle = "Modules & resources";
+  let mainSubtitle =
+    "Connect module tools here when your backend features are ready.";
+
+  if (activeTab === "society") {
+    mainTitle = "Your society";
+    mainSubtitle = "Overview of the society you manage and its details.";
+  }
+
+  if (activeTab === "membership") {
+    mainTitle = "Membership requests";
+    mainSubtitle =
+      "Review submitted applications for your assigned society and approve or reject them instantly.";
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -54,7 +71,7 @@ function SocietyManagerProfile() {
   const handleDelete = async () => {
     if (!manager?._id) return;
 
-    const confirmDelete = window.confirm(
+    const confirmDelete = globalThis.confirm(
       "Are you sure you want to delete your account?"
     );
     if (!confirmDelete) return;
@@ -147,7 +164,19 @@ function SocietyManagerProfile() {
             <span className="profile-nav__icon" aria-hidden>
               ◎
             </span>
-            Society
+            <span>Society</span>
+          </button>
+          <button
+            type="button"
+            className={`profile-nav__btn ${
+              activeTab === "membership" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("membership")}
+          >
+            <span className="profile-nav__icon" aria-hidden>
+              ▣
+            </span>
+            <span>Membership</span>
           </button>
           <button
             type="button"
@@ -159,7 +188,7 @@ function SocietyManagerProfile() {
             <span className="profile-nav__icon" aria-hidden>
               ▤
             </span>
-            Modules
+            <span>Modules</span>
           </button>
         </nav>
 
@@ -175,14 +204,8 @@ function SocietyManagerProfile() {
       <main className="profile-main">
         <header className="profile-main__header">
           <p className="profile-main__eyebrow">Society manager dashboard</p>
-          <h2 className="profile-main__title">
-            {activeTab === "society" ? "Your society" : "Modules & resources"}
-          </h2>
-          <p className="profile-main__subtitle">
-            {activeTab === "society"
-              ? "Overview of the society you manage and its details."
-              : "Connect module tools here when your backend features are ready."}
-          </p>
+          <h2 className="profile-main__title">{mainTitle}</h2>
+          <p className="profile-main__subtitle">{mainSubtitle}</p>
         </header>
 
         <section className="profile-panel profile-panel--manager">
@@ -243,6 +266,16 @@ function SocietyManagerProfile() {
                   Go to module page
                 </button>
               </div>
+            </div>
+          )}
+
+          {activeTab === "membership" && (
+            <div className="profile-panel__body">
+              <MembershipRequestsPanel
+                managerId={manager?._id || ""}
+                societyName={society?.societyName || society?.name || ""}
+                isActive={activeTab === "membership"}
+              />
             </div>
           )}
         </section>

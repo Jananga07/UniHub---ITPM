@@ -9,6 +9,21 @@ import "./ClubDetails.css";
 
 const API = "http://localhost:5001";
 
+const attachManagerIds = (societies = [], users = []) => {
+  const managerBySocietyId = users.reduce((accumulator, user) => {
+    if (user.role === "societyManager" && user.societyId) {
+      accumulator[user.societyId] = user._id || "";
+    }
+
+    return accumulator;
+  }, {});
+
+  return societies.map((society) => ({
+    ...society,
+    managerId: managerBySocietyId[society._id] || "",
+  }));
+};
+
 function ClubDetails() {
   const { clubName } = useParams();
   const club = getClubBySlug(clubName || "");
@@ -45,10 +60,17 @@ function ClubDetails() {
       setLoadError("");
 
       try {
-        const response = await axios.get(`${API}/societies`);
+        const [societiesResponse, usersResponse] = await Promise.all([
+          axios.get(`${API}/societies`),
+          axios.get(`${API}/Users/admin/users`),
+        ]);
+
+        const societies = societiesResponse.data.societies || [];
+        const users = usersResponse.data.users || [];
+        const societiesWithManagers = attachManagerIds(societies, users);
 
         if (isMounted) {
-          setSocieties(response.data.societies || []);
+          setSocieties(societiesWithManagers);
         }
       } catch (error) {
         if (isMounted) {
