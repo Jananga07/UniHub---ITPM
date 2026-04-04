@@ -1,0 +1,234 @@
+/* GLOBAL */
+.home-page {
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+  color: #1e3a8a;
+  min-height: 100vh;
+}
+
+/* CAMPUS LIFE GRID */
+.campus-life-section {
+  padding: 72px 24px 28px;
+  background: #ffffff;
+}
+
+.campus-life-header {
+  width: min(760px, 100%);
+  margin: 0 auto 34px;
+  text-align: center;
+}
+
+.campus-life-kicker {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #f97316;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.campus-life-header h2 {
+  margin: 16px 0 14px;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.08;
+  color: #1e3a8a;
+}
+
+.campus-life-header p {
+  margin: 0;
+  color: #1e3a8a;
+  opacity: 0.8;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+/* HERO SECTION */
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  color: #1e3a8a;
+  padding: 80px 20px;
+  border-radius: 0 0 50% 0;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(30, 58, 138, 0.1);
+}
+
+.hero-text {
+  flex: 1;
+  min-width: 300px;
+}
+
+.hero-text h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  line-height: 1.2;
+  color: #1e3a8a;
+}
+
+.hero-text p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  opacity: 0.8;
+  color: #1e3a8a;
+}
+
+.cta-btn {
+  background: #f97316;
+  color: #ffffff;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.cta-btn:hover {
+  background: #ea580c;
+  transform: translateY(-3px);
+}
+
+.hero-image img {
+  max-width: 500px;
+  width: 100%;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+/* FEATURES SECTION */
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  padding: 60px 20px;
+  background: #ffffff;
+}
+
+.feature-card {
+  background: #ffffff;
+  padding: 30px 20px;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(30, 58, 138, 0.1);
+  flex: 1;
+  min-width: 250px;
+  max-width: 320px;
+  text-align: center;
+  transition: 0.3s ease;
+  border: 1px solid rgba(30, 58, 138, 0.1);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(30, 58, 138, 0.2);
+}
+
+.feature-card h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #1e3a8a;
+}
+
+.feature-card p {
+  font-size: 15px;
+  color: #1e3a8a;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+.feature-btn {
+  background: #f97316;
+  color: #ffffff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.feature-btn:hover {
+  background: #ea580c;
+  transform: translateY(-3px);
+}
+
+/* ANNOUNCEMENTS */
+.announcements {
+  background: #ffffff;
+  padding: 50px 20px;
+  border-radius: 20px;
+  margin: 50px auto;
+  max-width: 900px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(30, 58, 138, 0.1);
+  border: 1px solid rgba(30, 58, 138, 0.1);
+}
+
+.announcements h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #1e3a8a;
+}
+
+.announcements ul {
+  list-style: none;
+  padding: 0;
+}
+
+.announcements li {
+  font-size: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(30, 58, 138, 0.2);
+  color: #1e3a8a;
+  opacity: 0.8;
+}
+
+/* FOOTER */
+.footer {
+  background: #1e3a8a;
+  color: #ffffff;
+  padding: 25px 20px;
+  text-align: center;
+  font-size: 14px;
+  margin-top: 50px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column-reverse;
+    text-align: center;
+    border-radius: 0;
+  }
+
+  .hero-image {
+    margin-bottom: 30px;
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .campus-life-section {
+    padding: 56px 16px 18px;
+  }
+
+  .campus-life-header {
+    margin-bottom: 24px;
+    text-align: left;
+  }
+}

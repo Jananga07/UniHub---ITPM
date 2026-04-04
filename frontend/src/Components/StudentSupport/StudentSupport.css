@@ -48,11 +48,26 @@ body::after {
   100% { background-position: 200% 0; }
 }
 
+/* 1. Full Screen Container */
 .student-support-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 60px 20px;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
   position: relative;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Content Wrapper */
+.student-support-container > *:not(.navbar) {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Content Sections */
+.content-section {
+  padding: 60px 0;
 }
 
 /* 3. Floating Title with Gradient */

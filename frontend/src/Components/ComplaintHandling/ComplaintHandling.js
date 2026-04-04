@@ -2,136 +2,16 @@ import React, { useState, useEffect } from 'react';
 import './ComplaintHandling.css';
 import BarChartAnalytics from '../BarChartAnalytics/BarChartAnalytics';
 
-const defaultComplaints = [
-  {
-    id: 'C-1001',
-    title: 'Lecture slides missing key diagrams',
-    description: 'The latest engineering lecture slides are missing important circuit diagrams that were referenced during class.',
-    category: 'lecture_materials',
-    urgency: 'high',
-    status: 'pending',
-    submittedDate: '2026-03-12T10:20:00Z',
-    contactEmail: 'student1@unihub.edu',
-    contactPhone: '0712345678'
-  },
-  {
-    id: 'C-1002',
-    title: 'Club event announcement delayed',
-    description: 'The club event details were posted late and many students missed the registration deadline.',
-    category: 'club_events',
-    urgency: 'medium',
-    status: 'in_progress',
-    submittedDate: '2026-03-15T08:45:00Z',
-    contactEmail: 'student2@unihub.edu',
-    contactPhone: '0723456789'
-  },
-  {
-    id: 'C-1003',
-    title: 'Project rubric not shared on time',
-    description: 'The project rubric was not uploaded before the project launch, causing confusion about grading criteria.',
-    category: 'lecture_materials',
-    urgency: 'urgent',
-    status: 'pending',
-    submittedDate: '2026-03-17T14:30:00Z',
-    contactEmail: 'student3@unihub.edu',
-    contactPhone: '0734567890'
-  },
-  {
-    id: 'C-1004',
-    title: 'Club meeting room double-booked',
-    description: 'The planning committee booked the room for the same time as another society meeting.',
-    category: 'club_events',
-    urgency: 'high',
-    status: 'resolved',
-    submittedDate: '2026-03-20T12:10:00Z',
-    resolvedDate: '2026-03-22T09:00:00Z',
-    contactEmail: 'student4@unihub.edu',
-    contactPhone: '0745678901'
-  },
-  {
-    id: 'C-1005',
-    title: 'Library access request issue',
-    description: 'My library access card is not allowing entry despite active membership.',
-    category: 'others',
-    urgency: 'medium',
-    status: 'pending',
-    submittedDate: '2026-03-21T09:50:00Z',
-    contactEmail: 'student5@unihub.edu',
-    contactPhone: '0756789012'
-  },
-  {
-    id: 'C-1006',
-    title: 'Lecture recording audio low quality',
-    description: 'The recorded lecture audio is too quiet and difficult to follow for review sessions.',
-    category: 'lecture_materials',
-    urgency: 'high',
-    status: 'in_progress',
-    submittedDate: '2026-03-22T11:15:00Z',
-    contactEmail: 'student6@unihub.edu',
-    contactPhone: '0767890123'
-  },
-  {
-    id: 'C-1007',
-    title: 'Campus event poster missing date',
-    description: 'The campus festival poster did not include the event date, causing confusion among attendees.',
-    category: 'club_events',
-    urgency: 'low',
-    status: 'pending',
-    submittedDate: '2026-03-23T16:40:00Z',
-    contactEmail: 'student7@unihub.edu',
-    contactPhone: '0778901234'
-  },
-  {
-    id: 'C-1008',
-    title: 'Course portal login resets repeatedly',
-    description: 'The course portal is logging me out every time I submit the assignment form.',
-    category: 'lecture_materials',
-    urgency: 'urgent',
-    status: 'resolved',
-    submittedDate: '2026-03-24T10:05:00Z',
-    resolvedDate: '2026-03-25T08:20:00Z',
-    contactEmail: 'student8@unihub.edu',
-    contactPhone: '0789012345'
-  },
-  {
-    id: 'C-1009',
-    title: 'Request for more society funding details',
-    description: 'The funding procedure for society events was unclear and needs clearer documentation.',
-    category: 'club_events',
-    urgency: 'medium',
-    status: 'in_progress',
-    submittedDate: '2026-03-25T14:55:00Z',
-    contactEmail: 'student9@unihub.edu',
-    contactPhone: '0790123456'
-  },
-  {
-    id: 'C-1010',
-    title: 'Sidewalk maintenance request near campus gates',
-    description: 'There are cracked sidewalks near the main gate that create a safety hazard in wet weather.',
-    category: 'others',
-    urgency: 'high',
-    status: 'pending',
-    submittedDate: '2026-03-26T13:10:00Z',
-    contactEmail: 'student10@unihub.edu',
-    contactPhone: '0701234567'
-  }
-];
-
 function ComplaintHandling() {
   const [complaints, setComplaints] = useState([]);
   const [filter, setFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
+    // Load complaints from localStorage
     const storedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
-    if (storedComplaints.length === 0) {
-      localStorage.setItem('complaints', JSON.stringify(defaultComplaints));
-      setComplaints(defaultComplaints);
-    } else {
-      setComplaints(storedComplaints);
-    }
+    setComplaints(storedComplaints);
     setLoading(false);
   }, []);
 
@@ -191,11 +71,7 @@ function ComplaintHandling() {
     );
     setComplaints(updatedComplaints);
     localStorage.setItem('complaints', JSON.stringify(updatedComplaints));
-    setStatusMessage(`Complaint marked ${getStatusText(newStatus)} successfully.`);
-
-    setTimeout(() => {
-      setStatusMessage('');
-    }, 2800);
+    alert(`Complaint status updated to ${newStatus}`);
   };
 
   const filteredComplaints = complaints.filter(complaint => {
@@ -229,14 +105,14 @@ function ComplaintHandling() {
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `complaints_report_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const getCategoryStats = () => {
@@ -324,20 +200,14 @@ function ComplaintHandling() {
         </button>
       </div>
 
-      {statusMessage && <div className="status-message">{statusMessage}</div>}
-
       {/* Complaints List */}
       <div className="complaints-list">
         <h2>Complaints ({filteredComplaints.length})</h2>
 
         {filteredComplaints.length > 0 ? (
           <div className="complaints-grid">
-            {filteredComplaints.map((complaint, index) => (
-              <div
-                key={complaint.id}
-                className="complaint-card"
-                style={{ animationDelay: `${index * 80}ms` }}
-              >
+            {filteredComplaints.map((complaint) => (
+              <div key={complaint.id} className="complaint-card">
                 <div className="complaint-header">
                   <div className="complaint-title-section">
                     <span className="category-icon">{getCategoryIcon(complaint.category)}</span>
@@ -392,7 +262,7 @@ function ComplaintHandling() {
 
                 {/* Status Management */}
                 <div className="status-management">
-                  <span className="status-update-label">Update Status:</span>
+                  <label>Update Status:</label>
                   <div className="status-actions">
                     <button
                       onClick={() => handleStatusChange(complaint.id, 'pending')}
