@@ -46,7 +46,14 @@ function Home() {
   ];
 
   return (
-    <div className="home-page">
+    <div className="home-page" style={{
+      backgroundImage: 'url("/images/BG1.jpg")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+      backgroundRepeat: 'no-repeat',
+      minHeight: '100vh'
+    }}>
       <Navigation />
 
       <ImageSlider images={sliderImages} />
