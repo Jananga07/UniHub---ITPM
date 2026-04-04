@@ -4,7 +4,8 @@ const complaintController = require("../Controllers/ComplaintController");
 
 // GET all complaints with optional filters
 router.get("/", complaintController.getAllComplaints);
-
+// GET complaint statistics
+router.get('/stats', complaintController.getComplaintStats);
 // GET complaint by ID
 router.get("/:id", complaintController.getComplaintById);
 
