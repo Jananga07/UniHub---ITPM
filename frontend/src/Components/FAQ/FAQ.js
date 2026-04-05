@@ -91,54 +91,78 @@ function FAQ() {
   return (
     <div className="faq-container">
       <Navigation />
-      <div className="faq-header">
-        <h1>Frequently Asked Questions</h1>
-        <p>Find answers to common questions about Uni Hub services</p>
-      </div>
-
-      <div className="faq-controls">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search FAQs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+      
+      <div className="content-section">
+        <div className="faq-header">
+          <h1>Frequently Asked Questions</h1>
+          <p>Find answers to common questions about Uni Hub services</p>
         </div>
-        
-        <div className="filter-container">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="category-filter"
-          >
-            {categories.map(category => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
 
-      <div className="faq-list">
-        {filteredFAQs.length > 0 ? (
-          filteredFAQs.map(faq => (
-            <div key={faq.id} className="faq-item">
-              <div className="faq-question">
-                <h3>{faq.question}</h3>
-              </div>
-              <div className="faq-answer">
-                <p>{faq.answer}</p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="no-results">
-            <p>No FAQs found matching your search criteria.</p>
+        <div className="faq-stats">
+          <div className="stat-card">
+            <div className="stat-number">52</div>
+            <div className="stat-label">Total FAQs</div>
           </div>
-        )}
+          <div className="stat-card">
+            <div className="stat-number">5</div>
+            <div className="stat-label">Categories</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">24/7</div>
+            <div className="stat-label">Support</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{filteredFAQs.length}</div>
+            <div className="stat-label">Matching Results</div>
+          </div>
+        </div>
+
+        <div className="faq-controls">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search FAQs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="filter-container">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="category-filter"
+            >
+              {categories.map(category => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="content-section">
+        <div className="faq-list">
+          {filteredFAQs.length > 0 ? (
+            filteredFAQs.map(faq => (
+              <div key={faq.id} className="faq-item">
+                <div className="faq-question">
+                  <h3>{faq.question}</h3>
+                </div>
+                <div className="faq-answer">
+                  <p>{faq.answer}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-results">
+              <p>No FAQs found matching your search criteria.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
