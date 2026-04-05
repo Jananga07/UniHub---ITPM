@@ -20,7 +20,7 @@ function Home() {
 
   const sliderImages = [
     {
-      src: "/images/slide1.jpg",
+      src: "https://images.unsplash.com/photo-1562774053-701939374585?w=1600&q=90",
       alt: "University Campus",
       title: "Welcome to Uni Hub",
       description: "Your comprehensive platform for learning, collaboration, and student success",
@@ -28,32 +28,25 @@ function Home() {
       buttonLink: isStudent ? `/studentprofile/${user._id}` : isAdmin ? "/admin" : "/userRegister",
     },
     {
-      src: "/images/slide2.jpg",
-      alt: "Student Learning",
+      src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600&q=90",
+      alt: "Students Learning",
       title: "Excellence in Education",
       description: "Access quality resources, expert guidance, and a supportive community",
       buttonText: "Explore Resources",
       buttonLink: "/resources",
     },
     {
-      src: "/images/slide3.jpg",
-      alt: "University Building",
-      title: "Modern Learning Environment",
-      description: "State-of-the-art facilities and innovative teaching methods",
+      src: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1600&q=90",
+      alt: "University Life",
+      title: "Grow Beyond the Classroom",
+      description: "Join clubs, book consultants, and build your future with UniHub",
       buttonText: "Student Support",
       buttonLink: "/studentsupport",
     },
   ];
 
   return (
-    <div className="home-page" style={{
-      backgroundImage: 'url("/images/BG1.jpg")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed',
-      backgroundRepeat: 'no-repeat',
-      minHeight: '100vh'
-    }}>
+    <div className="home-page">
       <Navigation />
 
       <ImageSlider images={sliderImages} />
