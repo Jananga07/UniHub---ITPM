@@ -1114,6 +1114,33 @@ function AdminDashboard() {
     });
   };
 
+  // ─── Sidebar / tab config ────────────────────────────────────────────────
+  const RESOURCE_TABS = [
+    { key: "resourceFaculty",   label: "Faculties",    icon: FaFolderOpen },
+    { key: "resourceModule",    label: "Res. Modules", icon: FaBookOpen },
+    { key: "resourceApprovals", label: "Approvals",    icon: FaCheckCircle },
+    { key: "resourceUpload",    label: "Upload PDF",   icon: FaFileUpload },
+    { key: "resourceAnalytics", label: "Analytics",    icon: FaChartPie },
+    { key: "resourceRatings",   label: "Ratings",      icon: FaStar },
+  ];
+
+  const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
+
+  const SIDEBAR_LINKS = [
+    { key: "dashboard",      label: "Dashboard",            icon: FaHome,        onClick: () => setActiveTab("dashboard") },
+    { key: "users",          label: "All Users",            icon: FaUsers,       onClick: () => setActiveTab("users") },
+    { key: "societyManager", label: "Add Society Manager",  icon: FaUserTie,     onClick: handleOpenSocietyManagerForm },
+    { key: "society",        label: "Add Society",          icon: FaPlusCircle,  onClick: () => setActiveTab("society") },
+    { key: "quiz",           label: "Add Quiz",             icon: FaPlusCircle,  onClick: () => setActiveTab("quiz") },
+    { key: "quizOverview",   label: "Quiz Overview",        icon: FaChartPie,    onClick: () => setActiveTab("quizOverview") },
+  ];
+
+  const SIDEBAR_FOOTER_LINKS = [
+    { key: "complaintHandling",   label: "Complaint Handling",   icon: FaClipboardList, onClick: () => setActiveTab("complaintHandling") },
+    { key: "consultantBookings",  label: "Consultant Bookings",  icon: FaCalendarAlt,   onClick: () => setActiveTab("consultantBookings") },
+  ];
+
+  // ─── Derived selection state ─────────────────────────────────────────────
   const allManagersSelected = filteredManagers.length > 0
     && filteredManagers.every((manager) => selectedManagerIds.includes(manager._id));
 
@@ -1158,21 +1185,6 @@ function AdminDashboard() {
         : [...currentIds, societyId]
     );
   };
-  const RESOURCE_TABS = [
-    { key: "resourceFaculty", label: "Faculties", icon: FaFolderOpen },
-    { key: "resourceModule", label: "Res. Modules", icon: FaBookOpen },
-    { key: "resourceApprovals", label: "Approvals", icon: FaCheckCircle },
-    { key: "resourceUpload", label: "Upload PDF", icon: FaFileUpload },
-    { key: "resourceAnalytics", label: "Analytics", icon: FaChartPie },
-    { key: "resourceRatings", label: "Ratings", icon: FaStar },
-  ];
-  const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
-  const SIDEBAR_LINKS = [
-    { key: "dashboard", label: "Dashboard", icon: FaHome, onClick: () => setActiveTab("dashboard") },
-    { key: "users", label: "All Users", icon: FaUsers, onClick: () => setActiveTab("users") },
-    { key: "societyManager", label: "Add Society Manager", icon: FaUserTie, onClick: handleOpenSocietyManagerForm },
-    { key: "society", label: "Add Society", icon: FaPlusCircle, onClick: () => setActiveTab("society") },
-  ];
 
   return (
     <div className="admin-dashboard">
@@ -1193,7 +1205,6 @@ function AdminDashboard() {
             <div className="sidebar-section-label">Main Menu</div>
             {SIDEBAR_LINKS.map((item) => {
               const Icon = item.icon;
-
               return (
                 <button
                   key={item.key}
@@ -1207,26 +1218,6 @@ function AdminDashboard() {
                 </button>
               );
             })}
-
-            <button
-              className={`sidebar-link ${activeTab === "quiz" ? "sidebar-link-active" : ""}`}
-              onClick={() => setActiveTab("quiz")}
-            >
-              <span className="sidebar-link-main">
-                <span className="sidebar-link-icon"><FaPlusCircle /></span>
-                <span className="sidebar-link-label">Add Quiz</span>
-              </span>
-            </button>
-
-            <button
-              className={`sidebar-link ${activeTab === "quizOverview" ? "sidebar-link-active" : ""}`}
-              onClick={() => setActiveTab("quizOverview")}
-            >
-              <span className="sidebar-link-main">
-                <span className="sidebar-link-icon"><FaChartPie /></span>
-                <span className="sidebar-link-label">Quiz Overview</span>
-              </span>
-            </button>
 
             <div className="sidebar-section-label sidebar-section-label-spaced">Resources</div>
             <button
@@ -1243,7 +1234,6 @@ function AdminDashboard() {
               <div className="sidebar-submenu">
                 {RESOURCE_TABS.map((t) => {
                   const Icon = t.icon;
-
                   return (
                     <button
                       key={t.key}
@@ -1260,26 +1250,21 @@ function AdminDashboard() {
           </div>
 
           <div className="sidebar-footer">
-            <button
-              className={`sidebar-link ${activeTab === "complaintHandling" ? "sidebar-link-active" : ""}`}
-              onClick={() => setActiveTab("complaintHandling")}
-            >
-              <span className="sidebar-link-main">
-                <span className="sidebar-link-icon"><FaClipboardList /></span>
-                <span className="sidebar-link-label">Complaint Handling</span>
-              </span>
-            </button>
-
-            <button
-              className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
-              onClick={() => setActiveTab("consultantBookings")}
-            >
-              <span className="sidebar-link-main">
-                <span className="sidebar-link-icon"><FaCalendarAlt /></span>
-                <span className="sidebar-link-label">Consultant Bookings</span>
-              </span>
-            </button>
-
+            {SIDEBAR_FOOTER_LINKS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.key}
+                  className={`sidebar-link ${activeTab === item.key ? "sidebar-link-active" : ""}`}
+                  onClick={item.onClick}
+                >
+                  <span className="sidebar-link-main">
+                    <span className="sidebar-link-icon"><Icon /></span>
+                    <span className="sidebar-link-label">{item.label}</span>
+                  </span>
+                </button>
+              );
+            })}
             <div className="sidebar-footnote">
               <span className="sidebar-footnote-dot" />
               <span>University management workspace</span>
@@ -1307,7 +1292,7 @@ function AdminDashboard() {
               <div className="dashboard-card">
                 <FaUserGraduate className="card-icon" />
                 <h3>Students</h3>
-                <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
+                <p><CountUp end={users.filter(u => u.role === "student").length} duration={2} /></p>
               </div>
               <div className="dashboard-card">
                 <FaUserTie className="card-icon" />
@@ -1321,79 +1306,67 @@ function AdminDashboard() {
 
         {/* Users Section */}
         {activeTab === "users" && (
-  <div className="users-section">
+          <div className="users-section">
+            {/* Tabs */}
+            <div className="category-tabs">
+              {["student", "societymanager"].map((cat) => (
+                <button
+                  key={cat}
+                  className={userCategory === cat ? "active" : ""}
+                  onClick={() => setUserCategory(cat)}
+                >
+                  {cat === "societymanager" ? "Society Managers" : "Students"}
+                </button>
+              ))}
+            </div>
 
-    {/* Tabs */}
-    <div className="category-tabs">
-      {["student", "societymanager"].map(cat => (
-        <button
-          key={cat}
-          className={userCategory === cat ? "active" : ""}
-          onClick={() => setUserCategory(cat)}
-        >
-          {cat === "societymanager"
-            ? "Society Managers"
-            : "Students"}
-        </button>
-      ))}
-    </div>
+            {/* Search */}
+            <SearchBar
+              value={searchQuery[userCategory] || ""}
+              onChange={(e) =>
+                setSearchQuery({ ...searchQuery, [userCategory]: e.target.value })
+              }
+              placeholder={`Search ${userCategory}...`}
+              className="users-directory-search"
+            />
 
-    {/* Search */}
-    <SearchBar
-      value={searchQuery[userCategory] || ""}
-      onChange={(e) =>
-        setSearchQuery({
-          ...searchQuery,
-          [userCategory]: e.target.value
-        })
-      }
-      placeholder={`Search ${userCategory}...`}
-      className="users-directory-search"
-    />
-
-    {/* Table */}
-    <div className="table-container">
-      <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Age</th>
-            <th>Address</th>
-            <th>Contact</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-  {filteredUsers.map((u) => (
-    <tr key={u._id}>
-
-      <td>{u.name}</td>
-      <td>{u.gmail}</td>
-      <td>{u.age}</td>
-      <td>{u.address}</td>
-      <td>{u.contact}</td>
-
-      <td>
-        <button
-          className="dashboard-btn"
-          onClick={() => handleDelete(u._id)}
-        >
-          Delete
-        </button>
-      </td>
-
-    </tr>
-  ))}
-</tbody>
-      </table>
-    </div>
-
-  </div>
-)}
+            {/* Table */}
+            <div className="table-container">
+              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Address</th>
+                    <th>Contact</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((u) => (
+                    <tr key={u._id}>
+                      <td>{u.name}</td>
+                      <td>{u.gmail}</td>
+                      <td>{u.age}</td>
+                      <td>{u.address}</td>
+                      <td>{u.contact}</td>
+                      <td>
+                        <button
+                          className="dashboard-btn"
+                          onClick={() => handleDelete(u._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Society Manager Dashboard */}
         {activeTab === "societyManager" && (
