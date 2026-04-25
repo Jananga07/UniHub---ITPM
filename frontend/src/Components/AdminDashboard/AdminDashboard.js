@@ -12,21 +12,29 @@ import {
 } from "chart.js";
 import {
   FaBookOpen,
+  FaBell,
   FaCalendarAlt,
   FaChartPie,
   FaCheckCircle,
   FaChevronDown,
   FaChevronUp,
   FaClipboardList,
+  FaClock,
+  FaCog,
+  FaExclamationTriangle,
   FaFileUpload,
   FaFolderOpen,
   FaGraduationCap,
   FaHome,
   FaLayerGroup,
   FaPlusCircle,
+  FaSearch,
+  FaSignOutAlt,
   FaStar,
   FaTrashAlt,
+  FaUser,
   FaUserGraduate,
+  FaUserPlus,
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
@@ -47,6 +55,7 @@ import {
   RatingsTab,
   DashboardDownloadAnalytics,
 } from "./ResourcesAdmin";
+import ParticipationChart from "../Quiz/ParticipationChart";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -78,6 +87,8 @@ function AdminDashboard() {
   const [societyManagerError, setSocietyManagerError] = useState("");
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
   const [showQuizMenu, setShowQuizMenu] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [searchQuery2, setSearchQuery2] = useState("");
   const [selectedManagerIds, setSelectedManagerIds] = useState([]);
   const [selectedSocietyIds, setSelectedSocietyIds] = useState([]);
   const [managerSearch, setManagerSearch] = useState("");
@@ -395,31 +406,31 @@ function AdminDashboard() {
 
   // ─── Sidebar / tab config ────────────────────────────────────────────────
   const RESOURCE_TABS = [
-    { key: "resourceFaculty",   label: "Faculties",    icon: FaFolderOpen },
-    { key: "resourceModule",    label: "Res. Modules", icon: FaBookOpen },
-    { key: "resourceApprovals", label: "Approvals",    icon: FaCheckCircle },
-    { key: "resourceUpload",    label: "Upload PDF",   icon: FaFileUpload },
-    { key: "resourceAnalytics", label: "Analytics",    icon: FaChartPie },
-    { key: "resourceRatings",   label: "Ratings",      icon: FaStar },
+    { key: "resourceFaculty",   label: "Faculties",    icon: FaFolderOpen,  color: "#f59e0b" },
+    { key: "resourceModule",    label: "Res. Modules", icon: FaBookOpen,    color: "#06b6d4" },
+    { key: "resourceApprovals", label: "Approvals",    icon: FaCheckCircle, color: "#10b981" },
+    { key: "resourceUpload",    label: "Upload PDF",   icon: FaFileUpload,  color: "#8b5cf6" },
+    { key: "resourceAnalytics", label: "Analytics",    icon: FaChartPie,    color: "#ec4899" },
+    { key: "resourceRatings",   label: "Ratings",      icon: FaStar,        color: "#f97316" },
   ];
 
   const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
   const QUIZ_TABS = [
-    { key: "quiz",         label: "Add Quiz",      icon: FaPlusCircle },
-    { key: "quizOverview", label: "Quiz Overview", icon: FaChartPie   },
+    { key: "quiz",         label: "Add Quiz",      icon: FaPlusCircle, color: "#10b981" },
+    { key: "quizOverview", label: "Quiz Overview", icon: FaChartPie,   color: "#6366f1" },
   ];
   const isQuizTabActive = QUIZ_TABS.some((tab) => tab.key === activeTab);
 
   const SIDEBAR_LINKS = [
-    { key: "dashboard",      label: "Dashboard",           icon: FaHome,       onClick: () => setActiveTab("dashboard") },
-    { key: "users",          label: "All Users",           icon: FaUsers,      onClick: () => setActiveTab("users") },
-    { key: "societyManager", label: "Add Society Manager", icon: FaUserTie,    onClick: handleOpenSocietyManagerForm },
-    { key: "society",        label: "Add Society",         icon: FaPlusCircle, onClick: () => setActiveTab("society") },
+    { key: "dashboard",      label: "Dashboard",           icon: FaHome,       color: "#6366f1", onClick: () => setActiveTab("dashboard") },
+    { key: "users",          label: "All Users",           icon: FaUsers,      color: "#06b6d4", onClick: () => setActiveTab("users") },
+    { key: "societyManager", label: "Add Society Manager", icon: FaUserTie,    color: "#f59e0b", onClick: handleOpenSocietyManagerForm },
+    { key: "society",        label: "Add Society",         icon: FaPlusCircle, color: "#10b981", onClick: () => setActiveTab("society") },
   ];
 
   const SIDEBAR_FOOTER_LINKS = [
-    { key: "complaintHandling",   label: "Complaint Handling",   icon: FaClipboardList, onClick: () => setActiveTab("complaintHandling") },
-    { key: "consultantBookings",  label: "Consultant Bookings",  icon: FaCalendarAlt,   onClick: () => setActiveTab("consultantBookings") },
+    { key: "complaintHandling",  label: "Complaint Handling",  icon: FaClipboardList, color: "#ef4444", onClick: () => setActiveTab("complaintHandling") },
+    { key: "consultantBookings", label: "Consultant Bookings", icon: FaCalendarAlt,   color: "#8b5cf6", onClick: () => setActiveTab("consultantBookings") },
   ];
 
   // ─── Derived selection state ─────────────────────────────────────────────
@@ -494,7 +505,9 @@ function AdminDashboard() {
                   onClick={item.onClick}
                 >
                   <span className="sidebar-link-main">
-                    <span className="sidebar-link-icon"><Icon /></span>
+                    <span className="sidebar-icon-badge" style={{ background: item.color + "22", color: item.color }}>
+                      <Icon />
+                    </span>
                     <span className="sidebar-link-label">{item.label}</span>
                   </span>
                 </button>
@@ -507,7 +520,8 @@ function AdminDashboard() {
               onClick={() => setShowResourcesMenu(!showResourcesMenu)}
             >
               <span className="sidebar-link-main">
-                <span className="sidebar-link-icon"><FaLayerGroup /></span>
+                <span className="sidebar-icon-badge" style={{ background: "#f59e0b22", color: "#f59e0b" }}>
+                  <FaLayerGroup /></span>
                 <span className="sidebar-link-label">Resources Management</span>
               </span>
               <span className="sidebar-toggle-icon">{showResourcesMenu ? <FaChevronUp /> : <FaChevronDown />}</span>
@@ -522,7 +536,9 @@ function AdminDashboard() {
                       onClick={() => setActiveTab(t.key)}
                       className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
                     >
-                      <span className="sidebar-submenu-icon"><Icon /></span>
+                      <span className="sidebar-icon-badge sidebar-icon-badge--sm" style={{ background: t.color + "22", color: t.color }}>
+                        <Icon />
+                      </span>
                       <span>{t.label}</span>
                     </button>
                   );
@@ -536,7 +552,9 @@ function AdminDashboard() {
               onClick={() => setShowQuizMenu(!showQuizMenu)}
             >
               <span className="sidebar-link-main">
-                <span className="sidebar-link-icon"><FaChartPie /></span>
+                <span className="sidebar-icon-badge" style={{ background: "#6366f122", color: "#6366f1" }}>
+                  <FaChartPie />
+                </span>
                 <span className="sidebar-link-label">Quiz Management</span>
               </span>
               <span className="sidebar-toggle-icon">{showQuizMenu ? <FaChevronUp /> : <FaChevronDown />}</span>
@@ -551,16 +569,17 @@ function AdminDashboard() {
                       onClick={() => setActiveTab(t.key)}
                       className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
                     >
-                      <span className="sidebar-submenu-icon"><Icon /></span>
+                      <span className="sidebar-icon-badge sidebar-icon-badge--sm" style={{ background: t.color + "22", color: t.color }}>
+                        <Icon />
+                      </span>
                       <span>{t.label}</span>
                     </button>
                   );
                 })}
               </div>
             )}
-          </div>
 
-          <div className="sidebar-footer">
+            <div className="sidebar-section-label sidebar-section-label-spaced">Support</div>
             {SIDEBAR_FOOTER_LINKS.map((item) => {
               const Icon = item.icon;
               return (
@@ -570,12 +589,17 @@ function AdminDashboard() {
                   onClick={item.onClick}
                 >
                   <span className="sidebar-link-main">
-                    <span className="sidebar-link-icon"><Icon /></span>
+                    <span className="sidebar-icon-badge" style={{ background: item.color + "22", color: item.color }}>
+                      <Icon />
+                    </span>
                     <span className="sidebar-link-label">{item.label}</span>
                   </span>
                 </button>
               );
             })}
+          </div>
+
+          <div className="sidebar-footer">
             <div className="sidebar-footnote">
               <span className="sidebar-footnote-dot" />
               <span>University management workspace</span>
@@ -587,31 +611,270 @@ function AdminDashboard() {
       {/* Main Content */}
       <main className="main-content">
         <div className="topbar">
-          <h1>Admin Dashboard</h1>
-          <div className="admin-profile">Admin</div>
+          {/* Left — title */}
+          <div className="topbar__left">
+            <h1 className="topbar__title">Admin Dashboard</h1>
+            <p className="topbar__welcome">Welcome back, Admin 👋</p>
+          </div>
+
+          {/* Center — search */}
+          <div className="topbar__search">
+            <FaSearch className="topbar__search-icon" />
+            <input
+              type="text"
+              className="topbar__search-input"
+              placeholder="Search students, societies, quizzes..."
+              value={searchQuery2}
+              onChange={(e) => setSearchQuery2(e.target.value)}
+            />
+          </div>
+
+          {/* Right — actions */}
+          <div className="topbar__right">
+            {/* Notification bell */}
+            <button className="topbar__icon-btn" title="Notifications">
+              <FaBell />
+              <span className="topbar__notif-badge">3</span>
+            </button>
+
+            {/* Profile dropdown */}
+            <div className="topbar__profile-wrap">
+              <button
+                className="topbar__profile-btn"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+              >
+                <div className="topbar__avatar">A</div>
+                <div className="topbar__profile-info">
+                  <span className="topbar__profile-name">Admin</span>
+                  <span className="topbar__profile-role">System Administrator</span>
+                </div>
+                <FaChevronDown className={`topbar__chevron ${showProfileMenu ? "topbar__chevron--open" : ""}`} />
+              </button>
+
+              {showProfileMenu && (
+                <div className="topbar__dropdown">
+                  <div className="topbar__dropdown-header">
+                    <div className="topbar__dropdown-avatar">A</div>
+                    <div>
+                      <p className="topbar__dropdown-name">Admin</p>
+                      <span className="topbar__dropdown-badge">System Administrator</span>
+                    </div>
+                  </div>
+                  <div className="topbar__dropdown-divider" />
+                  <button className="topbar__dropdown-item">
+                    <FaUser /> My Profile
+                  </button>
+                  <button className="topbar__dropdown-item">
+                    <FaCog /> Settings
+                  </button>
+                  <div className="topbar__dropdown-divider" />
+                  <button
+                    className="topbar__dropdown-item topbar__dropdown-item--danger"
+                    onClick={() => { localStorage.removeItem("user"); window.location.href = "/"; }}
+                  >
+                    <FaSignOutAlt /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Dashboard Cards */}
         {activeTab === "dashboard" && (
           <>
             <div className="dashboard-grid">
-              <div className="dashboard-card">
-                <FaUsers className="card-icon" />
-                <h3>Total Users</h3>
-                <p><CountUp end={users.length} duration={2} /></p>
+              {/* Total Users */}
+              <div className="kpi-card kpi-card--indigo">
+                <div className="kpi-card__top-bar" />
+                <div className="kpi-card__inner">
+                  <div className="kpi-card__icon-wrap kpi-icon--indigo">
+                    <FaUsers />
+                  </div>
+                  <div className="kpi-card__body">
+                    <span className="kpi-card__label">Total Users</span>
+                    <span className="kpi-card__num">
+                      <CountUp end={users.length} duration={2} />
+                    </span>
+                    <span className="kpi-card__trend kpi-trend--up">
+                      <span className="kpi-trend__arrow">↑</span> +5 this week
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="dashboard-card">
-                <FaUserGraduate className="card-icon" />
-                <h3>Students</h3>
-                <p><CountUp end={users.filter(u => u.role === "student").length} duration={2} /></p>
+
+              {/* Students */}
+              <div className="kpi-card kpi-card--cyan">
+                <div className="kpi-card__top-bar" />
+                <div className="kpi-card__inner">
+                  <div className="kpi-card__icon-wrap kpi-icon--cyan">
+                    <FaUserGraduate />
+                  </div>
+                  <div className="kpi-card__body">
+                    <span className="kpi-card__label">Students</span>
+                    <span className="kpi-card__num">
+                      <CountUp end={users.filter(u => u.role === "student").length} duration={2} />
+                    </span>
+                    <span className="kpi-card__trend kpi-trend--up">
+                      <span className="kpi-trend__arrow">↑</span> +2 today
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="dashboard-card">
-                <FaUserTie className="card-icon" />
-                <h3>Society Managers</h3>
-                <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
+
+              {/* Society Managers */}
+              <div className="kpi-card kpi-card--emerald">
+                <div className="kpi-card__top-bar" />
+                <div className="kpi-card__inner">
+                  <div className="kpi-card__icon-wrap kpi-icon--emerald">
+                    <FaUserTie />
+                  </div>
+                  <div className="kpi-card__body">
+                    <span className="kpi-card__label">Society Managers</span>
+                    <span className="kpi-card__num">
+                      <CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} />
+                    </span>
+                    <span className="kpi-card__trend kpi-trend--up">
+                      <span className="kpi-trend__arrow">↑</span> +1 this month
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Societies */}
+              <div className="kpi-card kpi-card--amber">
+                <div className="kpi-card__top-bar" />
+                <div className="kpi-card__inner">
+                  <div className="kpi-card__icon-wrap kpi-icon--amber">
+                    <FaPlusCircle />
+                  </div>
+                  <div className="kpi-card__body">
+                    <span className="kpi-card__label">Active Societies</span>
+                    <span className="kpi-card__num">
+                      <CountUp end={societies.length} duration={2} />
+                    </span>
+                    <span className="kpi-card__trend kpi-trend--up">
+                      <span className="kpi-trend__arrow">↑</span> +8 this month
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <DashboardDownloadAnalytics />
+            <div className="dashboard-charts-row">
+              <div className="dashboard-chart-card">
+                <DashboardDownloadAnalytics />
+              </div>
+              <div className="dashboard-chart-card">
+                <ParticipationChart />
+              </div>
+            </div>
+
+            {/* ── Info Cards Row ── */}
+            <div className="dash-info-row">
+
+              {/* Recent Activities */}
+              <div className="dash-info-card">
+                <div className="dash-info-card__header">
+                  <div className="dash-info-card__icon-wrap" style={{ background: "#eef2ff", color: "#4f46e5" }}>
+                    <FaBell />
+                  </div>
+                  <div>
+                    <h3 className="dash-info-card__title">Recent Activities</h3>
+                    <p className="dash-info-card__sub">Latest system actions</p>
+                  </div>
+                </div>
+                <ul className="dash-activity-list">
+                  {[
+                    { icon: <FaUserPlus />,    color: "#4f46e5", text: "New student registered",    time: "2 min ago" },
+                    { icon: <FaUserTie />,     color: "#f59e0b", text: "Society manager added",     time: "18 min ago" },
+                    { icon: <FaPlusCircle />,  color: "#10b981", text: "Quiz created for CS201",    time: "1 hr ago" },
+                    { icon: <FaFileUpload />,  color: "#06b6d4", text: "Resource uploaded",         time: "3 hr ago" },
+                    { icon: <FaCheckCircle />, color: "#10b981", text: "Complaint resolved",        time: "5 hr ago" },
+                  ].map((a, i) => (
+                    <li key={i} className="dash-activity-item">
+                      <span className="dash-activity-icon" style={{ background: a.color + "18", color: a.color }}>
+                        {a.icon}
+                      </span>
+                      <span className="dash-activity-text">{a.text}</span>
+                      <span className="dash-activity-time">{a.time}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Latest Complaints */}
+              <div className="dash-info-card">
+                <div className="dash-info-card__header">
+                  <div className="dash-info-card__icon-wrap" style={{ background: "#fef2f2", color: "#ef4444" }}>
+                    <FaExclamationTriangle />
+                  </div>
+                  <div>
+                    <h3 className="dash-info-card__title">Latest Complaints</h3>
+                    <p className="dash-info-card__sub">Recent student submissions</p>
+                  </div>
+                </div>
+                <ul className="dash-complaint-list">
+                  {[
+                    { name: "Amal Perera",    category: "Lecture Materials", time: "10 min ago", status: "pending" },
+                    { name: "Nimal Silva",    category: "Club Events",       time: "1 hr ago",   status: "in_review" },
+                    { name: "Kasun Fernando", category: "Others",            time: "2 hr ago",   status: "resolved" },
+                    { name: "Dilani Jayawardena", category: "Lecture Materials", time: "4 hr ago", status: "pending" },
+                    { name: "Ruwan Bandara", category: "Club Events",        time: "6 hr ago",   status: "resolved" },
+                  ].map((c, i) => (
+                    <li key={i} className="dash-complaint-item">
+                      <div className="dash-complaint-info">
+                        <span className="dash-complaint-name">{c.name}</span>
+                        <span className="dash-complaint-cat">{c.category}</span>
+                      </div>
+                      <div className="dash-complaint-right">
+                        <span className={`dash-status-badge dash-status--${c.status}`}>
+                          {c.status === "in_review" ? "In Review" : c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+                        </span>
+                        <span className="dash-activity-time">{c.time}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Upcoming Sessions */}
+              <div className="dash-info-card">
+                <div className="dash-info-card__header">
+                  <div className="dash-info-card__icon-wrap" style={{ background: "#ecfdf5", color: "#10b981" }}>
+                    <FaCalendarAlt />
+                  </div>
+                  <div>
+                    <h3 className="dash-info-card__title">Upcoming Sessions</h3>
+                    <p className="dash-info-card__sub">Consultant appointments</p>
+                  </div>
+                </div>
+                <ul className="dash-session-list">
+                  {[
+                    { student: "Amal Perera",    consultant: "Dr. Aruna Bandara",    date: "Today",    time: "10:00 AM" },
+                    { student: "Nimal Silva",    consultant: "Prof. Nimal Fernando", date: "Today",    time: "2:30 PM"  },
+                    { student: "Kasun Fernando", consultant: "Dr. Kanishka S.",      date: "Tomorrow", time: "9:00 AM"  },
+                    { student: "Dilani J.",      consultant: "Prof. Kamal R.",       date: "Tomorrow", time: "11:00 AM" },
+                    { student: "Ruwan Bandara",  consultant: "Dr. Saman Kumara",     date: "26 Apr",   time: "3:00 PM"  },
+                  ].map((s, i) => (
+                    <li key={i} className="dash-session-item">
+                      <div className="dash-session-info">
+                        <span className="dash-session-student">{s.student}</span>
+                        <span className="dash-session-consultant">with {s.consultant}</span>
+                      </div>
+                      <div className="dash-session-time">
+                        <span className="dash-session-date">
+                          <FaCalendarAlt style={{ fontSize: 10, marginRight: 3 }} />{s.date}
+                        </span>
+                        <span className="dash-session-clock">
+                          <FaClock style={{ fontSize: 10, marginRight: 3 }} />{s.time}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+            </div>
           </>
         )}
 

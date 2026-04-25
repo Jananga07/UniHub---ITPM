@@ -12,7 +12,52 @@ import { Pie } from "react-chartjs-2";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
 const CATEGORIES = ["Lecture Material", "Reading Material", "Short Notes", "Referral Sheets"];
-const ANALYTICS_PIE_COLORS = ["#4f46e5","#06b6d4","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6"];
+// ── Uni Hub Brand Palette ────────────────────────────────────────────────────
+const BRAND = {
+  primary:   "#4f46e5",
+  secondary: "#06b6d4",
+  success:   "#10b981",
+  warning:   "#f59e0b",
+  danger:    "#ef4444",
+  purple:    "#8b5cf6",
+  pink:      "#ec4899",
+  teal:      "#14b8a6",
+};
+
+const ANALYTICS_PIE_COLORS = [
+  BRAND.primary, BRAND.secondary, BRAND.success, BRAND.warning,
+  BRAND.danger,  BRAND.purple,    BRAND.pink,    BRAND.teal,
+];
+
+const PIE_BORDER_COLORS = ANALYTICS_PIE_COLORS.map(c => c);
+
+const PIE_OPTIONS = {
+  responsive: true,
+  maintainAspectRatio: true,
+  cutout: "55%",
+  plugins: {
+    legend: {
+      position: "bottom",
+      labels: {
+        padding: 14,
+        font: { size: 11, weight: "600", family: "'Inter','Poppins',sans-serif" },
+        usePointStyle: true,
+        pointStyleWidth: 10,
+        color: "#64748b",
+      },
+    },
+    tooltip: {
+      backgroundColor: "rgba(15,23,42,0.92)",
+      titleFont: { size: 12, weight: "700" },
+      bodyFont:  { size: 12 },
+      padding: 10,
+      cornerRadius: 10,
+      callbacks: {
+        label: (ctx) => `  ${ctx.label}: ${ctx.parsed}`,
+      },
+    },
+  },
+};
 
 // ─── FACULTY MANAGEMENT TAB ──────────────────────────────────────────────────
 export function FacultyTab() {
@@ -405,8 +450,10 @@ export function DownloadDistributionPie({ data, total }) {
     labels: data.map((d) => (d.title.length > 20 ? `${d.title.slice(0, 20)}…` : d.title)),
     datasets: [{
       data: data.map((d) => d.downloadCount),
-      backgroundColor: data.map((_, i) => ANALYTICS_PIE_COLORS[i % ANALYTICS_PIE_COLORS.length]),
-      borderWidth: 1,
+      backgroundColor: data.map((_, i) => ANALYTICS_PIE_COLORS[i % ANALYTICS_PIE_COLORS.length] + "cc"),
+      borderColor:     PIE_BORDER_COLORS.map((c, i) => ANALYTICS_PIE_COLORS[i % ANALYTICS_PIE_COLORS.length]),
+      borderWidth: 2,
+      hoverOffset: 8,
     }],
   };
 
@@ -424,9 +471,9 @@ export function DownloadDistributionPie({ data, total }) {
       </div>
       {data.length > 0 && (
         <div className="ra-chart-wrap">
-          <h3 style={{ marginBottom: 16, fontWeight: 600, color: "#1e1b4b" }}>Download Distribution</h3>
-          <div style={{ maxWidth: 380, margin: "0 auto" }}>
-            <Pie data={pieData} options={{ plugins: { legend: { position: "bottom" } } }} />
+          <h3 style={{ marginBottom: 12, fontWeight: 700, color: "#0f172a", fontSize: 14 }}>Download Distribution</h3>
+          <div style={{ width: "100%", maxWidth: 280, margin: "0 auto", aspectRatio: "1 / 1" }}>
+            <Pie data={pieData} options={PIE_OPTIONS} />
           </div>
         </div>
       )}
