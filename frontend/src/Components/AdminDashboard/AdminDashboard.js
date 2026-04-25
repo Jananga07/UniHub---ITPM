@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./AdminDashboard.css";
 import "./ResourcesAdmin.css";
@@ -10,56 +10,42 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Pie } from "react-chartjs-2";
 import {
   FaBookOpen,
-  FaBell,
   FaCalendarAlt,
   FaChartPie,
   FaCheckCircle,
   FaChevronDown,
   FaChevronUp,
   FaClipboardList,
-  FaClock,
-  FaCog,
-  FaExclamationTriangle,
   FaFileUpload,
   FaFolderOpen,
   FaGraduationCap,
   FaHome,
   FaLayerGroup,
   FaPlusCircle,
-  FaSearch,
-  FaSignOutAlt,
   FaStar,
   FaTrashAlt,
-  FaUser,
   FaUserGraduate,
-  FaUserPlus,
   FaUserTie,
   FaUsers,
 } from "react-icons/fa";
 import ConsultantBookingManagement from "../ConsultantBookingManagement/ConsultantBookingManagement";
 import ComplaintHandling from "../ComplaintHandling/ComplaintHandling";
 import AddQuiz from "../Quiz/AddQuiz";
-import QuizOverview from "../Quiz/QuizOverview";
+
 import SearchBar from "../SearchBar/SearchBar.js";
 import "../SearchBar/managersSearch.css";
 import "../SearchBar/societiesSearch.css";
 import { clubTypeOptions } from "../../data/clubData.js";
-import {
-  FacultyTab,
-  ResourceModuleTab,
-  ApprovalsTab,
-  AdminUploadTab,
-  AnalyticsTab,
-  RatingsTab,
-  DashboardDownloadAnalytics,
-} from "./ResourcesAdmin";
-import ParticipationChart from "../Quiz/ParticipationChart";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const ANALYTICS_PIE_COLORS = ["#4f46e5", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
+
 const API = process.env.REACT_APP_API_URL || "http://localhost:5001";
+const CATEGORIES = ["Lecture Material", "Reading Material", "Short Notes", "Referral Sheets"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CONTACT_REGEX = /^\+?\d{10,15}$/;
 
@@ -69,6 +55,733 @@ const isUniversityEmail = (email) => {
 };
 
 const normalizeContactNumber = (contactNumber = "") => contactNumber.trim().replaceAll(/[\s-]/g, "");
+
+// ─── FACULTY MANAGEMENT TAB ─────────────────────────────────────────────────
+function FacultyTab() {
+  const [faculties, setFaculties] = useState([]);
+  const [newName, setNewName]     = useState("");
+  const [editId, setEditId]       = useState(null);
+  const [editName, setEditName]   = useState("");
+
+  const load = () =>
+    axios.get(`${API}/resources/faculties`).then((r) => setFaculties(r.data.faculties));
+
+  useEffect(() => { load(); }, []);
+
+  const add = async () => {
+    if (!newName.trim()) return alert("Enter a faculty name");
+    await axios.post(`${API}/resources/faculties`, { name: newName.trim() });
+    setNewName(""); load();
+  };
+
+  const save = async (id) => {
+    if (!editName.trim()) return alert("Enter a valid faculty name");
+    await axios.put(`${API}/resources/faculties/${id}`, { name: editName.trim() });
+    setEditId(null); setEditName(""); load();
+  };
+
+  const remove = async (id) => {
+    if (!window.confirm("Delete this faculty?")) return;
+    await axios.delete(`${API}/resources/faculties/${id}`);
+    load();
+  };
+
+  return (
+    <div>
+      <h2 className="ra-section-title">Faculty Management</h2>
+      <div className="ra-add-row">
+        <input
+          className="ra-input"
+          placeholder="New faculty name…"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        <button className="dashboard-btn" onClick={add}>+ Add Faculty</button>
+      </div>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {faculties.map((f, i) => (
+              <tr key={f._id}>
+                <td>{i + 1}</td>
+                <td>
+                  {editId === f._id
+                    ? <input className="ra-input-sm" value={editName} onChange={(e) => setEditName(e.target.value)} />
+                    : f.name}
+                </td>
+                <td>
+                  {editId === f._id
+                    ? <button className="dashboard-btn" onClick={() => save(f._id)}>Save</button>
+                    : <>
+                        <button className="dashboard-btn" onClick={() => { setEditId(f._id); setEditName(f.name); }}>Edit</button>{" "}
+                        <button className="dashboard-btn ra-btn-danger" onClick={() => remove(f._id)}>Delete</button>
+                      </>
+                  }
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── RESOURCE MODULE MANAGEMENT TAB ─────────────────────────────────────────
+function ResourceModuleTab() {
+  const [modules,   setModules]   = useState([]);
+  const [faculties, setFaculties] = useState([]);
+  const [form, setForm]           = useState({ moduleName: "", moduleCode: "", faculty: "", year: 1, semester: 1 });
+  const [editId, setEditId]       = useState(null);
+  const [editForm, setEditForm]   = useState({});
+
+  const load = () => Promise.all([
+    axios.get(`${API}/resources/modules`).then((r) => setModules(r.data.modules)),
+    axios.get(`${API}/resources/faculties`).then((r) => setFaculties(r.data.faculties)),
+  ]);
+
+  useEffect(() => { load(); }, []);
+
+  const add = async () => {
+    if (!form.moduleName || !form.faculty || !form.year || !form.semester) {
+      return alert("Module name, faculty, year, and semester are required");
+    }
+    await axios.post(`${API}/resources/modules`, form);
+    setForm({ moduleName: "", moduleCode: "", faculty: "", year: 1, semester: 1 });
+    load();
+  };
+
+  const save = async (id) => {
+    if (!editForm.moduleName || !editForm.faculty || !editForm.year || !editForm.semester) {
+      return alert("Module name, faculty, year, and semester are required");
+    }
+    await axios.put(`${API}/resources/modules/${id}`, editForm);
+    setEditId(null); load();
+  };
+
+  const remove = async (id) => {
+    if (!window.confirm("Delete this module?")) return;
+    await axios.delete(`${API}/resources/modules/${id}`);
+    load();
+  };
+
+  return (
+    <div>
+      <h2 className="ra-section-title">Resource Module Management</h2>
+      <div className="ra-form-grid">
+        <input className="ra-input" placeholder="Module Name" value={form.moduleName}
+          onChange={(e) => setForm({ ...form, moduleName: e.target.value })} />
+        <input className="ra-input" placeholder="Module Code (optional)" value={form.moduleCode}
+          onChange={(e) => setForm({ ...form, moduleCode: e.target.value })} />
+        <select className="ra-input" value={form.faculty}
+          onChange={(e) => setForm({ ...form, faculty: e.target.value })}>
+          <option value="">Select Faculty</option>
+          {faculties.map((f) => <option key={f._id} value={f._id}>{f.name}</option>)}
+        </select>
+        <select className="ra-input" value={form.year}
+          onChange={(e) => setForm({ ...form, year: e.target.value })}>
+          {[1,2,3,4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+        </select>
+        <select className="ra-input" value={form.semester}
+          onChange={(e) => setForm({ ...form, semester: e.target.value })}>
+          <option value={1}>Semester 1</option>
+          <option value={2}>Semester 2</option>
+        </select>
+        <button className="dashboard-btn" onClick={add}>+ Add Module</button>
+      </div>
+
+      <div className="table-container" style={{ marginTop: 24 }}>
+        <table>
+          <thead>
+            <tr><th>Module</th><th>Code</th><th>Faculty</th><th>Year</th><th>Sem</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {modules.map((m) => (
+              <tr key={m._id}>
+                <td>{editId === m._id ? <input className="ra-input-sm" value={editForm.moduleName || ""} onChange={(e) => setEditForm({ ...editForm, moduleName: e.target.value })} /> : m.moduleName}</td>
+                <td>{editId === m._id ? <input className="ra-input-sm" value={editForm.moduleCode || ""} onChange={(e) => setEditForm({ ...editForm, moduleCode: e.target.value })} /> : m.moduleCode}</td>
+                <td>
+                  {editId === m._id ? (
+                    <select className="ra-input-sm" value={editForm.faculty || ""} onChange={(e) => setEditForm({ ...editForm, faculty: e.target.value })}>
+                      <option value="">Select Faculty</option>
+                      {faculties.map((f) => <option key={f._id} value={f._id}>{f.name}</option>)}
+                    </select>
+                  ) : m.faculty?.name}
+                </td>
+                <td>
+                  {editId === m._id ? (
+                    <select className="ra-input-sm" value={editForm.year || ""} onChange={(e) => setEditForm({ ...editForm, year: Number(e.target.value) })}>
+                      {[1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+                    </select>
+                  ) : m.year}
+                </td>
+                <td>
+                  {editId === m._id ? (
+                    <select className="ra-input-sm" value={editForm.semester || ""} onChange={(e) => setEditForm({ ...editForm, semester: Number(e.target.value) })}>
+                      <option value={1}>Semester 1</option>
+                      <option value={2}>Semester 2</option>
+                    </select>
+                  ) : m.semester}
+                </td>
+                <td>
+                  {editId === m._id
+                    ? <button className="dashboard-btn" onClick={() => save(m._id)}>Save</button>
+                    : <>
+                        <button className="dashboard-btn" onClick={() => { setEditId(m._id); setEditForm({ moduleName: m.moduleName, moduleCode: m.moduleCode, faculty: m.faculty?._id, year: m.year, semester: m.semester }); }}>Edit</button>{" "}
+                        <button className="dashboard-btn ra-btn-danger" onClick={() => remove(m._id)}>Delete</button>
+                      </>
+                  }
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── PENDING APPROVALS TAB ────────────────────────────────────────────────
+function ApprovalsTab() {
+  const [pdfs, setPdfs]         = useState([]);
+  const [modules, setModules]   = useState([]);
+  const [editId, setEditId]     = useState(null);
+  const [editForm, setEditForm] = useState({ title: "", module: "", category: "" });
+
+  const load = () => {
+    axios.get(`${API}/resources/pdfs`, { params: { status: "pending" } })
+      .then((r) => setPdfs(r.data.pdfs));
+    axios.get(`${API}/resources/modules`)
+      .then((r) => setModules(r.data.modules));
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const approve = async (id) => {
+    await axios.put(`${API}/resources/pdfs/${id}/approve`);
+    load();
+  };
+
+  const reject = async (id) => {
+    await axios.put(`${API}/resources/pdfs/${id}/reject`);
+    load();
+  };
+
+  const startEdit = (p) => {
+    setEditId(p._id);
+    setEditForm({ title: p.title || "", module: p.module?._id || "", category: p.category || "" });
+  };
+
+  const cancelEdit = () => { setEditId(null); setEditForm({ title: "", module: "", category: "" }); };
+
+  const saveEdit = async (id) => {
+    if (!editForm.title.trim()) return alert("Title cannot be empty.");
+    if (!/^[a-zA-Z0-9\s]*$/.test(editForm.title)) return alert("Title can only contain letters and numbers.");
+    if (!editForm.module || !editForm.category) return alert("Please select both module and category.");
+    try {
+      await axios.post(`${API}/resources/pdfs/${id}/update`, { title: editForm.title.trim(), module: editForm.module, category: editForm.category });
+      cancelEdit(); load();
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Failed to save changes.";
+      alert("Save failed: " + msg);
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="ra-section-title">Pending PDF Approvals</h2>
+      {pdfs.length === 0
+        ? <p className="ra-empty">No pending uploads. ✅</p>
+        : (
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr><th>Title</th><th>File</th><th>Module</th><th>Category</th><th>Uploaded By</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                {pdfs.map((p) => (
+                  <tr key={p._id}>
+                    <td>
+                      {editId === p._id ? (
+                        <input
+                          className="ra-input-sm"
+                          value={editForm.title}
+                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                          placeholder="PDF Title"
+                        />
+                      ) : p.title}
+                    </td>
+                    <td>
+                      {editId === p._id ? (
+                        <select className="ra-input-sm" value={editForm.module}
+                          onChange={(e) => setEditForm({ ...editForm, module: e.target.value })}>
+                          <option value="">Select Module</option>
+                          {modules.map((m) => <option key={m._id} value={m._id}>{m.moduleName}</option>)}
+                        </select>
+                      ) : p.module?.moduleName}
+                    </td>
+                    <td>
+                      {editId === p._id ? (
+                        <select className="ra-input-sm" value={editForm.category}
+                          onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
+                          <option value="">Select Category</option>
+                          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      ) : p.category}
+                    </td>
+                    <td>{p.uploadedBy || "anonymous"}</td>
+                    <td>
+                      <a
+                        href={`${API}/uploads/${p.filePath}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "#4f46e5", fontSize: 13, fontWeight: 600, textDecoration: "underline", whiteSpace: "nowrap" }}
+                      >
+                        📄 {p.fileName || "View PDF"}
+                      </a>
+                    </td>
+                    <td>
+                      {editId === p._id ? (
+                        <>
+                          <button className="dashboard-btn ra-btn-success" onClick={() => saveEdit(p._id)}>Save</button>{" "}
+                          <button className="dashboard-btn" onClick={cancelEdit}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="dashboard-btn" onClick={() => startEdit(p)}>Edit</button>{" "}
+                          <button className="dashboard-btn ra-btn-success" onClick={() => approve(p._id)}>Approve</button>{" "}
+                          <button className="dashboard-btn ra-btn-danger"  onClick={() => reject(p._id)}>Reject</button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </div>
+  );
+}
+
+
+// ─── ADMIN PDF UPLOAD TAB ─────────────────────────────────────────────────
+function AdminUploadTab() {
+  const [faculties, setFaculties] = useState([]);
+  const [allModules, setAllModules] = useState([]);
+  const [form, setForm] = useState({ faculty: "", year: 1, semester: 1, module: "", category: CATEGORIES[0], title: "" });
+  const [file, setFile]   = useState(null);
+  const [msg, setMsg]     = useState("");
+  const [titleErr, setTitleErr] = useState("");
+
+  const handleTitleChange = (e) => {
+    const val = e.target.value;
+    if (!/^[a-zA-Z0-9\s]*$/.test(val)) {
+      setTitleErr("❌ Symbols like @, $, % are not valid. Please use only letters and numbers.");
+    } else {
+      setTitleErr("");
+    }
+    setForm({ ...form, title: val });
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.type !== "application/pdf") {
+      setMsg("❌ Please select a valid PDF file. Images/other formats are not allowed.");
+      setFile(null);
+      e.target.value = null; // reset input
+    } else {
+      setMsg("");
+      setFile(selectedFile);
+    }
+  };
+
+  const loadFaculties = () =>
+    axios.get(`${API}/resources/faculties`).then((r) => setFaculties(r.data.faculties));
+
+  const loadModules = (faculty, year, semester) => {
+    if (!faculty) return;
+    axios.get(`${API}/resources/modules`, { params: { faculty, year, semester } })
+      .then((r) => setAllModules(r.data.modules));
+  };
+
+  useEffect(() => { loadFaculties(); }, []);
+  useEffect(() => { loadModules(form.faculty, form.year, form.semester); }, [form.faculty, form.year, form.semester]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (titleErr) return setMsg("❌ Please fix title errors before uploading.");
+    if (!form.faculty || !form.year || !form.semester || !form.module || !form.title || !file) {
+      return setMsg("❌ All frontend fields and file are required before uploading.");
+    }
+    const fd = new FormData();
+    fd.append("title", form.title);
+    fd.append("module", form.module);
+    fd.append("category", form.category);
+    fd.append("adminUpload", "true");
+    fd.append("file", file);
+    try {
+      await axios.post(`${API}/resources/pdfs/upload`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setMsg("✅ PDF uploaded and approved successfully.");
+      setFile(null); setForm({ ...form, title: "", module: "" });
+    } catch {
+      setMsg("❌ Upload failed.");
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="ra-section-title">Upload PDF (Admin)</h2>
+      <div className="ra-upload-form">
+        <form onSubmit={handleSubmit}>
+          <select className="ra-input" value={form.faculty}
+            onChange={(e) => setForm({ ...form, faculty: e.target.value, module: "" })}>
+            <option value="">Select Faculty</option>
+            {faculties.map((f) => <option key={f._id} value={f._id}>{f.name}</option>)}
+          </select>
+          <select className="ra-input" value={form.year}
+            onChange={(e) => setForm({ ...form, year: Number(e.target.value), module: "" })}>
+            {[1,2,3,4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+          </select>
+          <select className="ra-input" value={form.semester}
+            onChange={(e) => setForm({ ...form, semester: Number(e.target.value), module: "" })}>
+            <option value={1}>Semester 1</option>
+            <option value={2}>Semester 2</option>
+          </select>
+          <select className="ra-input" value={form.module}
+            onChange={(e) => setForm({ ...form, module: e.target.value })}>
+            <option value="">Select Module</option>
+            {allModules.map((m) => <option key={m._id} value={m._id}>{m.moduleName}</option>)}
+          </select>
+          <select className="ra-input" value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input className="ra-input" placeholder="PDF Title" value={form.title}
+            onChange={handleTitleChange} required />
+          {titleErr && <p style={{ fontSize: 13, margin: "4px 0", color: "#ef4444" }}>{titleErr}</p>}
+          <input type="file" accept="application/pdf" onChange={handleFileChange} required />
+          {msg && <p style={{ fontSize: 13, margin: "8px 0", color: msg.includes("❌") ? "#ef4444" : "#10b981" }}>{msg}</p>}
+          <button className="dashboard-btn" type="submit">Upload & Approve</button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function useResourceAnalytics() {
+  const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(() => {
+    setLoading(true);
+    axios
+      .get(`${API}/resources/analytics`)
+      .then((r) => {
+        setData(r.data.pdfs);
+        setTotal(r.data.totalDownloads);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  return { data, total, loading, loadData };
+}
+
+function DownloadDistributionPie({ data, total }) {
+  const pieData = {
+    labels: data.map((d) => (d.title.length > 20 ? `${d.title.slice(0, 20)}…` : d.title)),
+    datasets: [
+      {
+        data: data.map((d) => d.downloadCount),
+        backgroundColor: data.map((_, i) => ANALYTICS_PIE_COLORS[i % ANALYTICS_PIE_COLORS.length]),
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <div className="ra-analytics-summary">
+        <div className="dashboard-card">
+          <h3>Total Downloads</h3>
+          <CountUp end={total} duration={2} />
+        </div>
+        <div className="dashboard-card">
+          <h3>Approved PDFs</h3>
+          <CountUp end={data.length} duration={2} />
+        </div>
+      </div>
+
+      {data.length > 0 && (
+        <div className="ra-chart-wrap">
+          <h3 style={{ marginBottom: 16, fontWeight: 600, color: "#1e1b4b" }}>Download Distribution</h3>
+          <div style={{ maxWidth: 380, margin: "0 auto" }}>
+            <Pie data={pieData} options={{ plugins: { legend: { position: "bottom" } } }} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function DashboardDownloadAnalytics() {
+  const { data, total, loading } = useResourceAnalytics();
+
+  return (
+    <div className="dashboard-resource-analytics">
+      <h2 className="ra-section-title dashboard-resource-analytics-heading">Resource download analytics</h2>
+      {loading ? <p className="dashboard-resource-analytics-loading">Loading…</p> : <DownloadDistributionPie data={data} total={total} />}
+    </div>
+  );
+}
+
+// ─── ANALYTICS TAB ────────────────────────────────────────────────────────
+function AnalyticsTab() {
+  const { data, total, loading, loadData } = useResourceAnalytics();
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this PDF permanently?")) {
+      try {
+        await axios.delete(`${API}/resources/pdfs/${id}`);
+        loadData();
+      } catch (err) {
+        alert("Failed to delete PDF");
+      }
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="ra-section-title">Download Analytics</h2>
+      {loading ? (
+        <p>Loading…</p>
+      ) : (
+        <>
+          <DownloadDistributionPie data={data} total={total} />
+
+          <div className="table-container" style={{ marginTop: 24 }}>
+            <table>
+              <thead>
+                <tr><th>PDF Title</th><th>Downloads</th><th>Avg Rating</th><th>Ratings</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                {data.map((d) => (
+                  <tr key={d._id}>
+                    <td>{d.title}</td>
+                    <td>{d.downloadCount}</td>
+                    <td>{d.averageRating > 0 ? `${d.averageRating} ★` : "—"}</td>
+                    <td>{d.ratingCount}</td>
+                    <td>
+                      <button className="dashboard-btn ra-btn-danger" onClick={() => handleDelete(d._id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── RATINGS OVERVIEW TAB ────────────────────────────────────────────────
+function RatingsTab() {
+  const [pdfs, setPdfs] = useState([]);
+
+  const loadData = () => {
+    axios.get(`${API}/resources/pdfs`, { params: { status: "approved" } })
+      .then((r) => setPdfs(r.data.pdfs));
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this PDF permanently?")) {
+      try {
+        await axios.delete(`${API}/resources/pdfs/${id}`);
+        loadData();
+      } catch (err) { alert("Failed to delete PDF"); }
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="ra-section-title">PDF Ratings Overview</h2>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr><th>Title</th><th>Module</th><th>Category</th><th>Avg Rating</th><th>Total Ratings</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {pdfs.map((p) => {
+              const avg = p.ratings && p.ratings.length
+                ? Math.round(p.ratings.reduce((s, r) => s + r.rating, 0) / p.ratings.length * 10) / 10
+                : 0;
+              return (
+                <tr key={p._id}>
+                  <td>{p.title}</td>
+                  <td>{p.module?.moduleName}</td>
+                  <td>{p.category}</td>
+                  <td>{avg > 0 ? `${avg} ★` : "—"}</td>
+                  <td>{p.ratings?.length || 0}</td>
+                  <td>
+                    <button className="dashboard-btn ra-btn-danger" onClick={() => handleDelete(p._id)}>Delete</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── QUIZ OVERVIEW TAB ───────────────────────────────────────────────────────
+function QuizOverviewTab() {
+  const [modules, setModules] = useState([]);
+  const [quizMap, setQuizMap] = useState({});
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const modRes = await axios.get(`${API}/resources/modules`);
+        const mods = modRes.data.modules || [];
+        setModules(mods);
+
+        // For each module fetch its quizzes
+        const map = {};
+        await Promise.all(
+          mods.map(async (m) => {
+            try {
+              const qRes = await axios.get(`${API}/quiz/module/${m._id}`);
+              map[m._id] = qRes.data.quizzes || [];
+            } catch {
+              map[m._id] = [];
+            }
+          })
+        );
+        setQuizMap(map);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const withQuiz    = modules.filter((m) => quizMap[m._id]?.length > 0);
+  const withoutQuiz = modules.filter((m) => !quizMap[m._id]?.length);
+
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+
+  return (
+    <div style={{ padding: "10px 0" }}>
+      <h2 style={{ marginBottom: 4 }}>Quiz Overview</h2>
+      <p style={{ color: "#64748b", marginBottom: 24, fontSize: 14 }}>
+        See which modules have quizzes and which still need one.
+      </p>
+
+      {/* Summary cards */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 28, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 140, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{withQuiz.length}</div>
+          <div style={{ fontSize: 13, color: "#15803d", marginTop: 4 }}>Modules with Quiz</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 140, background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#ea580c" }}>{withoutQuiz.length}</div>
+          <div style={{ fontSize: 13, color: "#c2410c", marginTop: 4 }}>Modules without Quiz</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 140, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "#2563eb" }}>{modules.length}</div>
+          <div style={{ fontSize: 13, color: "#1d4ed8", marginTop: 4 }}>Total Modules</div>
+        </div>
+      </div>
+
+      {/* Modules WITHOUT quiz */}
+      <div style={{ marginBottom: 28 }}>
+        <h3 style={{ color: "#ea580c", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          ⚠️ Modules Without Quiz
+          <span style={{ background: "#fed7aa", color: "#ea580c", fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>
+            {withoutQuiz.length}
+          </span>
+        </h3>
+        {withoutQuiz.length === 0 ? (
+          <p style={{ color: "#94a3b8", fontSize: 14 }}>All modules have quizzes. 🎉</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {withoutQuiz.map((m) => (
+              <div key={m._id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 10, padding: "12px 16px" }}>
+                <div>
+                  <strong style={{ color: "#1e293b" }}>{m.moduleName}</strong>
+                  {m.moduleCode && <span style={{ marginLeft: 8, fontSize: 12, color: "#94a3b8", background: "#f1f5f9", padding: "2px 8px", borderRadius: 99 }}>{m.moduleCode}</span>}
+                </div>
+                <button
+                  onClick={() => navigate("/admin")}
+                  style={{ background: "#ea580c", color: "#fff", border: "none", borderRadius: 7, padding: "6px 14px", fontSize: 13, cursor: "pointer" }}
+                >
+                  + Add Quiz
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modules WITH quiz */}
+      <div>
+        <h3 style={{ color: "#16a34a", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          ✅ Modules With Quiz
+          <span style={{ background: "#bbf7d0", color: "#16a34a", fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>
+            {withQuiz.length}
+          </span>
+        </h3>
+        {withQuiz.length === 0 ? (
+          <p style={{ color: "#94a3b8", fontSize: 14 }}>No quizzes added yet.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {withQuiz.map((m) => (
+              <div key={m._id} style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "12px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div>
+                    <strong style={{ color: "#1e293b" }}>{m.moduleName}</strong>
+                    {m.moduleCode && <span style={{ marginLeft: 8, fontSize: 12, color: "#94a3b8", background: "#f1f5f9", padding: "2px 8px", borderRadius: 99 }}>{m.moduleCode}</span>}
+                  </div>
+                  <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 600 }}>
+                    {quizMap[m._id].length} quiz{quizMap[m._id].length !== 1 ? "zes" : ""}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {quizMap[m._id].map((q) => (
+                    <span key={q._id} style={{ background: "#dcfce7", color: "#15803d", fontSize: 12, padding: "3px 10px", borderRadius: 99, border: "1px solid #bbf7d0" }}>
+                      📝 {q.quizName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ─── MAIN ADMIN DASHBOARD ─────────────────────────────────────────────────
 function AdminDashboard() {
@@ -86,9 +799,6 @@ function AdminDashboard() {
   const [editSocietyClubType, setEditSocietyClubType] = useState("");
   const [societyManagerError, setSocietyManagerError] = useState("");
   const [showResourcesMenu, setShowResourcesMenu] = useState(false);
-  const [showQuizMenu, setShowQuizMenu] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [searchQuery2, setSearchQuery2] = useState("");
   const [selectedManagerIds, setSelectedManagerIds] = useState([]);
   const [selectedSocietyIds, setSelectedSocietyIds] = useState([]);
   const [managerSearch, setManagerSearch] = useState("");
@@ -404,36 +1114,6 @@ function AdminDashboard() {
     });
   };
 
-  // ─── Sidebar / tab config ────────────────────────────────────────────────
-  const RESOURCE_TABS = [
-    { key: "resourceFaculty",   label: "Faculties",    icon: FaFolderOpen,  color: "#f59e0b" },
-    { key: "resourceModule",    label: "Res. Modules", icon: FaBookOpen,    color: "#06b6d4" },
-    { key: "resourceApprovals", label: "Approvals",    icon: FaCheckCircle, color: "#10b981" },
-    { key: "resourceUpload",    label: "Upload PDF",   icon: FaFileUpload,  color: "#8b5cf6" },
-    { key: "resourceAnalytics", label: "Analytics",    icon: FaChartPie,    color: "#ec4899" },
-    { key: "resourceRatings",   label: "Ratings",      icon: FaStar,        color: "#f97316" },
-  ];
-
-  const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
-  const QUIZ_TABS = [
-    { key: "quiz",         label: "Add Quiz",      icon: FaPlusCircle, color: "#10b981" },
-    { key: "quizOverview", label: "Quiz Overview", icon: FaChartPie,   color: "#6366f1" },
-  ];
-  const isQuizTabActive = QUIZ_TABS.some((tab) => tab.key === activeTab);
-
-  const SIDEBAR_LINKS = [
-    { key: "dashboard",      label: "Dashboard",           icon: FaHome,       color: "#6366f1", onClick: () => setActiveTab("dashboard") },
-    { key: "users",          label: "All Users",           icon: FaUsers,      color: "#06b6d4", onClick: () => setActiveTab("users") },
-    { key: "societyManager", label: "Add Society Manager", icon: FaUserTie,    color: "#f59e0b", onClick: handleOpenSocietyManagerForm },
-    { key: "society",        label: "Add Society",         icon: FaPlusCircle, color: "#10b981", onClick: () => setActiveTab("society") },
-  ];
-
-  const SIDEBAR_FOOTER_LINKS = [
-    { key: "complaintHandling",  label: "Complaint Handling",  icon: FaClipboardList, color: "#ef4444", onClick: () => setActiveTab("complaintHandling") },
-    { key: "consultantBookings", label: "Consultant Bookings", icon: FaCalendarAlt,   color: "#8b5cf6", onClick: () => setActiveTab("consultantBookings") },
-  ];
-
-  // ─── Derived selection state ─────────────────────────────────────────────
   const allManagersSelected = filteredManagers.length > 0
     && filteredManagers.every((manager) => selectedManagerIds.includes(manager._id));
 
@@ -478,6 +1158,21 @@ function AdminDashboard() {
         : [...currentIds, societyId]
     );
   };
+  const RESOURCE_TABS = [
+    { key: "resourceFaculty", label: "Faculties", icon: FaFolderOpen },
+    { key: "resourceModule", label: "Res. Modules", icon: FaBookOpen },
+    { key: "resourceApprovals", label: "Approvals", icon: FaCheckCircle },
+    { key: "resourceUpload", label: "Upload PDF", icon: FaFileUpload },
+    { key: "resourceAnalytics", label: "Analytics", icon: FaChartPie },
+    { key: "resourceRatings", label: "Ratings", icon: FaStar },
+  ];
+  const isResourceTabActive = RESOURCE_TABS.some((tab) => tab.key === activeTab);
+  const SIDEBAR_LINKS = [
+    { key: "dashboard", label: "Dashboard", icon: FaHome, onClick: () => setActiveTab("dashboard") },
+    { key: "users", label: "All Users", icon: FaUsers, onClick: () => setActiveTab("users") },
+    { key: "societyManager", label: "Add Society Manager", icon: FaUserTie, onClick: handleOpenSocietyManagerForm },
+    { key: "society", label: "Add Society", icon: FaPlusCircle, onClick: () => setActiveTab("society") },
+  ];
 
   return (
     <div className="admin-dashboard">
@@ -498,6 +1193,7 @@ function AdminDashboard() {
             <div className="sidebar-section-label">Main Menu</div>
             {SIDEBAR_LINKS.map((item) => {
               const Icon = item.icon;
+
               return (
                 <button
                   key={item.key}
@@ -505,14 +1201,32 @@ function AdminDashboard() {
                   onClick={item.onClick}
                 >
                   <span className="sidebar-link-main">
-                    <span className="sidebar-icon-badge" style={{ background: item.color + "22", color: item.color }}>
-                      <Icon />
-                    </span>
+                    <span className="sidebar-link-icon"><Icon /></span>
                     <span className="sidebar-link-label">{item.label}</span>
                   </span>
                 </button>
               );
             })}
+
+            <button
+              className={`sidebar-link ${activeTab === "quiz" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("quiz")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaPlusCircle /></span>
+                <span className="sidebar-link-label">Add Quiz</span>
+              </span>
+            </button>
+
+            <button
+              className={`sidebar-link ${activeTab === "quizOverview" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("quizOverview")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaChartPie /></span>
+                <span className="sidebar-link-label">Quiz Overview</span>
+              </span>
+            </button>
 
             <div className="sidebar-section-label sidebar-section-label-spaced">Resources</div>
             <button
@@ -520,8 +1234,7 @@ function AdminDashboard() {
               onClick={() => setShowResourcesMenu(!showResourcesMenu)}
             >
               <span className="sidebar-link-main">
-                <span className="sidebar-icon-badge" style={{ background: "#f59e0b22", color: "#f59e0b" }}>
-                  <FaLayerGroup /></span>
+                <span className="sidebar-link-icon"><FaLayerGroup /></span>
                 <span className="sidebar-link-label">Resources Management</span>
               </span>
               <span className="sidebar-toggle-icon">{showResourcesMenu ? <FaChevronUp /> : <FaChevronDown />}</span>
@@ -530,76 +1243,43 @@ function AdminDashboard() {
               <div className="sidebar-submenu">
                 {RESOURCE_TABS.map((t) => {
                   const Icon = t.icon;
+
                   return (
                     <button
                       key={t.key}
                       onClick={() => setActiveTab(t.key)}
                       className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
                     >
-                      <span className="sidebar-icon-badge sidebar-icon-badge--sm" style={{ background: t.color + "22", color: t.color }}>
-                        <Icon />
-                      </span>
+                      <span className="sidebar-submenu-icon"><Icon /></span>
                       <span>{t.label}</span>
                     </button>
                   );
                 })}
               </div>
             )}
-
-            <div className="sidebar-section-label sidebar-section-label-spaced">Quiz</div>
-            <button
-              className={`sidebar-link sidebar-toggle ${showQuizMenu || isQuizTabActive ? "sidebar-link-active" : ""}`}
-              onClick={() => setShowQuizMenu(!showQuizMenu)}
-            >
-              <span className="sidebar-link-main">
-                <span className="sidebar-icon-badge" style={{ background: "#6366f122", color: "#6366f1" }}>
-                  <FaChartPie />
-                </span>
-                <span className="sidebar-link-label">Quiz Management</span>
-              </span>
-              <span className="sidebar-toggle-icon">{showQuizMenu ? <FaChevronUp /> : <FaChevronDown />}</span>
-            </button>
-            {showQuizMenu && (
-              <div className="sidebar-submenu">
-                {QUIZ_TABS.map((t) => {
-                  const Icon = t.icon;
-                  return (
-                    <button
-                      key={t.key}
-                      onClick={() => setActiveTab(t.key)}
-                      className={`sidebar-submenu-link ${activeTab === t.key ? "ra-sidebar-active" : ""}`}
-                    >
-                      <span className="sidebar-icon-badge sidebar-icon-badge--sm" style={{ background: t.color + "22", color: t.color }}>
-                        <Icon />
-                      </span>
-                      <span>{t.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="sidebar-section-label sidebar-section-label-spaced">Support</div>
-            {SIDEBAR_FOOTER_LINKS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.key}
-                  className={`sidebar-link ${activeTab === item.key ? "sidebar-link-active" : ""}`}
-                  onClick={item.onClick}
-                >
-                  <span className="sidebar-link-main">
-                    <span className="sidebar-icon-badge" style={{ background: item.color + "22", color: item.color }}>
-                      <Icon />
-                    </span>
-                    <span className="sidebar-link-label">{item.label}</span>
-                  </span>
-                </button>
-              );
-            })}
           </div>
 
           <div className="sidebar-footer">
+            <button
+              className={`sidebar-link ${activeTab === "complaintHandling" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("complaintHandling")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaClipboardList /></span>
+                <span className="sidebar-link-label">Complaint Handling</span>
+              </span>
+            </button>
+
+            <button
+              className={`sidebar-link ${activeTab === "consultantBookings" ? "sidebar-link-active" : ""}`}
+              onClick={() => setActiveTab("consultantBookings")}
+            >
+              <span className="sidebar-link-main">
+                <span className="sidebar-link-icon"><FaCalendarAlt /></span>
+                <span className="sidebar-link-label">Consultant Bookings</span>
+              </span>
+            </button>
+
             <div className="sidebar-footnote">
               <span className="sidebar-footnote-dot" />
               <span>University management workspace</span>
@@ -611,336 +1291,109 @@ function AdminDashboard() {
       {/* Main Content */}
       <main className="main-content">
         <div className="topbar">
-          {/* Left — title */}
-          <div className="topbar__left">
-            <h1 className="topbar__title">Admin Dashboard</h1>
-            <p className="topbar__welcome">Welcome back, Admin 👋</p>
-          </div>
-
-          {/* Center — search */}
-          <div className="topbar__search">
-            <FaSearch className="topbar__search-icon" />
-            <input
-              type="text"
-              className="topbar__search-input"
-              placeholder="Search students, societies, quizzes..."
-              value={searchQuery2}
-              onChange={(e) => setSearchQuery2(e.target.value)}
-            />
-          </div>
-
-          {/* Right — actions */}
-          <div className="topbar__right">
-            {/* Notification bell */}
-            <button className="topbar__icon-btn" title="Notifications">
-              <FaBell />
-              <span className="topbar__notif-badge">3</span>
-            </button>
-
-            {/* Profile dropdown */}
-            <div className="topbar__profile-wrap">
-              <button
-                className="topbar__profile-btn"
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-              >
-                <div className="topbar__avatar">A</div>
-                <div className="topbar__profile-info">
-                  <span className="topbar__profile-name">Admin</span>
-                  <span className="topbar__profile-role">System Administrator</span>
-                </div>
-                <FaChevronDown className={`topbar__chevron ${showProfileMenu ? "topbar__chevron--open" : ""}`} />
-              </button>
-
-              {showProfileMenu && (
-                <div className="topbar__dropdown">
-                  <div className="topbar__dropdown-header">
-                    <div className="topbar__dropdown-avatar">A</div>
-                    <div>
-                      <p className="topbar__dropdown-name">Admin</p>
-                      <span className="topbar__dropdown-badge">System Administrator</span>
-                    </div>
-                  </div>
-                  <div className="topbar__dropdown-divider" />
-                  <button className="topbar__dropdown-item">
-                    <FaUser /> My Profile
-                  </button>
-                  <button className="topbar__dropdown-item">
-                    <FaCog /> Settings
-                  </button>
-                  <div className="topbar__dropdown-divider" />
-                  <button
-                    className="topbar__dropdown-item topbar__dropdown-item--danger"
-                    onClick={() => { localStorage.removeItem("user"); window.location.href = "/"; }}
-                  >
-                    <FaSignOutAlt /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          <h1>Admin Dashboard</h1>
+          <div className="admin-profile">Admin</div>
         </div>
 
         {/* Dashboard Cards */}
         {activeTab === "dashboard" && (
           <>
             <div className="dashboard-grid">
-              {/* Total Users */}
-              <div className="kpi-card kpi-card--indigo">
-                <div className="kpi-card__top-bar" />
-                <div className="kpi-card__inner">
-                  <div className="kpi-card__icon-wrap kpi-icon--indigo">
-                    <FaUsers />
-                  </div>
-                  <div className="kpi-card__body">
-                    <span className="kpi-card__label">Total Users</span>
-                    <span className="kpi-card__num">
-                      <CountUp end={users.length} duration={2} />
-                    </span>
-                    <span className="kpi-card__trend kpi-trend--up">
-                      <span className="kpi-trend__arrow">↑</span> +5 this week
-                    </span>
-                  </div>
-                </div>
+              <div className="dashboard-card">
+                <FaUsers className="card-icon" />
+                <h3>Total Users</h3>
+                <p><CountUp end={users.length} duration={2} /></p>
               </div>
-
-              {/* Students */}
-              <div className="kpi-card kpi-card--cyan">
-                <div className="kpi-card__top-bar" />
-                <div className="kpi-card__inner">
-                  <div className="kpi-card__icon-wrap kpi-icon--cyan">
-                    <FaUserGraduate />
-                  </div>
-                  <div className="kpi-card__body">
-                    <span className="kpi-card__label">Students</span>
-                    <span className="kpi-card__num">
-                      <CountUp end={users.filter(u => u.role === "student").length} duration={2} />
-                    </span>
-                    <span className="kpi-card__trend kpi-trend--up">
-                      <span className="kpi-trend__arrow">↑</span> +2 today
-                    </span>
-                  </div>
-                </div>
+              <div className="dashboard-card">
+                <FaUserGraduate className="card-icon" />
+                <h3>Students</h3>
+                <p><CountUp end={users.filter(u => u.role === "Student").length} duration={2} /></p>
               </div>
-
-              {/* Society Managers */}
-              <div className="kpi-card kpi-card--emerald">
-                <div className="kpi-card__top-bar" />
-                <div className="kpi-card__inner">
-                  <div className="kpi-card__icon-wrap kpi-icon--emerald">
-                    <FaUserTie />
-                  </div>
-                  <div className="kpi-card__body">
-                    <span className="kpi-card__label">Society Managers</span>
-                    <span className="kpi-card__num">
-                      <CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} />
-                    </span>
-                    <span className="kpi-card__trend kpi-trend--up">
-                      <span className="kpi-trend__arrow">↑</span> +1 this month
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Active Societies */}
-              <div className="kpi-card kpi-card--amber">
-                <div className="kpi-card__top-bar" />
-                <div className="kpi-card__inner">
-                  <div className="kpi-card__icon-wrap kpi-icon--amber">
-                    <FaPlusCircle />
-                  </div>
-                  <div className="kpi-card__body">
-                    <span className="kpi-card__label">Active Societies</span>
-                    <span className="kpi-card__num">
-                      <CountUp end={societies.length} duration={2} />
-                    </span>
-                    <span className="kpi-card__trend kpi-trend--up">
-                      <span className="kpi-trend__arrow">↑</span> +8 this month
-                    </span>
-                  </div>
-                </div>
+              <div className="dashboard-card">
+                <FaUserTie className="card-icon" />
+                <h3>Society Managers</h3>
+                <p><CountUp end={users.filter(u => u.role === "societyManager").length} duration={2} /></p>
               </div>
             </div>
-            <div className="dashboard-charts-row">
-              <div className="dashboard-chart-card">
-                <DashboardDownloadAnalytics />
-              </div>
-              <div className="dashboard-chart-card">
-                <ParticipationChart />
-              </div>
-            </div>
-
-            {/* ── Info Cards Row ── */}
-            <div className="dash-info-row">
-
-              {/* Recent Activities */}
-              <div className="dash-info-card">
-                <div className="dash-info-card__header">
-                  <div className="dash-info-card__icon-wrap" style={{ background: "#eef2ff", color: "#4f46e5" }}>
-                    <FaBell />
-                  </div>
-                  <div>
-                    <h3 className="dash-info-card__title">Recent Activities</h3>
-                    <p className="dash-info-card__sub">Latest system actions</p>
-                  </div>
-                </div>
-                <ul className="dash-activity-list">
-                  {[
-                    { icon: <FaUserPlus />,    color: "#4f46e5", text: "New student registered",    time: "2 min ago" },
-                    { icon: <FaUserTie />,     color: "#f59e0b", text: "Society manager added",     time: "18 min ago" },
-                    { icon: <FaPlusCircle />,  color: "#10b981", text: "Quiz created for CS201",    time: "1 hr ago" },
-                    { icon: <FaFileUpload />,  color: "#06b6d4", text: "Resource uploaded",         time: "3 hr ago" },
-                    { icon: <FaCheckCircle />, color: "#10b981", text: "Complaint resolved",        time: "5 hr ago" },
-                  ].map((a, i) => (
-                    <li key={i} className="dash-activity-item">
-                      <span className="dash-activity-icon" style={{ background: a.color + "18", color: a.color }}>
-                        {a.icon}
-                      </span>
-                      <span className="dash-activity-text">{a.text}</span>
-                      <span className="dash-activity-time">{a.time}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Latest Complaints */}
-              <div className="dash-info-card">
-                <div className="dash-info-card__header">
-                  <div className="dash-info-card__icon-wrap" style={{ background: "#fef2f2", color: "#ef4444" }}>
-                    <FaExclamationTriangle />
-                  </div>
-                  <div>
-                    <h3 className="dash-info-card__title">Latest Complaints</h3>
-                    <p className="dash-info-card__sub">Recent student submissions</p>
-                  </div>
-                </div>
-                <ul className="dash-complaint-list">
-                  {[
-                    { name: "Amal Perera",    category: "Lecture Materials", time: "10 min ago", status: "pending" },
-                    { name: "Nimal Silva",    category: "Club Events",       time: "1 hr ago",   status: "in_review" },
-                    { name: "Kasun Fernando", category: "Others",            time: "2 hr ago",   status: "resolved" },
-                    { name: "Dilani Jayawardena", category: "Lecture Materials", time: "4 hr ago", status: "pending" },
-                    { name: "Ruwan Bandara", category: "Club Events",        time: "6 hr ago",   status: "resolved" },
-                  ].map((c, i) => (
-                    <li key={i} className="dash-complaint-item">
-                      <div className="dash-complaint-info">
-                        <span className="dash-complaint-name">{c.name}</span>
-                        <span className="dash-complaint-cat">{c.category}</span>
-                      </div>
-                      <div className="dash-complaint-right">
-                        <span className={`dash-status-badge dash-status--${c.status}`}>
-                          {c.status === "in_review" ? "In Review" : c.status.charAt(0).toUpperCase() + c.status.slice(1)}
-                        </span>
-                        <span className="dash-activity-time">{c.time}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Upcoming Sessions */}
-              <div className="dash-info-card">
-                <div className="dash-info-card__header">
-                  <div className="dash-info-card__icon-wrap" style={{ background: "#ecfdf5", color: "#10b981" }}>
-                    <FaCalendarAlt />
-                  </div>
-                  <div>
-                    <h3 className="dash-info-card__title">Upcoming Sessions</h3>
-                    <p className="dash-info-card__sub">Consultant appointments</p>
-                  </div>
-                </div>
-                <ul className="dash-session-list">
-                  {[
-                    { student: "Amal Perera",    consultant: "Dr. Aruna Bandara",    date: "Today",    time: "10:00 AM" },
-                    { student: "Nimal Silva",    consultant: "Prof. Nimal Fernando", date: "Today",    time: "2:30 PM"  },
-                    { student: "Kasun Fernando", consultant: "Dr. Kanishka S.",      date: "Tomorrow", time: "9:00 AM"  },
-                    { student: "Dilani J.",      consultant: "Prof. Kamal R.",       date: "Tomorrow", time: "11:00 AM" },
-                    { student: "Ruwan Bandara",  consultant: "Dr. Saman Kumara",     date: "26 Apr",   time: "3:00 PM"  },
-                  ].map((s, i) => (
-                    <li key={i} className="dash-session-item">
-                      <div className="dash-session-info">
-                        <span className="dash-session-student">{s.student}</span>
-                        <span className="dash-session-consultant">with {s.consultant}</span>
-                      </div>
-                      <div className="dash-session-time">
-                        <span className="dash-session-date">
-                          <FaCalendarAlt style={{ fontSize: 10, marginRight: 3 }} />{s.date}
-                        </span>
-                        <span className="dash-session-clock">
-                          <FaClock style={{ fontSize: 10, marginRight: 3 }} />{s.time}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-            </div>
+            <DashboardDownloadAnalytics />
           </>
         )}
 
         {/* Users Section */}
         {activeTab === "users" && (
-          <div className="users-section">
-            {/* Tabs */}
-            <div className="category-tabs">
-              {["student", "societymanager"].map((cat) => (
-                <button
-                  key={cat}
-                  className={userCategory === cat ? "active" : ""}
-                  onClick={() => setUserCategory(cat)}
-                >
-                  {cat === "societymanager" ? "Society Managers" : "Students"}
-                </button>
-              ))}
-            </div>
+  <div className="users-section">
 
-            {/* Search */}
-            <SearchBar
-              value={searchQuery[userCategory] || ""}
-              onChange={(e) =>
-                setSearchQuery({ ...searchQuery, [userCategory]: e.target.value })
-              }
-              placeholder={`Search ${userCategory}...`}
-              className="users-directory-search"
-            />
+    {/* Tabs */}
+    <div className="category-tabs">
+      {["student", "societymanager"].map(cat => (
+        <button
+          key={cat}
+          className={userCategory === cat ? "active" : ""}
+          onClick={() => setUserCategory(cat)}
+        >
+          {cat === "societymanager"
+            ? "Society Managers"
+            : "Students"}
+        </button>
+      ))}
+    </div>
 
-            {/* Table */}
-            <div className="table-container">
-              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Age</th>
-                    <th>Address</th>
-                    <th>Contact</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((u) => (
-                    <tr key={u._id}>
-                      <td>{u.name}</td>
-                      <td>{u.gmail}</td>
-                      <td>{u.age}</td>
-                      <td>{u.address}</td>
-                      <td>{u.contact}</td>
-                      <td>
-                        <button
-                          className="dashboard-btn"
-                          onClick={() => handleDelete(u._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+    {/* Search */}
+    <SearchBar
+      value={searchQuery[userCategory] || ""}
+      onChange={(e) =>
+        setSearchQuery({
+          ...searchQuery,
+          [userCategory]: e.target.value
+        })
+      }
+      placeholder={`Search ${userCategory}...`}
+      className="users-directory-search"
+    />
+
+    {/* Table */}
+    <div className="table-container">
+      <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Age</th>
+            <th>Address</th>
+            <th>Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+  {filteredUsers.map((u) => (
+    <tr key={u._id}>
+
+      <td>{u.name}</td>
+      <td>{u.gmail}</td>
+      <td>{u.age}</td>
+      <td>{u.address}</td>
+      <td>{u.contact}</td>
+
+      <td>
+        <button
+          className="dashboard-btn"
+          onClick={() => handleDelete(u._id)}
+        >
+          Delete
+        </button>
+      </td>
+
+    </tr>
+  ))}
+</tbody>
+      </table>
+    </div>
+
+  </div>
+)}
 
         {/* Society Manager Dashboard */}
         {activeTab === "societyManager" && (
@@ -1406,7 +1859,7 @@ function AdminDashboard() {
         {/* Complaint Handling Tab - ADDED */}
         {activeTab === "complaintHandling" && <ComplaintHandling />}
         {activeTab === "quiz" && <AddQuiz />}
-        {activeTab === "quizOverview" && <QuizOverview />}
+        {activeTab === "quizOverview" && <QuizOverviewTab />}
       </main>
     </div>
   );
