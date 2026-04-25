@@ -103,47 +103,4 @@ const getStudentQuizHistory = async (req, res) => {
   }
 };
 
-// Get unique student count per module (for admin chart)
-const getModuleAttemptCounts = async (req, res) => {
-  try {
-    const ResourceModule = require("../Models/ResourceModuleModel");
-
-    // Count UNIQUE students per module
-    const grouped = await StudentQuiz.aggregate([
-      {
-        $group: {
-          _id: "$module",
-          uniqueStudents: { $addToSet: "$student" },
-          totalAttempts: { $sum: 1 },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          totalAttempts: 1,
-          uniqueStudents: { $size: "$uniqueStudents" },
-        },
-      },
-    ]);
-
-    const result = await Promise.all(
-      grouped.map(async (g) => {
-        const mod = await ResourceModule.findById(g._id).select("moduleName moduleCode").lean();
-        return {
-          moduleId:       g._id,
-          moduleName:     mod?.moduleName || "Unknown",
-          moduleCode:     mod?.moduleCode || "",
-          uniqueStudents: g.uniqueStudents,
-          totalAttempts:  g.totalAttempts,
-        };
-      })
-    );
-
-    res.status(200).json({ data: result });
-  } catch (err) {
-    console.error("getModuleAttemptCounts error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-module.exports = { submitStudentQuiz, getLeaderboard, getStudentQuizHistory, getModuleAttemptCounts };
+module.exports = { submitStudentQuiz, getLeaderboard, getStudentQuizHistory };
