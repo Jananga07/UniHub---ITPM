@@ -1,244 +1,339 @@
-/* ═══════════════════════════════════════════════════════════════
-   QUIZ OVERVIEW  —  prefix: qov-
-   ═══════════════════════════════════════════════════════════════ */
+/* Quiz Overview CSS */
 
-/* ── Page wrapper ────────────────────────────────────────────── */
 .qov-page {
-  padding: 8px 0 24px;
-  font-family: 'Inter', 'Poppins', sans-serif;
+  padding: 10px 0 30px;
+  font-family: Inter, sans-serif;
 }
 
-/* ── Header ──────────────────────────────────────────────────── */
 .qov-title {
   font-size: 24px;
   font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 6px;
-  letter-spacing: -0.3px;
 }
 
 .qov-subtitle {
   color: #64748b;
-  font-size: 14px;
-  margin: 0 0 28px;
-  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
-/* ── Loading ─────────────────────────────────────────────────── */
-.qov-loading {
-  padding: 40px 20px;
-  color: #94a3b8;
-  font-size: 15px;
-  text-align: center;
-}
-
-/* ── Summary stat cards ──────────────────────────────────────── */
 .qov-stats {
   display: flex;
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .qov-stat {
   flex: 1;
-  min-width: 140px;
-  border-radius: 14px;
-  padding: 18px 22px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.qov-stat:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-}
-
-.qov-stat--with {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-}
-
-.qov-stat--without {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-}
-
-.qov-stat--total {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  min-width: 150px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  text-align: center;
+  border: 1px solid #e2e8f0;
 }
 
 .qov-stat__num {
-  font-size: 32px;
-  font-weight: 900;
-  line-height: 1;
+  font-size: 24px;
+  font-weight: bold;
   display: block;
-  margin-bottom: 6px;
 }
-
-.qov-stat--with    .qov-stat__num { color: #16a34a; }
-.qov-stat--without .qov-stat__num { color: #ea580c; }
-.qov-stat--total   .qov-stat__num { color: #2563eb; }
 
 .qov-stat__label {
   font-size: 13px;
-  font-weight: 600;
+  color: #64748b;
 }
 
-.qov-stat--with    .qov-stat__label { color: #15803d; }
-.qov-stat--without .qov-stat__label { color: #c2410c; }
-.qov-stat--total   .qov-stat__label { color: #1d4ed8; }
+.qov-chart {
+  margin: 25px 0;
+}
 
-/* ── Section ─────────────────────────────────────────────────── */
 .qov-section {
-  margin-bottom: 32px;
+  margin-top: 20px;
 }
 
 .qov-section-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   font-size: 16px;
   font-weight: 700;
-  margin: 0 0 14px;
-}
-
-.qov-section-title--without { color: #ea580c; }
-.qov-section-title--with    { color: #16a34a; }
-
-.qov-count-badge {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 999px;
-}
-
-.qov-count-badge--without { background: #fed7aa; color: #ea580c; }
-.qov-count-badge--with    { background: #bbf7d0; color: #16a34a; }
-
-.qov-empty-text {
-  color: #94a3b8;
-  font-size: 14px;
-  margin: 0;
-}
-
-/* ── Module list ─────────────────────────────────────────────── */
-.qov-module-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ── Module row (without quiz) ───────────────────────────────── */
-.qov-module-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 12px;
-  padding: 14px 18px;
-  gap: 12px;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.qov-module-row:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(234,88,12,0.12);
-}
-
-.qov-module-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.qov-module-code {
-  margin-left: 8px;
-  font-size: 11px;
-  color: #94a3b8;
-  background: #f1f5f9;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.qov-add-btn {
-  background: linear-gradient(135deg, #ea580c, #dc2626);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 3px 10px rgba(234,88,12,0.28);
-}
-
-.qov-add-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(234,88,12,0.38);
-}
-
-/* ── Module card (with quiz) ─────────────────────────────────── */
-.qov-module-card {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 14px;
-  padding: 14px 18px;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.qov-module-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(22,163,74,0.1);
-}
-
-.qov-module-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 10px;
 }
 
-.qov-quiz-count {
-  font-size: 13px;
-  color: #16a34a;
-  font-weight: 700;
-  background: #dcfce7;
-  padding: 3px 10px;
-  border-radius: 999px;
+.qov-module-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+.qov-module-card {
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #f0fdf4;
   border: 1px solid #bbf7d0;
 }
 
-/* ── Quiz tags ───────────────────────────────────────────────── */
+.qov-module-name {
+  font-weight: 700;
+}
+
+.qov-add-btn {
+  background: #4f46e5;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
 .qov-quiz-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  margin-top: 8px;
 }
 
 .qov-quiz-tag {
-  background: #dcfce7;
-  color: #15803d;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 12px;
+  display: inline-block;
+  background: #e0e7ff;
+  padding: 3px 8px;
   border-radius: 999px;
-  border: 1px solid #bbf7d0;
-  transition: background 0.15s ease;
+  font-size: 12px;
+  margin: 3px;
 }
 
-.qov-quiz-tag:hover {
-  background: #bbf7d0;
+/* ── Bar Chart ───────────────────────────────────────────────── */
+.qov-chart {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px 20px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  height: 280px;
+  position: relative;
+}
+
+/* ── Coverage stats row ──────────────────────────────────────── */
+.qov-stats--coverage { margin-bottom: 28px; }
+
+/* ── Participation Bar Chart ─────────────────────────────────── */
+.qov-chart-wrap {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 28px 28px 20px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 24px rgba(99,102,241,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.qov-chart-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #06b6d4, #10b981);
+  border-radius: 20px 20px 0 0;
+}
+
+.qov-chart-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.qov-chart-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.qov-chart-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ── Vertical chart layout ───────────────────────────────────── */
+.qov-vchart {
+  display: flex;
+  gap: 0;
+  height: 260px;
+}
+
+/* Y-axis */
+.qov-vchart__yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 36px;
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.qov-vchart__ylabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: right;
+  padding-right: 8px;
+  line-height: 1;
+}
+
+/* Chart area */
+.qov-vchart__area {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+/* Grid lines */
+.qov-vchart__grid {
+  position: absolute;
+  inset: 0;
+  bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.qov-vchart__gridline {
+  width: 100%;
+  height: 1px;
+  background: rgba(226,232,240,0.7);
+}
+
+/* Bars container */
+.qov-vchart__bars {
+  position: absolute;
+  inset: 0;
+  bottom: 36px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 0 8px;
+}
+
+/* Single column */
+.qov-vchart__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  position: relative;
+}
+
+.qov-vchart__val {
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  line-height: 1;
+  position: absolute;
+  top: 0;
+  transform: translateY(-100%);
+  white-space: nowrap;
+  animation: qovValFade 0.4s ease both;
+  animation-delay: calc(var(--i, 0) * 0.07s + 0.5s);
+}
+
+@keyframes qovValFade {
+  from { opacity: 0; transform: translateY(-120%); }
+  to   { opacity: 1; transform: translateY(-100%); }
+}
+
+.qov-vchart__bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.qov-vchart__bar {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  min-height: 4px;
+  position: relative;
+  overflow: hidden;
+  transform-origin: bottom center;
+
+  /* Rise + bounce */
+  animation: qovBarRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  /* Hover */
+  transition: filter 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.qov-vchart__col:hover .qov-vchart__bar {
+  filter: brightness(1.15) saturate(1.1);
+  transform: scaleX(0.88) translateY(-3px);
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.18);
+}
+
+/* Shimmer sweep */
+.qov-vchart__bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.35) 50%,
+    transparent 100%
+  );
+  animation: qovShimmer 1.4s ease-in-out both;
+  animation-delay: inherit;
+}
+
+/* Highlight cap */
+.qov-vchart__bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 8px 8px 0 0;
+}
+
+@keyframes qovBarRise {
+  0%   { transform: scaleY(0); opacity: 0; }
+  60%  { transform: scaleY(1.06); opacity: 1; }
+  80%  { transform: scaleY(0.97); }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes qovShimmer {
+  0%   { left: -100%; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { left: 150%; opacity: 0; }
+}
+
+/* X-axis labels */
+.qov-vchart__xlabel {
+  position: absolute;
+  bottom: -32px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  width: 100%;
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .qov-stats { flex-direction: column; }
-  .qov-module-row { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .qov-add-btn { width: 100%; text-align: center; }
+@media (max-width: 600px) {
+  .qov-vchart { height: 200px; }
+  .qov-vchart__bars { gap: 6px; padding: 0 4px; }
+  .qov-vchart__xlabel { font-size: 9px; }
+  .qov-chart-wrap { padding: 20px 16px 20px; }
 }
