@@ -1,390 +1,350 @@
+/* ── Student Support — Glassmorphism ──────────────────────────── */
 :root {
-  /* Dynamic Light Blue Palette */
-  --bg-color: #f0f7ff;
-  --primary: #2563eb;
-  --primary-glow: rgba(37, 99, 235, 0.4);
-  --glass-white: rgba(255, 255, 255, 0.85);
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ss-primary:    #4f46e5;
+  --ss-primary-dk: #3730a3;
+  --ss-accent:     #06b6d4;
+  --ss-glass:      rgba(255,255,255,0.72);
+  --ss-border:     rgba(255,255,255,0.85);
+  --ss-shadow:     0 20px 56px rgba(79,70,229,0.14);
+  --ss-radius:     24px;
+  --ss-radius-sm:  14px;
+  --ss-transition: 0.22s ease;
+  --bg-color:      #f0f4ff;
+  --primary:       #4f46e5;
+  --primary-glow:  rgba(79,70,229,0.35);
+  --glass-white:   rgba(255,255,255,0.72);
+  --text-main:     #0f172a;
+  --text-muted:    #64748b;
 }
 
-/* 1. Animated Background Blobs */
 body {
   background-color: var(--bg-color);
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
-  position: relative;
 }
 
-body::before, body::after {
-  content: "";
-  position: fixed;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(255,255,255,0) 70%);
-  z-index: -1;
-  animation: floatBackground 20s infinite alternate ease-in-out;
-}
-
-body::after {
-  right: -100px;
-  bottom: -100px;
-  animation-delay: -10s;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(255,255,255,0) 70%);
-}
-
-@keyframes floatBackground {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(100px, 50px) scale(1.2); }
-}
-
-/* 2. Shimmer Animation (if needed later) */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* 1. Full Screen Container */
+/* ── Page container ───────────────────────────────────────────── */
 .student-support-container {
   width: 100vw;
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  position: relative;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(99,102,241,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, rgba(6,182,212,0.1) 0%, transparent 55%),
+    linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #ecfeff 100%);
+  background-attachment: fixed;
 }
 
-/* Content Wrapper */
 .student-support-container > *:not(.navbar) {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
 }
 
-/* Content Sections */
-.content-section {
-  padding: 60px 0;
-}
+.content-section { padding: 60px 0; }
 
-/* 3. Floating Title with Gradient */
+/* ── Page title ───────────────────────────────────────────────── */
 .page-title {
   text-align: center;
-  font-size: 3.5rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 900;
-  background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #4f46e5 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 50px;
-  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05));
+  letter-spacing: -0.5px;
 }
 
-/* 4. Quick Actions Section (new) */
+/* ── Quick actions ────────────────────────────────────────────── */
 .quick-actions {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: center;
   margin-bottom: 40px;
   flex-wrap: wrap;
 }
 
 .whatsapp-btn, .complaint-btn, .my-complaints-btn, .rating-btn {
-  padding: 15px 25px;
+  padding: 13px 24px;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
+  transition: transform var(--ss-transition), box-shadow var(--ss-transition);
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 
 .whatsapp-btn {
-  background: #25D366;
+  background: linear-gradient(135deg, #25D366, #128C7E);
   color: white;
 }
 
 .whatsapp-btn:hover {
-  background: #128C7E;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(37,211,102,0.35);
 }
 
 .complaint-btn {
-  background: #FF6B6B;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
 }
 
 .complaint-btn:hover {
-  background: #FF5252;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(239,68,68,0.35);
 }
 
 .my-complaints-btn {
-  background: #4ECDC4;
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
   color: white;
 }
 
 .my-complaints-btn:hover {
-  background: #45B7B8;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(6,182,212,0.35);
 }
 
 .rating-btn {
-  background: #FFD700;
-  color: #333;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
 }
 
 .rating-btn:hover {
-  background: #FFC700;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(245,158,11,0.35);
 }
 
-.whatsapp-icon, .complaint-icon, .my-complaints-icon, .rating-icon {
-  font-size: 20px;
-}
+.whatsapp-icon, .complaint-icon, .my-complaints-icon, .rating-icon { font-size: 20px; }
 
-/* 5. Top Consultants Section (new) */
-.top-consultants {
-  margin-bottom: 50px;
-}
+/* ── Top consultants ──────────────────────────────────────────── */
+.top-consultants { margin-bottom: 50px; }
 
 .top-consultants h2 {
   text-align: center;
   color: var(--text-main);
   margin-bottom: 30px;
-  font-size: 2rem;
+  font-size: 1.8rem;
+  font-weight: 800;
 }
 
 .top-consultants-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 25px;
+  gap: 24px;
   margin-bottom: 40px;
 }
 
 .top-consultant-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
-  padding: 25px;
-  border-radius: 20px;
+  padding: 26px;
+  border-radius: var(--ss-radius);
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 16px 40px rgba(79,70,229,0.28);
+  transition: transform var(--ss-transition), box-shadow var(--ss-transition);
+}
+
+.top-consultant-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
 }
 
 .top-consultant-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 56px rgba(79,70,229,0.38);
 }
 
 .rank-badge {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: rgba(255, 255, 255, 0.2);
+  top: 16px; right: 16px;
+  background: rgba(255,255,255,0.2);
   color: white;
   padding: 5px 12px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
 }
 
-.top-consultant-card h3 {
-  margin: 0 0 15px 0;
-  font-size: 1.3rem;
-}
+.top-consultant-card h3 { margin: 0 0 12px; font-size: 1.2rem; font-weight: 800; }
 
-/* 6. Rating System (new) */
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 10px 0;
-}
+/* ── Rating ───────────────────────────────────────────────────── */
+.rating { display: flex; align-items: center; gap: 6px; margin: 10px 0; }
+.star { font-size: 16px; color: #d1d5db; }
+.star.full  { color: #f59e0b; }
+.star.half  { color: #f59e0b; opacity: 0.7; }
+.star.empty { color: #d1d5db; }
+.rating-text { font-size: 13px; color: var(--text-muted); font-weight: 600; }
 
-.star {
-  font-size: 16px;
-  color: #ddd;
-}
-
-.star.full {
-  color: #FFD700;
-}
-
-.star.half {
-  color: #FFD700;
-  opacity: 0.7;
-}
-
-.star.empty {
-  color: #ddd;
-}
-
-.rating-text {
-  font-size: 14px;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-/* 7. Main Lecturers Grid (from first part) */
+/* ── Lecturers grid ───────────────────────────────────────────── */
 .lecturers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 35px;
+  gap: 28px;
 }
 
 .lecturer-card {
   background: var(--glass-white);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-  transition: var(--transition-bounce);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--ss-radius);
+  padding: 28px;
+  border: 1px solid var(--ss-border);
+  box-shadow: 0 10px 32px rgba(79,70,229,0.08);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease, border-color 0.3s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  animation: fadeInUp 0.8s ease-out backwards;
+  animation: fadeInUp 0.6s ease-out backwards;
 }
 
-/* Shine Effect on Hover */
 .lecturer-card::after {
   content: "";
   position: absolute;
   top: 0; left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+  width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.5), transparent);
   transform: skewX(-25deg);
-  transition: 0.75s;
+  transition: 0.7s;
 }
 
-.lecturer-card:hover::after {
-  left: 125%;
-}
+.lecturer-card:hover::after { left: 125%; }
 
 .lecturer-card:hover {
-  transform: translateY(-15px) rotateX(5deg) rotateY(2deg);
-  box-shadow: 0 30px 60px rgba(37, 99, 235, 0.15);
-  border-color: var(--primary);
+  transform: translateY(-10px);
+  box-shadow: 0 28px 56px rgba(79,70,229,0.18);
+  border-color: rgba(99,102,241,0.3);
 }
 
 .lecturer-header h3 {
   color: var(--text-main);
-  font-size: 1.5rem;
-  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0 0 4px;
 }
 
 .lecturer-title {
   color: var(--primary);
   font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 2px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
 }
 
 .expertise {
-  background: rgba(37, 99, 235, 0.05);
-  padding: 15px;
-  border-radius: 15px;
-  margin: 20px 0;
-  border: 1px dashed rgba(37, 99, 235, 0.2);
-  transition: 0.3s;
+  background: rgba(238,242,255,0.7);
+  padding: 14px;
+  border-radius: 12px;
+  margin: 18px 0;
+  border: 1px solid rgba(199,210,254,0.4);
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.65;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .lecturer-card:hover .expertise {
-  background: var(--primary);
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
   color: white;
-  border-style: solid;
+  border-color: transparent;
 }
 
 .email {
-  background: var(--text-main);
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   color: white;
   text-align: center;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 13px;
+  border-radius: 12px;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 14px;
   display: block;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
 }
 
 .email:hover {
-  background: var(--primary);
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px var(--primary-glow);
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px var(--primary-glow);
 }
 
-/* 8. Enhanced Lecturer Actions (new) */
-.lecturer-actions {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
+/* ── Lecturer actions ─────────────────────────────────────────── */
+.lecturer-actions { display: flex; gap: 12px; margin-top: 18px; }
 
 .book-btn, .rate-btn {
   flex: 1;
-  padding: 12px 20px;
+  padding: 12px 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform var(--ss-transition), box-shadow var(--ss-transition);
 }
 
 .book-btn {
-  background: var(--primary);
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
   color: white;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.28);
 }
 
 .book-btn:hover {
-  background: #1d4ed8;
   transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(79,70,229,0.4);
 }
 
 .rate-btn {
-  background: #f3f4f6;
-  color: var(--text-main);
-  border: 2px solid #e5e7eb;
+  background: rgba(238,242,255,0.8);
+  color: #4f46e5;
+  border: 1.5px solid rgba(199,210,254,0.6);
 }
 
 .rate-btn:hover {
-  background: #e5e7eb;
+  background: rgba(224,231,255,0.9);
   transform: translateY(-2px);
 }
 
 .bookings-info {
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(238,242,255,0.7);
   padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--primary);
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #4f46e5;
+  font-weight: 700;
   text-align: center;
   margin-top: 10px;
+  border: 1px solid rgba(199,210,254,0.4);
 }
 
-/* 9. Entrance Fade-in (already applied to .lecturer-card) */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 10. Responsive adjustments */
 @media (max-width: 768px) {
-  .page-title { font-size: 2.5rem; }
-  .lecturer-card:hover { transform: translateY(-10px); }
+  .student-support-container > *:not(.navbar) { padding: 0 20px; }
+  .page-title { font-size: 2rem; }
+  .lecturer-card:hover { transform: translateY(-6px); }
+  .quick-actions { gap: 10px; }
+  .whatsapp-btn, .complaint-btn, .my-complaints-btn, .rating-btn { padding: 11px 18px; font-size: 14px; }
 }

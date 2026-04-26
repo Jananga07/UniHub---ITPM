@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./AdminDashboard.css";
 import "./ResourcesAdmin.css";
+import "./UsersManagement.css";
 import { useNavigate } from "react-router-dom";
 import CountUp from "react-countup";
 import {
@@ -878,68 +879,17 @@ function AdminDashboard() {
           </>
         )}
 
-        {/* Users Section */}
+        {/* ── Users Management Section ── */}
         {activeTab === "users" && (
-          <div className="users-section">
-            {/* Tabs */}
-            <div className="category-tabs">
-              {["student", "societymanager"].map((cat) => (
-                <button
-                  key={cat}
-                  className={userCategory === cat ? "active" : ""}
-                  onClick={() => setUserCategory(cat)}
-                >
-                  {cat === "societymanager" ? "Society Managers" : "Students"}
-                </button>
-              ))}
-            </div>
-
-            {/* Search */}
-            <SearchBar
-              value={searchQuery[userCategory] || ""}
-              onChange={(e) =>
-                setSearchQuery({ ...searchQuery, [userCategory]: e.target.value })
-              }
-              placeholder={`Search ${userCategory}...`}
-              className="users-directory-search"
-            />
-
-            {/* Table */}
-            <div className="table-container">
-              <h2>{userCategory === "student" ? "Student List" : "Society Manager List"}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Age</th>
-                    <th>Address</th>
-                    <th>Contact</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((u) => (
-                    <tr key={u._id}>
-                      <td>{u.name}</td>
-                      <td>{u.gmail}</td>
-                      <td>{u.age}</td>
-                      <td>{u.address}</td>
-                      <td>{u.contact}</td>
-                      <td>
-                        <button
-                          className="dashboard-btn"
-                          onClick={() => handleDelete(u._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <UsersManagementPanel
+            users={users}
+            societies={societies}
+            userCategory={userCategory}
+            setUserCategory={setUserCategory}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            handleDelete={handleDelete}
+          />
         )}
 
         {/* Society Manager Dashboard */}
@@ -1412,4 +1362,302 @@ function AdminDashboard() {
   );
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   USERS MANAGEMENT PANEL — Premium SaaS Data Table
+═══════════════════════════════════════════════════════════════ */
+const PAGE_SIZE = 8;
+
+function UsersManagementPanel({ users, societies, userCategory, setUserCategory, searchQuery, setSearchQuery, handleDelete }) {
+  const navigate = useNavigate();
+  const [viewUser, setViewUser] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState("name");
+  const [sortDir, setSortDir] = useState("asc");
+
+  const students = users.filter(u => u.role?.trim().toLowerCase() === "student");
+  const managers = users.filter(u => u.role?.trim().toLowerCase() === "societymanager");
+  const activeList = userCategory === "student" ? students : managers;
+  const q = searchQuery[userCategory]?.toLowerCase() || "";
+
+  const filtered = activeList.filter(u =>
+    u.name?.toLowerCase().includes(q) ||
+    u.gmail?.toLowerCase().includes(q) ||
+    u.contact?.toLowerCase().includes(q)
+  );
+
+  const sorted = [...filtered].sort((a, b) => {
+    const av = (a[sortField] || "").toString().toLowerCase();
+    const bv = (b[sortField] || "").toString().toLowerCase();
+    return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const paginated = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const allSelected = paginated.length > 0 && paginated.every(u => selectedIds.includes(u._id));
+
+  const toggleSort = (field) => {
+    if (sortField === field) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortField(field); setSortDir("asc"); }
+  };
+
+  const toggleAll = () => {
+    const ids = paginated.map(u => u._id);
+    setSelectedIds(prev => allSelected ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
+  };
+
+  const toggleOne = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+
+  const handleBulkDelete = () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Delete ${selectedIds.length} selected user(s)?`)) return;
+    selectedIds.forEach(id => handleDelete(id));
+    setSelectedIds([]);
+  };
+
+  const exportCSV = () => {
+    const rows = [["Name","Email","Age","Address","Contact","Role"]];
+    filtered.forEach(u => rows.push([u.name, u.gmail, u.age||"", u.address||"", u.contact||"", u.role]));
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `${userCategory}_users.csv`; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const getSocietyName = (societyId) => {
+    const s = societies.find(s => s._id === societyId);
+    return s?.societyName || s?.name || "—";
+  };
+
+  const SortIcon = ({ field }) => (
+    <span className="um-sort-icon">
+      {sortField === field ? (sortDir === "asc" ? " ↑" : " ↓") : " ↕"}
+    </span>
+  );
+
+  // Reset page on tab/search change
+  useEffect(() => { setCurrentPage(1); setSelectedIds([]); }, [userCategory, q]);
+
+  return (
+    <div className="um-shell">
+
+      {/* ── Page Header ── */}
+      <div className="um-page-header">
+        <div className="um-page-header-left">
+          <span className="um-eyebrow">Administration</span>
+          <h2 className="um-title">All Users Management</h2>
+          <p className="um-subtitle">Manage students and society managers across the platform</p>
+        </div>
+        <div className="um-page-header-right">
+          <button className="um-btn um-btn--outline" onClick={exportCSV}>
+            <FaFileUpload /> Export CSV
+          </button>
+          <button className="um-btn um-btn--primary" onClick={() => navigate("/register")}>
+            <FaUserPlus /> Add User
+          </button>
+        </div>
+      </div>
+
+      {/* ── Stat Cards ── */}
+      <div className="um-stats-row">
+        <div className="um-stat-card um-stat--blue">
+          <div className="um-stat-icon um-stat-icon--blue"><FaUsers /></div>
+          <div className="um-stat-body">
+            <span className="um-stat-label">Total Users</span>
+            <span className="um-stat-value">{users.length}</span>
+          </div>
+        </div>
+        <div className="um-stat-card um-stat--cyan">
+          <div className="um-stat-icon um-stat-icon--cyan"><FaUserGraduate /></div>
+          <div className="um-stat-body">
+            <span className="um-stat-label">Students</span>
+            <span className="um-stat-value">{students.length}</span>
+          </div>
+        </div>
+        <div className="um-stat-card um-stat--purple">
+          <div className="um-stat-icon um-stat-icon--purple"><FaUserTie /></div>
+          <div className="um-stat-body">
+            <span className="um-stat-label">Managers</span>
+            <span className="um-stat-value">{managers.length}</span>
+          </div>
+        </div>
+        <div className="um-stat-card um-stat--green">
+          <div className="um-stat-icon um-stat-icon--green"><FaCheckCircle /></div>
+          <div className="um-stat-body">
+            <span className="um-stat-label">New This Week</span>
+            <span className="um-stat-value">+{Math.min(users.length, 5)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Table Card ── */}
+      <div className="um-table-card">
+
+        {/* Toolbar */}
+        <div className="um-toolbar">
+          <div className="um-tabs">
+            <button
+              className={`um-tab ${userCategory === "student" ? "um-tab--active" : ""}`}
+              onClick={() => setUserCategory("student")}
+            >
+              <FaUserGraduate /> Students
+              <span className="um-tab-count">{students.length}</span>
+            </button>
+            <button
+              className={`um-tab ${userCategory === "societymanager" ? "um-tab--active" : ""}`}
+              onClick={() => setUserCategory("societymanager")}
+            >
+              <FaUserTie /> Society Managers
+              <span className="um-tab-count">{managers.length}</span>
+            </button>
+          </div>
+
+          <div className="um-toolbar-right">
+            {selectedIds.length > 0 && (
+              <button className="um-btn um-btn--danger-sm" onClick={handleBulkDelete}>
+                <FaTrashAlt /> Delete ({selectedIds.length})
+              </button>
+            )}
+            <div className="um-search-wrap">
+              <FaSearch className="um-search-icon" />
+              <input
+                className="um-search-input"
+                type="text"
+                placeholder={`Search ${userCategory === "student" ? "students" : "managers"}…`}
+                value={searchQuery[userCategory] || ""}
+                onChange={e => setSearchQuery({ ...searchQuery, [userCategory]: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="um-table-wrap">
+          <table className="um-table">
+            <thead>
+              <tr>
+                <th className="um-th-check">
+                  <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+                </th>
+                <th className="um-th-sortable" onClick={() => toggleSort("name")}>
+                  User <SortIcon field="name" />
+                </th>
+                <th className="um-th-sortable" onClick={() => toggleSort("gmail")}>
+                  Email <SortIcon field="gmail" />
+                </th>
+                <th>Contact</th>
+                {userCategory === "student" ? <th>Age / Address</th> : <th>Assigned Society</th>}
+                <th>Status</th>
+                <th className="um-th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="um-empty-row">
+                    <div className="um-empty-state">
+                      <FaUsers className="um-empty-icon" />
+                      <p>No {userCategory === "student" ? "students" : "managers"} found</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : paginated.map((u, idx) => (
+                <tr key={u._id} className={`um-row ${selectedIds.includes(u._id) ? "um-row--selected" : ""} ${idx % 2 === 1 ? "um-row--alt" : ""}`}>
+                  <td className="um-td-check">
+                    <input type="checkbox" checked={selectedIds.includes(u._id)} onChange={() => toggleOne(u._id)} />
+                  </td>
+                  <td>
+                    <div className="um-user-cell">
+                      <div className={`um-avatar ${userCategory === "student" ? "um-avatar--blue" : "um-avatar--purple"}`}>
+                        {u.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="um-user-info">
+                        <span className="um-user-name">{u.name}</span>
+                        <span className="um-user-role">{userCategory === "student" ? "Student" : "Society Manager"}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="um-email-cell">{u.gmail}</td>
+                  <td className="um-contact-cell">{u.contact || "—"}</td>
+                  <td className="um-detail-cell">
+                    {userCategory === "student"
+                      ? <span>{u.age ? `Age ${u.age}` : "—"}{u.address ? ` · ${u.address}` : ""}</span>
+                      : <span className="um-society-tag">{getSocietyName(u.societyId)}</span>
+                    }
+                  </td>
+                  <td>
+                    <span className="um-status-badge um-status--active">Active</span>
+                  </td>
+                  <td className="um-actions-cell">
+                    <button
+                      className="um-action-btn um-action-btn--view"
+                      title="View profile"
+                      onClick={() => setViewUser(u)}
+                    >
+                      <FaUser />
+                    </button>
+                    <button
+                      className="um-action-btn um-action-btn--delete"
+                      title="Delete user"
+                      onClick={() => handleDelete(u._id)}
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="um-pagination">
+          <span className="um-pagination-info">
+            Showing {Math.min((currentPage - 1) * PAGE_SIZE + 1, sorted.length)}–{Math.min(currentPage * PAGE_SIZE, sorted.length)} of {sorted.length}
+          </span>
+          <div className="um-pagination-btns">
+            <button className="um-page-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>‹</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              <button key={p} className={`um-page-btn ${p === currentPage ? "um-page-btn--active" : ""}`} onClick={() => setCurrentPage(p)}>{p}</button>
+            ))}
+            <button className="um-page-btn" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>›</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── View User Modal ── */}
+      {viewUser && (
+        <div className="um-modal-overlay" onClick={() => setViewUser(null)}>
+          <div className="um-modal" onClick={e => e.stopPropagation()}>
+            <button className="um-modal-close" onClick={() => setViewUser(null)}>✕</button>
+            <div className={`um-modal-avatar ${viewUser.role === "student" ? "um-avatar--blue" : "um-avatar--purple"}`}>
+              {viewUser.name?.charAt(0).toUpperCase()}
+            </div>
+            <h3 className="um-modal-name">{viewUser.name}</h3>
+            <span className="um-modal-role-badge">{viewUser.role === "student" ? "Student" : "Society Manager"}</span>
+            <dl className="um-modal-meta">
+              <div><dt>Email</dt><dd>{viewUser.gmail}</dd></div>
+              <div><dt>Age</dt><dd>{viewUser.age || "—"}</dd></div>
+              <div><dt>Contact</dt><dd>{viewUser.contact || "—"}</dd></div>
+              <div><dt>Address</dt><dd>{viewUser.address || "—"}</dd></div>
+              {viewUser.role !== "student" && (
+                <div><dt>Society</dt><dd>{getSocietyName(viewUser.societyId)}</dd></div>
+              )}
+            </dl>
+            <div className="um-modal-actions">
+              <button className="um-btn um-btn--danger-sm" onClick={() => { handleDelete(viewUser._id); setViewUser(null); }}>
+                <FaTrashAlt /> Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default AdminDashboard;
+

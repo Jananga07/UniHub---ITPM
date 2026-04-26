@@ -1,146 +1,200 @@
+/* ── Consultant Rating — Glassmorphism ────────────────────────── */
+:root {
+  --cr-primary:    #4f46e5;
+  --cr-primary-dk: #3730a3;
+  --cr-accent:     #06b6d4;
+  --cr-glass:      rgba(255,255,255,0.72);
+  --cr-border:     rgba(255,255,255,0.85);
+  --cr-shadow:     0 20px 56px rgba(79,70,229,0.14);
+  --cr-radius:     24px;
+  --cr-radius-sm:  14px;
+  --cr-transition: 0.22s ease;
+}
+
 .consultant-rating-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
-  font-family: 'Inter', system-ui, sans-serif;
+  padding: 48px 24px 64px;
+  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.1) 0%, transparent 55%),
+    linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #ecfeff 100%);
+  background-attachment: fixed;
 }
 
+/* ── Header ───────────────────────────────────────────────────── */
 .rating-header {
   text-align: center;
   margin-bottom: 50px;
 }
 
 .rating-header h1 {
-  color: #1e293b;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 900;
+  background: linear-gradient(135deg, #0f172a 0%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-bottom: 10px;
-  font-size: 2.5rem;
-  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .rating-header p {
   color: #64748b;
-  font-size: 1.1rem;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-/* Top Consultants Section */
-.top-consultants-section {
-  margin-bottom: 60px;
-}
+/* ── Top Consultants ──────────────────────────────────────────── */
+.top-consultants-section { margin-bottom: 60px; }
 
 .top-consultants-section h2 {
   text-align: center;
-  color: #1e293b;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
   margin-bottom: 30px;
-  font-size: 2rem;
-  font-weight: 600;
 }
 
 .top-consultants-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 25px;
+  gap: 24px;
   margin-bottom: 40px;
 }
 
 .top-consultant-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   padding: 30px;
-  border-radius: 20px;
+  border-radius: var(--cr-radius);
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 20px 48px rgba(79,70,229,0.3);
+  transition: transform var(--cr-transition), box-shadow var(--cr-transition);
+}
+
+.top-consultant-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
 }
 
 .top-consultant-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 28px 60px rgba(79,70,229,0.4);
 }
 
 .rank-badge {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.2);
+  top: 20px; right: 20px;
+  background: rgba(255,255,255,0.2);
   color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.25);
 }
 
 .consultant-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.4rem;
-  font-weight: 700;
+  margin: 0 0 6px;
+  font-size: 1.3rem;
+  font-weight: 800;
 }
 
 .consultant-title {
   display: block;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.9;
-  margin-bottom: 16px;
+  letter-spacing: 1.2px;
+  opacity: 0.85;
+  margin-bottom: 14px;
 }
 
 .rating-display {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .rating-text {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   opacity: 0.9;
 }
 
 .expertise {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   opacity: 0.8;
   margin-bottom: 16px;
 }
 
 .stats {
   display: flex;
-  gap: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .stat-item {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.15);
   padding: 6px 12px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Rating Form Section */
+/* ── Rating Form Section ──────────────────────────────────────── */
 .rating-form-section {
-  background: white;
-  border-radius: 16px;
+  background: var(--cr-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 28px;
   padding: 40px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--cr-border);
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.03),
+    var(--cr-shadow),
+    inset 0 1px 0 rgba(255,255,255,0.9);
   margin-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rating-form-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #06b6d4);
+  border-radius: 0;
 }
 
 .rating-form-section h2 {
-  color: #1e293b;
-  margin-bottom: 8px;
-  font-size: 1.8rem;
-  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
 }
 
 .rating-form-section p {
   color: #64748b;
-  margin-bottom: 30px;
-  font-size: 16px;
+  margin-bottom: 28px;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .rating-form {
@@ -148,6 +202,7 @@
   margin: 0 auto;
 }
 
+/* ── Form groups ──────────────────────────────────────────────── */
 .form-group {
   margin-bottom: 24px;
 }
@@ -155,189 +210,215 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 600;
-  color: #374151;
-  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 13.5px;
+  letter-spacing: 0.1px;
+  transition: color 0.2s ease;
 }
 
+.form-group:focus-within label { color: #4f46e5; }
+
+/* ── Select ───────────────────────────────────────────────────── */
 .consultant-select {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 16px;
-  background: white;
+  padding: 13px 16px;
+  border: 1.5px solid rgba(226,232,240,0.8);
+  border-radius: var(--cr-radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  background: rgba(248,250,252,0.8);
+  color: #0f172a;
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  outline: none;
+  transition: border-color var(--cr-transition), box-shadow var(--cr-transition), background var(--cr-transition);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%234f46e5' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  background-size: 18px;
+  padding-right: 44px;
+}
+
+.consultant-select:hover {
+  border-color: rgba(99,102,241,0.4);
+  background-color: rgba(255,255,255,0.9);
 }
 
 .consultant-select:focus {
-  outline: none;
-  border-color: #2563eb;
+  border-color: #4f46e5;
+  background-color: rgba(255,255,255,0.95);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
 }
 
 .no-bookings-message {
   margin-top: 8px;
-  color: #f59e0b;
-  font-size: 14px;
-  font-weight: 500;
+  color: #d97706;
+  font-size: 13px;
+  font-weight: 600;
 }
 
+/* ── Star rating ──────────────────────────────────────────────── */
 .star-rating {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 8px;
 }
 
 .star {
   font-size: 32px;
-  color: #ddd;
+  color: #d1d5db;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.star.interactive {
-  cursor: pointer;
-}
-
-.star.interactive:hover {
-  transform: scale(1.1);
-}
-
-.star.full {
-  color: #FFD700;
-}
-
-.star.half {
-  color: #FFD700;
-  opacity: 0.7;
-}
-
-.star.empty {
-  color: #ddd;
-}
+.star.interactive { cursor: pointer; }
+.star.interactive:hover { transform: scale(1.15); }
+.star.full  { color: #f59e0b; }
+.star.half  { color: #f59e0b; opacity: 0.7; }
+.star.empty { color: #d1d5db; }
 
 .rating-hint {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 13px;
+  color: #64748b;
   font-style: italic;
 }
 
+/* ── Textarea ─────────────────────────────────────────────────── */
 .feedback-textarea {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 13px 16px;
+  border: 1.5px solid rgba(226,232,240,0.8);
+  border-radius: var(--cr-radius-sm);
+  font-size: 14px;
   font-family: inherit;
+  background: rgba(248,250,252,0.8);
+  color: #0f172a;
   resize: vertical;
-  min-height: 100px;
-  transition: border-color 0.3s ease;
+  min-height: 110px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--cr-transition), box-shadow var(--cr-transition), background var(--cr-transition);
+  line-height: 1.6;
+}
+
+.feedback-textarea::placeholder { color: #94a3b8; }
+
+.feedback-textarea:hover {
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(255,255,255,0.9);
 }
 
 .feedback-textarea:focus {
-  outline: none;
-  border-color: #2563eb;
+  border-color: #4f46e5;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
 }
 
+/* ── Submit button ────────────────────────────────────────────── */
 .submit-rating-btn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--cr-radius-sm);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+  transition: transform var(--cr-transition), box-shadow var(--cr-transition);
 }
 
 .submit-rating-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(79,70,229,0.48);
 }
 
-.submit-rating-btn:active {
-  transform: translateY(0);
-}
+.submit-rating-btn:active { transform: translateY(0); }
 
-/* All Consultants Section */
+/* ── All Consultants Section ──────────────────────────────────── */
 .all-consultants-section h2 {
   text-align: center;
-  color: #1e293b;
+  color: #0f172a;
   margin-bottom: 30px;
-  font-size: 1.8rem;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 800;
 }
 
 .consultants-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
 }
 
 .consultant-card {
-  background: white;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--cr-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--cr-radius);
+  padding: 28px;
+  border: 1px solid var(--cr-border);
+  box-shadow: 0 8px 28px rgba(79,70,229,0.08);
+  transition: transform var(--cr-transition), box-shadow var(--cr-transition), border-color var(--cr-transition);
 }
 
 .consultant-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 48px rgba(79,70,229,0.16);
+  border-color: rgba(99,102,241,0.3);
 }
 
-.consultant-header {
-  margin-bottom: 20px;
-}
+.consultant-header { margin-bottom: 18px; }
 
 .consultant-header h3 {
-  color: #1e293b;
-  margin: 0 0 8px 0;
-  font-size: 1.3rem;
-  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+  font-weight: 800;
 }
 
 .consultant-title {
-  color: #2563eb;
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 1px;
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 
-.consultant-details {
-  margin-bottom: 20px;
-}
+.consultant-details { margin-bottom: 18px; }
 
 .faculty {
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: #1e293b;
   margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .expertise {
-  color: #4b5563;
-  line-height: 1.6;
+  color: #475569;
+  line-height: 1.65;
   margin-bottom: 12px;
   font-size: 14px;
+  padding: 10px 14px;
+  background: rgba(238,242,255,0.6);
+  border-radius: 10px;
+  border-left: 3px solid rgba(99,102,241,0.3);
 }
 
 .room, .email {
-  color: #6b7280;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 13px;
   margin-bottom: 4px;
 }
 
 .rating-section {
-  margin-bottom: 20px;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 8px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  background: rgba(248,250,252,0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(226,232,240,0.6);
 }
 
 .rating-stats {
@@ -347,37 +428,37 @@
 }
 
 .total-ratings, .total-bookings {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
 }
 
-.consultant-actions {
-  margin-top: 20px;
-}
+.consultant-actions { margin-top: 18px; }
 
 .rate-btn {
   width: 100%;
-  background: #2563eb;
-  color: white;
-  border: none;
   padding: 12px 20px;
-  border-radius: 8px;
+  border: none;
+  border-radius: var(--cr-radius-sm);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.28);
+  transition: transform var(--cr-transition), box-shadow var(--cr-transition);
 }
 
 .rate-btn:hover:not(:disabled) {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(79,70,229,0.4);
 }
 
 .rate-btn:disabled {
-  background: #9ca3af;
+  background: linear-gradient(135deg, #94a3b8, #64748b);
   cursor: not-allowed;
+  box-shadow: none;
   transform: none;
 }
 
@@ -385,59 +466,33 @@
   text-align: center;
   padding: 60px 20px;
   font-size: 18px;
-  color: #6b7280;
+  color: #64748b;
 }
 
-/* Responsive design */
+/* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .consultant-rating-container {
-    padding: 20px 15px;
-  }
-  
-  .rating-header h1 {
-    font-size: 2rem;
-  }
-  
-  .rating-form-section {
-    padding: 25px;
-  }
-  
-  .top-consultants-grid,
-  .consultants-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .star {
-    font-size: 28px;
-  }
-  
-  .stats {
-    flex-direction: column;
-    gap: 8px;
-  }
+  .consultant-rating-container { padding: 24px 16px 48px; }
+  .rating-header h1 { font-size: 24px; }
+  .rating-form-section { padding: 28px 22px; border-radius: 22px; }
+  .top-consultants-grid, .consultants-grid { grid-template-columns: 1fr; }
+  .star { font-size: 28px; }
+  .stats { flex-direction: column; gap: 8px; }
 }
 
-/* Animation */
+/* ── Animations ───────────────────────────────────────────────── */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .top-consultant-card,
 .consultant-card {
-  animation: fadeInUp 0.6s ease-out backwards;
+  animation: fadeInUp 0.5s ease-out backwards;
 }
 
 .top-consultant-card:nth-child(1) { animation-delay: 0.1s; }
 .top-consultant-card:nth-child(2) { animation-delay: 0.2s; }
 .top-consultant-card:nth-child(3) { animation-delay: 0.3s; }
-
 .consultant-card:nth-child(1) { animation-delay: 0.1s; }
 .consultant-card:nth-child(2) { animation-delay: 0.2s; }
 .consultant-card:nth-child(3) { animation-delay: 0.3s; }
