@@ -1,12 +1,12 @@
-/* Extra styles for Resources admin sections */
+/* ── Resources Admin — Glassmorphism overrides ────────────────── */
 
 .ra-section-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e1b4b;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e5e7eb;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(99,102,241,0.12);
 }
 
 /* ADD ROW */
@@ -14,97 +14,136 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 /* INPUTS */
 .ra-input {
-  padding: 9px 13px;
-  border-radius: 8px;
-  border: 1.5px solid #e5e7eb;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(226,232,240,0.8);
   font-size: 14px;
   font-family: 'Inter', sans-serif;
   outline: none;
-  background: #f9fafb;
-  color: #111827;
-  transition: border-color 0.2s;
+  background: rgba(248,250,252,0.8);
+  color: #0f172a;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.ra-input:focus { border-color: #4f46e5; background: #fff; }
+.ra-input::placeholder { color: #94a3b8; }
+
+.ra-input:hover {
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(255,255,255,0.9);
+}
+
+.ra-input:focus {
+  border-color: #4f46e5;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
+}
 
 .ra-input-sm {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(226,232,240,0.8);
   font-size: 13px;
+  font-family: 'Inter', sans-serif;
   outline: none;
+  background: rgba(248,250,252,0.8);
+  color: #0f172a;
   width: 140px;
+  transition: border-color 0.22s ease;
 }
+
+.ra-input-sm:focus { border-color: #4f46e5; }
 
 /* FORM GRID */
 .ra-form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px);
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow: 0 8px 28px rgba(79,70,229,0.08);
 }
 
 /* DANGER / SUCCESS BUTTONS */
-.ra-btn-danger  { background: #ef4444 !important; }
-.ra-btn-success { background: #10b981 !important; }
+.ra-btn-danger  { background: linear-gradient(135deg, #ef4444, #dc2626) !important; box-shadow: 0 3px 10px rgba(239,68,68,0.25) !important; }
+.ra-btn-success { background: linear-gradient(135deg, #10b981, #059669) !important; box-shadow: 0 3px 10px rgba(16,185,129,0.25) !important; }
 
 /* EMPTY STATE */
 .ra-empty {
-  padding: 40px;
+  padding: 48px 24px;
   text-align: center;
-  color: #6b7280;
+  color: #64748b;
   font-size: 15px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 18px;
+  border: 1px dashed rgba(99,102,241,0.2);
 }
 
 /* SIDEBAR DIVIDER */
 .ra-sidebar-divider {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #9ca3af;
-  padding: 18px 15px 6px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.38);
+  padding: 16px 14px 7px;
   pointer-events: none;
 }
 
 /* ACTIVE SIDEBAR LINK */
 .ra-sidebar-active {
-  background: #eef2ff !important;
-  color: #4f46e5 !important;
+  background: rgba(255,255,255,0.18) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
 }
 
 /* ANALYTICS */
 .ra-analytics-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .ra-chart-wrap {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-  padding: 28px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.85);
+  border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(79,70,229,0.08);
+  padding: 26px;
   margin-top: 4px;
 }
 
 /* UPLOAD FORM */
 .ra-upload-form {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.85);
+  border-radius: 24px;
+  box-shadow: 0 12px 36px rgba(79,70,229,0.1);
   padding: 28px;
-  max-width: 560px;
+  max-width: 520px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ra-upload-form::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #06b6d4);
+  border-radius: 0;
 }

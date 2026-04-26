@@ -1,49 +1,78 @@
+/* ── Consultant Booking — Glassmorphism ───────────────────────── */
 .consultant-booking-container {
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 40px 20px;
-  font-family: 'Inter', system-ui, sans-serif;
+  padding: 48px 24px 64px;
+  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.1) 0%, transparent 55%),
+    linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #ecfeff 100%);
+  background-attachment: fixed;
 }
 
-.booking-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
+.booking-header { text-align: center; margin-bottom: 36px; }
 
 .back-btn {
-  background: #f3f4f6;
-  color: #374151;
-  border: 2px solid #e5e7eb;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 20px;
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(226,232,240,0.8);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
 }
 
 .back-btn:hover {
-  background: #e5e7eb;
-  transform: translateY(-1px);
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(238,242,255,0.9);
+  transform: translateX(-3px);
 }
 
 .booking-header h1 {
-  color: #1e293b;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 900;
+  background: linear-gradient(135deg, #0f172a 0%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
+/* ── Consultant info card ─────────────────────────────────────── */
 .consultant-info-card {
-  background: white;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  margin-bottom: 40px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 28px;
+  padding: 32px;
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.03),
+    0 20px 56px rgba(79,70,229,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  margin-bottom: 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.consultant-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #06b6d4);
+  border-radius: 0;
 }
 
 .consultant-header {
@@ -56,17 +85,17 @@
 }
 
 .consultant-basic h2 {
-  color: #1e293b;
-  margin: 0 0 8px 0;
-  font-size: 1.8rem;
-  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+  font-weight: 800;
 }
 
 .consultant-title {
-  color: #2563eb;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 1px;
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
   display: block;
   margin-bottom: 12px;
@@ -78,256 +107,166 @@
   gap: 8px;
 }
 
-.star {
-  font-size: 16px;
-  color: #ddd;
-}
+.star { font-size: 16px; color: #d1d5db; }
+.star.full  { color: #f59e0b; }
+.star.half  { color: #f59e0b; opacity: 0.7; }
+.star.empty { color: #d1d5db; }
 
-.star.full {
-  color: #FFD700;
-}
+.rating-text { font-size: 14px; color: #64748b; font-weight: 600; }
 
-.star.half {
-  color: #FFD700;
-  opacity: 0.7;
-}
-
-.star.empty {
-  color: #ddd;
-}
-
-.rating-text {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 600;
-}
-
-.consultant-stats {
-  display: flex;
-  gap: 20px;
-}
+.consultant-stats { display: flex; gap: 16px; }
 
 .stat-item {
   text-align: center;
-  background: #f8fafc;
+  background: rgba(238,242,255,0.7);
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 14px;
   min-width: 100px;
+  border: 1px solid rgba(199,210,254,0.5);
 }
 
 .stat-number {
   display: block;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #2563eb;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #4f46e5;
   margin-bottom: 4px;
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
-.consultant-details {
-  display: grid;
-  gap: 12px;
-}
+.consultant-details { display: grid; gap: 12px; }
 
-.faculty {
-  font-weight: 600;
-  color: #374151;
-  font-size: 16px;
-}
+.faculty { font-weight: 700; color: #1e293b; font-size: 15px; }
 
 .expertise {
-  color: #4b5563;
-  line-height: 1.6;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border-left: 4px solid #2563eb;
-}
-
-.room, .email {
-  color: #6b7280;
+  color: #475569;
+  line-height: 1.65;
+  padding: 12px 16px;
+  background: rgba(238,242,255,0.6);
+  border-radius: 12px;
+  border-left: 3px solid rgba(99,102,241,0.4);
   font-size: 14px;
 }
 
-.date-selection {
-  margin-bottom: 40px;
-}
+.room, .email { color: #64748b; font-size: 14px; }
+
+/* ── Date selection ───────────────────────────────────────────── */
+.date-selection { margin-bottom: 36px; }
 
 .date-selection h3 {
-  color: #1e293b;
+  color: #0f172a;
   margin-bottom: 8px;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 800;
 }
 
 .date-selection p {
   color: #64748b;
   margin-bottom: 24px;
-  font-size: 16px;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .dates-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .date-card {
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px 16px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(226,232,240,0.8);
+  border-radius: 16px;
+  padding: 20px 14px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .date-card:hover {
-  border-color: #2563eb;
-  background: #f0f9ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  border-color: rgba(99,102,241,0.5);
+  background: rgba(238,242,255,0.9);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(79,70,229,0.15);
 }
 
 .date-card.selected {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-color: transparent;
   color: white;
+  box-shadow: 0 10px 28px rgba(79,70,229,0.35);
 }
 
 .date-day {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   opacity: 0.7;
 }
 
 .date-number {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
 }
 
 .date-month {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   opacity: 0.8;
 }
 
 .date-card.selected .date-day,
 .date-card.selected .date-number,
-.date-card.selected .date-month {
-  opacity: 1;
-}
+.date-card.selected .date-month { opacity: 1; }
 
-.booking-info {
-  margin-top: 40px;
-}
+/* ── Booking info ─────────────────────────────────────────────── */
+.booking-info { margin-top: 36px; }
 
 .info-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: rgba(248,250,252,0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226,232,240,0.7);
+  border-radius: 16px;
   padding: 24px;
 }
 
-.info-card h4 {
-  color: #1e293b;
-  margin: 0 0 16px 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
+.info-card h4 { color: #0f172a; margin: 0 0 14px; font-size: 1rem; font-weight: 800; }
+.info-card ul { margin: 0; padding-left: 20px; color: #475569; line-height: 1.85; }
+.info-card li { margin-bottom: 8px; font-size: 14px; }
 
-.info-card ul {
-  margin: 0;
-  padding-left: 20px;
-  color: #4b5563;
-  line-height: 1.8;
-}
+.loading, .error { text-align: center; padding: 60px 20px; font-size: 18px; color: #64748b; }
+.error { color: #ef4444; }
 
-.info-card li {
-  margin-bottom: 8px;
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 60px 20px;
-  font-size: 18px;
-  color: #6b7280;
-}
-
-.error {
-  color: #ef4444;
-}
-
-/* Responsive design */
 @media (max-width: 768px) {
-  .consultant-booking-container {
-    padding: 20px 15px;
-  }
-  
-  .booking-header h1 {
-    font-size: 2rem;
-  }
-  
-  .consultant-info-card {
-    padding: 20px;
-  }
-  
-  .consultant-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .consultant-stats {
-    width: 100%;
-    justify-content: flex-start;
-  }
-  
-  .dates-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 12px;
-  }
-  
-  .date-card {
-    padding: 16px 12px;
-  }
-  
-  .date-number {
-    font-size: 20px;
-  }
+  .consultant-booking-container { padding: 24px 16px 48px; }
+  .booking-header h1 { font-size: 22px; }
+  .consultant-info-card { padding: 22px; border-radius: 22px; }
+  .consultant-header { flex-direction: column; align-items: flex-start; }
+  .consultant-stats { width: 100%; justify-content: flex-start; }
+  .dates-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+  .date-card { padding: 16px 10px; }
+  .date-number { font-size: 20px; }
 }
 
-/* Animation */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.consultant-info-card,
-.date-selection,
-.booking-info {
-  animation: fadeInUp 0.6s ease-out backwards;
-}
-
-.consultant-info-card { animation-delay: 0.1s; }
-.date-selection { animation-delay: 0.2s; }
-.booking-info { animation-delay: 0.3s; }
+.consultant-info-card { animation: fadeInUp 0.5s ease-out 0.1s backwards; }
+.date-selection       { animation: fadeInUp 0.5s ease-out 0.2s backwards; }
+.booking-info         { animation: fadeInUp 0.5s ease-out 0.3s backwards; }
